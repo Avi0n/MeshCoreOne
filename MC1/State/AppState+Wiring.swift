@@ -169,21 +169,35 @@ extension AppState {
 
     let device = snapshot.device
     let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
-    let shouldReadUnread = liveActivityManager.hasActiveActivity || liveActivityManager.isEnabled
-    let unreadCount = shouldReadUnread ? await totalUnreadCount(from: services) : 0
 
     guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
     await liveActivityManager.handleConnectionReady(
       device: device,
       ocvArray: ocvArray,
-      unreadCount: unreadCount,
+      unreadCount: { [weak self] in
+        await self?.totalUnreadCount(from: services) ?? 0
+      },
       isCurrent: { [weak self] in
         guard let self else { return false }
         return context.isCurrent(connectionManager)
       }
     )
     guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
-    syncRxLogLiveActivitySubscription(for: snapshot)
+    reconcileLiveActivityMonitoring()
+  }
+
+  func reconcileLiveActivityMonitoring() {
+    if liveActivityManager.hasActiveActivity {
+      if let snapshot = connectionManager.currentConnection,
+         connectionManager.isCurrent(snapshot) {
+        syncRxLogLiveActivitySubscription(for: snapshot)
+      }
+    } else {
+      cancelRxLogLiveActivitySubscription()
+      if !isInForeground {
+        batteryMonitor.stop()
+      }
+    }
   }
 
   /// Subscribes to `RxLogService.entryStream()` only while a Live Activity is active,
@@ -207,11 +221,9 @@ extension AppState {
         guard let self, !Task.isCancelled, context.isCurrent(connectionManager) else { return }
         await liveActivityManager.handlePacketReceived()
         guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
-        if liveActivityManager.hasActiveActivity {
-          await batteryMonitor.fetchBatteryIfOverdue(
-            services: services, device: snapshot.device
-          )
-        }
+        await batteryMonitor.fetchBatteryIfOverdue(
+          services: services, device: snapshot.device
+        )
       }
     }
   }
@@ -240,12 +252,13 @@ extension AppState {
     let context = ConnectionCallbackContext(snapshot)
 
     let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
-    let unreadCount = await totalUnreadCount(from: services)
     guard connectionManager.isCurrent(snapshot) else { return }
     await liveActivityManager.handleConnectionReady(
       device: device,
       ocvArray: ocvArray,
-      unreadCount: unreadCount,
+      unreadCount: { [weak self] in
+        await self?.totalUnreadCount(from: services) ?? 0
+      },
       isCurrent: { [weak self] in
         guard let self else { return false }
         return context.isCurrent(connectionManager)

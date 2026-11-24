@@ -83,10 +83,23 @@ struct MessageServiceACKTests {
     #expect(drained)
     #expect(await service.isAckExpiryCheckingActive)
 
+    let secondID = UUID()
+    await service.trackPendingAck(
+      messageID: secondID,
+      contactID: UUID(),
+      ackCode: Data([5, 6, 7, 8]),
+      timeout: 5.0
+    )
+    #expect(await service.hasRunningAckCheckTaskForTesting)
+
+    await service.discardTrackedAck(messageID: secondID)
+    #expect(await !service.hasRunningAckCheckTaskForTesting)
+    #expect(await service.isAckExpiryCheckingActive)
+
     await service.trackPendingAck(
       messageID: UUID(),
       contactID: UUID(),
-      ackCode: Data([5, 6, 7, 8]),
+      ackCode: Data([9, 10, 11, 12]),
       timeout: 5.0
     )
     #expect(await service.hasRunningAckCheckTaskForTesting)

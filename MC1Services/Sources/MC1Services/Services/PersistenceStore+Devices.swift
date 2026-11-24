@@ -194,7 +194,7 @@ public extension PersistenceStore {
   /// Does NOT delete the Device record itself.
   func deleteDeviceData(id: UUID) throws {
     guard let radioID = try fetchDevice(id: id)?.radioID else { return }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       try stageDeleteAllDeviceData(radioID: radioID)
       try modelContext.save()
@@ -273,7 +273,7 @@ public extension PersistenceStore {
   /// Use for factory reset and explicit "delete all data" user action.
   func deleteDeviceAndData(id: UUID) throws {
     guard let radioID = try fetchDevice(id: id)?.radioID else { return }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       try stageDeleteAllDeviceData(radioID: radioID)
       let predicate = #Predicate<Device> { $0.id == id }
@@ -315,7 +315,7 @@ public extension PersistenceStore {
   func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
     guard let current = try identityDevice(id: currentDeviceID),
           try !isRadioErasePending(current.radioID) else { return nil }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       guard let adoption = try stageGhostIdentity(current: current, newPublicKey: newPublicKey) else { return nil }
       try saveIdentityChanges(retiring: adoption.abandonedRadioID)
@@ -335,7 +335,7 @@ public extension PersistenceStore {
           !current.connectionMethods.isEmpty,
           try !isRadioErasePending(current.radioID) else { return nil }
     guard let selfInfo else { return DeviceDTO(from: current) }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       current.apply(DeviceDTO(from: current).updating(from: selfInfo))
       let adoption = try stageGhostIdentity(current: current, newPublicKey: selfInfo.publicKey)

@@ -63,7 +63,7 @@ extension PersistenceStore {
       }
     }
 
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let recovered = !session.isConnected
     let message = RoomMessage(dto: post)
     message.authorName = displayName
@@ -83,7 +83,7 @@ extension PersistenceStore {
 
   private func recoverRoom(_ room: RemoteNodeSession) throws -> Bool {
     guard !room.isConnected else { return false }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     room.isConnected = true
     do {
       try modelContext.save()

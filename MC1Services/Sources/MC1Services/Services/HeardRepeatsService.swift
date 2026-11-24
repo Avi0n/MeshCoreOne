@@ -49,16 +49,6 @@ public actor HeardRepeatsService {
     logger.info("Configured with radioID: \(radioID)")
   }
 
-  /// Checks if a repeat has already been recorded for this RX log entry.
-  private func isDuplicateRepeat(_ entryID: UUID) async -> Bool {
-    do {
-      return try await dataStore.messageRepeatExists(rxLogEntryID: entryID)
-    } catch {
-      logger.error("Failed to check for existing repeat: \(error.localizedDescription)")
-      return true // Assume duplicate on error to prevent potential duplicates
-    }
-  }
-
   /// Process an RX log entry to check if it's a repeat of a sent message.
   ///
   /// Called by RxLogService for each new entry. Only processes successfully
@@ -68,7 +58,7 @@ public actor HeardRepeatsService {
   /// - Parameter entry: The RX log entry to process
   /// - Returns: The updated heardRepeats count if a match was found, nil otherwise
   @discardableResult
-  public func processForRepeats(_ entry: RxLogEntryDTO, isNewEntry: Bool = false) async -> Int? {
+  public func processForRepeats(_ entry: RxLogEntryDTO) async -> Int? {
     // Only process successfully decrypted channel messages
     guard entry.payloadType == .groupText, entry.decryptStatus == .success, let decodedText = entry.decodedText, let channelIndex = entry.channelIndex, let senderTimestamp = entry.senderTimestamp, let radioID else { return nil }
 
@@ -76,12 +66,6 @@ public actor HeardRepeatsService {
     // join key only for incoming extras (`DeduplicationKey`), not sent echoes.
     guard let (senderName, messageText) = ChannelMessageFormat.parse(decodedText) else {
       logger.info("Failed to parse channel message text: \(decodedText.prefix(50))")
-      return nil
-    }
-
-    // Live RX entries arrive with a freshly minted UUID, so only reprocessed entries need duplicate lookup.
-    if !isNewEntry, await isDuplicateRepeat(entry.id) {
-      logger.info("Repeat already recorded for RX entry: \(entry.id)")
       return nil
     }
 

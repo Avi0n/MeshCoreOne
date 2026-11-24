@@ -81,7 +81,7 @@ public extension PersistenceStore {
       throw PersistenceStoreError.invalidData
     }
     // Commit buffered RX log entries so a failed patch cannot roll them back.
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     return contact
   }
 

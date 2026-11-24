@@ -5,7 +5,7 @@ public extension PersistenceStore {
   func savePendingAcknowledgement(
     _ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent: Bool = true
   ) async throws -> Bool {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let messageID = dto.messageID
     let messagePredicate = #Predicate<Message> { $0.id == messageID }
     guard let message = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).first,
@@ -61,7 +61,7 @@ public extension PersistenceStore {
   func resolvePendingAcknowledgement(
     id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?
   ) async throws -> Bool {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = id
     let predicate = #Predicate<PendingSend> { $0.id == targetID }
     guard let row = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first,

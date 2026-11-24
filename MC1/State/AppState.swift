@@ -362,20 +362,24 @@ final class AppState {
   @ObservationIgnored var rxLogEventsSubscriptionGeneration: UUID?
   @ObservationIgnored private var reportedScenePhase: ScenePhase?
 
-  var isInForeground: Bool {
+  var effectiveScenePhase: ScenePhase {
     #if DEBUG
-      if let isInForegroundOverride { return isInForegroundOverride }
+      if let scenePhaseOverride { return scenePhaseOverride }
     #endif
-    let sceneNotBackground = reportedScenePhase.map { $0 != .background } ?? true
-    return sceneNotBackground && UIApplication.shared.applicationState != .background
+    let appPhase: ScenePhase = switch UIApplication.shared.applicationState {
+    case .background: .background
+    case .inactive: .inactive
+    case .active: .active
+    @unknown default: .active
+    }
+    guard let reportedScenePhase else { return appPhase }
+    if reportedScenePhase == .background || appPhase == .background { return .background }
+    if reportedScenePhase == .inactive || appPhase == .inactive { return .inactive }
+    return .active
   }
 
-  var isForegroundActive: Bool {
-    #if DEBUG
-      if let isInForegroundOverride { return isInForegroundOverride }
-    #endif
-    let sceneActive = reportedScenePhase.map { $0 == .active } ?? true
-    return sceneActive && UIApplication.shared.applicationState == .active
+  var isInForeground: Bool {
+    effectiveScenePhase != .background
   }
 
   func updateScenePhase(_ phase: ScenePhase) {
@@ -384,7 +388,7 @@ final class AppState {
 
   #if DEBUG
     /// Optional test-only hooks for deterministic lifecycle ordering tests.
-    var isInForegroundOverride: Bool?
+    var scenePhaseOverride: ScenePhase?
     var bleEnterBackgroundOverride: (@MainActor () async -> Void)?
     var bleBecomeActiveOverride: (@MainActor () async -> Void)?
     /// Parks power-off cleanup at the Live Activity await. Nil uses the real activity end.
@@ -530,25 +534,11 @@ final class AppState {
       guard let self, self.connectionState.isConnected else { return nil }
       return self.connectedDevice?.radioID
     }
-    liveActivityManager.isInForegroundProvider = { [weak self] in
-      self?.isInForeground ?? false
+    liveActivityManager.scenePhaseProvider = { [weak self] in
+      self?.effectiveScenePhase ?? .background
     }
-    liveActivityManager.isForegroundActiveProvider = { [weak self] in
-      self?.isForegroundActive ?? false
-    }
-    liveActivityManager.onActivityStateChanged = { [weak self] isActive in
-      guard let self else { return }
-      if isActive {
-        if let snapshot = connectionManager.currentConnection,
-           connectionManager.isCurrent(snapshot) {
-          syncRxLogLiveActivitySubscription(for: snapshot)
-        }
-      } else {
-        cancelRxLogLiveActivitySubscription()
-        if !isInForeground {
-          batteryMonitor.stop()
-        }
-      }
+    liveActivityManager.onActivityStateChanged = { [weak self] _ in
+      self?.reconcileLiveActivityMonitoring()
     }
     batteryMonitor.shouldRunRefreshLoopProvider = { [weak self] in
       guard let self else { return false }

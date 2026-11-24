@@ -1,11 +1,15 @@
 import Foundation
 
-/// Protocol for checking application foreground/background state.
-///
-/// Injected into services to avoid UIKit dependency in the service layer.
-/// Property is async to support cross-actor access from non-MainActor contexts.
+/// Bridges app foreground state and background task assertions into `MC1Services` without importing UIKit.
 public protocol AppStateProvider: Sendable {
-  /// Returns true if the app is currently in the foreground (active state).
-  /// Async to allow MainActor-isolated implementations to be called from other actors.
   var isInForeground: Bool { get async }
+
+  /// Holds an OS background task assertion around `operation` when supported by the platform.
+  func runBackgroundTask(named name: String, operation: @Sendable () async -> Void) async
+}
+
+public extension AppStateProvider {
+  func runBackgroundTask(named _: String, operation: @Sendable () async -> Void) async {
+    await operation()
+  }
 }

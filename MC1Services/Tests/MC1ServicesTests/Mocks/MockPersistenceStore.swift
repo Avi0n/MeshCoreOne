@@ -1854,10 +1854,6 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     [] // Stub
   }
 
-  public func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool {
-    false // Stub
-  }
-
   public func incrementMessageHeardRepeats(id: UUID) async throws -> Int {
     0 // Stub
   }
@@ -2356,12 +2352,20 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   public private(set) var batchUpsertCallCount = 0
+  private var onBatchUpsertDiscoveredNodes: (@Sendable () async -> Void)?
+
+  public func setOnBatchUpsertDiscoveredNodes(_ hook: (@Sendable () async -> Void)?) {
+    onBatchUpsertDiscoveredNodes = hook
+  }
 
   public func batchUpsertDiscoveredNodes(
     radioID: UUID,
     entries: [(frame: ContactFrame, receivedAt: Date)]
   ) async throws -> [(node: DiscoveredNodeDTO, isNew: Bool)] {
     batchUpsertCallCount += 1
+    if let onBatchUpsertDiscoveredNodes {
+      await onBatchUpsertDiscoveredNodes()
+    }
     var results: [(node: DiscoveredNodeDTO, isNew: Bool)] = []
     results.reserveCapacity(entries.count)
     for entry in entries {

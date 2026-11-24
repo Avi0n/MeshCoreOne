@@ -67,6 +67,15 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
 
   var receivePartitions: [UUID: ReceiveScope.Lifetime] = [:]
   var pendingEraseRadioIDs: Set<UUID>?
+  private let appStateProviderLock = OSAllocatedUnfairLock<(any AppStateProvider)?>(initialState: nil)
+
+  public nonisolated func setAppStateProvider(_ provider: (any AppStateProvider)?) {
+    appStateProviderLock.withLock { $0 = provider }
+  }
+
+  func currentAppStateProvider() -> (any AppStateProvider)? {
+    appStateProviderLock.withLock { $0 }
+  }
 
   public static let recentlyBlockedRetentionLimit = 100
   nonisolated let recentlyBlockedChanges = EventBroadcaster<Void>()
@@ -74,19 +83,15 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
   var unsavedRxLogInsertCount = 0
   var hasPendingDeferredStoreChanges = false
-  var isRxLogBackgroundFlushMode = false
-  var rxLogFlushTask: Task<Void, Never>?
+  var deferredCommitTask: Task<Void, Never>?
 
-  public func setRxLogBackgroundFlushMode(_ isBackground: Bool) {
-    isRxLogBackgroundFlushMode = isBackground
-    if !isBackground {
-      try? commitPendingRxLogEntries()
-    }
+  public func flushDeferredWrites() async throws {
+    try commitDeferredWrites()
   }
 
-  func commitPendingRxLogEntries() throws {
-    rxLogFlushTask?.cancel()
-    rxLogFlushTask = nil
+  func commitDeferredWrites() throws {
+    deferredCommitTask?.cancel()
+    deferredCommitTask = nil
     let hadRxLogInserts = unsavedRxLogInsertCount > 0
     guard hadRxLogInserts || hasPendingDeferredStoreChanges else { return }
     var prunedRadioIDs: [UUID] = []
@@ -294,34 +299,11 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     from frame: ContactFrame,
     receivedAt: Date = Date()
   ) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
-    let targetRadioID = radioID
-    let publicKey = frame.publicKey
-    let predicate = #Predicate<DiscoveredNode> { node in
-      node.radioID == targetRadioID && node.publicKey == publicKey
-    }
-    var descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
-    descriptor.fetchLimit = 1
-    let existing = try modelContext.fetch(descriptor)
-
-    let node: DiscoveredNode
-    let isNew: Bool
-    if let existingNode = existing.first {
-      applyDiscoveredNodeFrame(frame, receivedAt: receivedAt, to: existingNode)
-      node = existingNode
-      isNew = false
-    } else {
-      node = makeDiscoveredNode(radioID: radioID, from: frame, receivedAt: receivedAt)
-      modelContext.insert(node)
-      isNew = true
-
-      try enforceDiscoveredNodeCap(radioID: radioID)
-    }
-
-    applyPendingInboundHop(to: node)
-
-    try modelContext.save()
-
-    return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
+    let results = try batchUpsertDiscoveredNodes(
+      radioID: radioID,
+      entries: [(frame: frame, receivedAt: receivedAt)]
+    )
+    return results[0]
   }
 
   public func batchUpsertDiscoveredNodes(
@@ -433,7 +415,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     node.inboundHopCount = adopted.hopCount
     node.inboundHopAdvertTimestamp = adopted.advertTimestamp
     hasPendingDeferredStoreChanges = true
-    scheduleRxLogFlush()
+    scheduleDeferredCommit()
   }
 
   /// Stash an inbound hop count heard before its node row exists. Applies the same adopt rule

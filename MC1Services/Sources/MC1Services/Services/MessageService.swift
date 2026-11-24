@@ -56,9 +56,7 @@ public actor MessageService {
   /// can still mark the message delivered.
   var pendingAcks: [UUID: PendingAck] = [:] {
     didSet {
-      if !pendingAcks.isEmpty {
-        ensureAckCheckTaskIfNeeded()
-      }
+      syncAckCheckTask()
     }
   }
 

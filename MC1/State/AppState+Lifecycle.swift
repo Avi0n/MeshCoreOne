@@ -53,6 +53,7 @@ extension AppState {
 
   /// Called when app enters background
   func handleEnterBackground() {
+    updateScenePhase(.background)
     flushChatDrafts()
     chatPrewarmRefresher?.handleEnterBackground()
     logToolbarResumeProbe(source: "enterBackground")
@@ -60,11 +61,7 @@ extension AppState {
     activeRecoveryFallbackTask = nil
 
     liveActivityManager.handleEnterBackground()
-
-    // Keep battery polling alive when the live activity is visible on the lock screen
-    if !liveActivityManager.hasActiveActivity {
-      batteryMonitor.stop()
-    }
+    reconcileLiveActivityMonitoring()
 
     // Stop room keepalives to save battery/bandwidth
     Task {
@@ -77,10 +74,12 @@ extension AppState {
 
   /// Called when app returns to foreground
   func handleReturnToForeground() async {
+    updateScenePhase(.active)
     locationService.activateIfNeeded()
     logToolbarResumeProbe(source: "returnToForeground")
     await Task.yield()
     await DebugLogBuffer.shared?.flush()
+    try? await connectionManager.persistenceStore.flushDeferredWrites()
 
     // Update badge count from database
     await services?.notificationService.updateBadgeCount()

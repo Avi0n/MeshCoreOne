@@ -15,9 +15,6 @@ public protocol HeardRepeatPersisting: Actor {
   /// Fetch all repeats for a message
   func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO]
 
-  /// Check if a repeat exists for the given RX log entry
-  func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool
-
   /// Increment heard repeats count and return new count
   func incrementMessageHeardRepeats(id: UUID) async throws -> Int
 

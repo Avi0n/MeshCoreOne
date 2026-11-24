@@ -46,7 +46,7 @@ extension PersistenceStore {
       radioName: device.nodeName,
       isFactoryReset: isFactoryReset
     )
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       modelContext.insert(PendingRadioErase(target))
       #if DEBUG
@@ -64,7 +64,7 @@ extension PersistenceStore {
 
   func cancelRadioErase(radioID: UUID) throws {
     guard let target = try pendingRadioErase(radioID) else { return }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       modelContext.delete(target)
       try modelContext.save()
@@ -77,7 +77,7 @@ extension PersistenceStore {
 
   func completeRadioErase(radioID: UUID) throws {
     guard let target = try pendingRadioErase(radioID) else { return }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       try stageDeleteAllDeviceData(radioID: radioID)
       #if DEBUG

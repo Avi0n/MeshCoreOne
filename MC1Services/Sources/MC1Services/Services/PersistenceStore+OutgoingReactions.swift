@@ -24,7 +24,7 @@ public extension PersistenceStore {
       if try hasPendingSend(messageID: existing.id) { return nil }
     }
 
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       let pending: PendingSendDTO
       if let contactID = message.contactID {
@@ -54,7 +54,7 @@ public extension PersistenceStore {
   }
 
   func completeOutgoingReaction(messageID: UUID) async throws -> ReactionAdmission? {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let id = messageID
     let predicate = #Predicate<Message> { $0.id == id }
     guard let message = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first else { return nil }

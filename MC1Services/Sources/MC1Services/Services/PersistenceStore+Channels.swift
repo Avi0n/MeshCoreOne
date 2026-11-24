@@ -154,7 +154,7 @@ public extension PersistenceStore {
   /// channel occupying the slot, so the previous occupant's history is wiped.
   func saveChannel(radioID: UUID, from info: ChannelInfo) throws -> UUID {
     // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetRadioID = radioID
     let targetIndex = info.index
     let predicate = #Predicate<Channel> { channel in
@@ -194,7 +194,7 @@ public extension PersistenceStore {
     pruneBeyond maxChannels: UInt8?
   ) async throws -> [ChannelDTO] {
     // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetRadioID = radioID
     let predicate = #Predicate<Channel> { channel in
       channel.radioID == targetRadioID
@@ -266,7 +266,7 @@ public extension PersistenceStore {
   /// failed save rolls both back and a later channel at that slot starts empty.
   func deleteChannel(id: UUID) throws {
     // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = id
     let predicate = #Predicate<Channel> { channel in
       channel.id == targetID
@@ -286,7 +286,7 @@ public extension PersistenceStore {
   /// Reaction rows. A failed save rolls back so a later save cannot flush the staged deletes.
   func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) throws {
     // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       try _deleteMessagesForChannelWithoutSaving(radioID: radioID, channelIndex: channelIndex)
       #if DEBUG

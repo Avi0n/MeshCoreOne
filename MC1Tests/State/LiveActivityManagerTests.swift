@@ -2,6 +2,7 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 import MeshCore
+import SwiftUI
 import Testing
 
 @Suite("LiveActivityManager packet rate")
@@ -67,36 +68,32 @@ struct LiveActivityManagerTests {
     let foreground = LiveActivityManager.nextUpdateDelay(
       lastFlushDate: now.addingTimeInterval(-5),
       now: now,
-      updateInterval: LiveActivityManager.updateInterval,
       staleDate: now.addingTimeInterval(55),
-      staleRefreshLeadTime: LiveActivityManager.staleRefreshLeadTime
+      cadence: .foreground
     )
     #expect(foreground == 10)
 
     let background = LiveActivityManager.nextUpdateDelay(
       lastFlushDate: now.addingTimeInterval(-10),
       now: now,
-      updateInterval: LiveActivityManager.backgroundUpdateInterval,
       staleDate: now.addingTimeInterval(110),
-      staleRefreshLeadTime: LiveActivityManager.backgroundStaleRefreshLeadTime
+      cadence: .background
     )
     #expect(background == 50)
 
     let handoff = LiveActivityManager.nextUpdateDelay(
       lastFlushDate: now.addingTimeInterval(-15),
       now: now,
-      updateInterval: LiveActivityManager.backgroundUpdateInterval,
       staleDate: now.addingTimeInterval(45),
-      staleRefreshLeadTime: LiveActivityManager.backgroundStaleRefreshLeadTime
+      cadence: .background
     )
     #expect(handoff == 15)
 
     let insideLeadWindow = LiveActivityManager.nextUpdateDelay(
       lastFlushDate: now.addingTimeInterval(-35),
       now: now,
-      updateInterval: LiveActivityManager.backgroundUpdateInterval,
       staleDate: now.addingTimeInterval(25),
-      staleRefreshLeadTime: LiveActivityManager.backgroundStaleRefreshLeadTime
+      cadence: .background
     )
     #expect(insideLeadWindow == 0)
   }
@@ -104,10 +101,8 @@ struct LiveActivityManagerTests {
   @Test
   func `decay timer does not start without active activity or in background`() async {
     let manager = LiveActivityManager()
-    var isForeground = false
-    var isForegroundActive = false
-    manager.isInForegroundProvider = { isForeground }
-    manager.isForegroundActiveProvider = { isForegroundActive }
+    var phase: ScenePhase = .background
+    manager.scenePhaseProvider = { phase }
 
     let device = DeviceDTO(
       from: Device(
@@ -117,20 +112,29 @@ struct LiveActivityManagerTests {
       )
     )
 
-    await manager.handleConnectionReady(device: device, ocvArray: [], unreadCount: 0, isCurrent: { true })
+    var unreadLookups = 0
+    await manager.handleConnectionReady(
+      device: device,
+      ocvArray: [],
+      unreadCount: {
+        unreadLookups += 1
+        return 0
+      },
+      isCurrent: { true }
+    )
     #expect(!manager.hasActiveActivity)
     #expect(!manager.isDecayTimerActiveForTesting)
+    #expect(unreadLookups == 0)
 
     await manager.handlePacketReceived()
     #expect(!manager.isDecayTimerActiveForTesting)
 
-    isForeground = true
+    phase = .active
     manager.handleReturnToForeground()
     await manager.handlePacketReceived()
     #expect(!manager.isDecayTimerActiveForTesting)
 
-    isForeground = false
-    isForegroundActive = false
+    phase = .background
     manager.handleEnterBackground()
     #expect(!manager.isDecayTimerActiveForTesting)
   }

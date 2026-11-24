@@ -409,7 +409,7 @@ public extension PersistenceStore {
 
   /// Update message status
   func updateMessageStatus(id: UUID, status: MessageStatus) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = id
     let predicate = #Predicate<Message> { message in
       message.id == targetID
@@ -475,7 +475,7 @@ public extension PersistenceStore {
   /// row, so it can never resurrect a row the expiry checker already failed or
   /// downgrade a delivered row. Returns `true` when the row moved to `.sent`.
   func clearRetryingToSent(id: UUID) throws -> Bool {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = id
     let predicate = #Predicate<Message> { message in
       message.id == targetID
@@ -658,7 +658,7 @@ public extension PersistenceStore {
   }
 
   func prepareChannelMessageResend(id: UUID, timestamp: UInt32) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     guard let message = try fetchMessageModel(id: id) else {
       throw PersistenceStoreError.messageNotFound
     }
@@ -1022,7 +1022,7 @@ public extension PersistenceStore {
   // MARK: - Reactions
 
   func admitReaction(_ dto: ReactionDTO) throws -> ReactionAdmission? {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       guard let admission = try admitReactionWithoutSaving(dto) else { return nil }
       try modelContext.save()

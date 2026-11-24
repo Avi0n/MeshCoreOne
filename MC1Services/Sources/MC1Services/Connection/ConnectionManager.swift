@@ -139,7 +139,11 @@ public final class ConnectionManager {
 
   /// Provider for app foreground/background state detection.
   /// Installed by `AppState` during initialization.
-  public var appStateProvider: AppStateProvider?
+  public var appStateProvider: AppStateProvider? {
+    didSet {
+      persistenceStore.setAppStateProvider(appStateProvider)
+    }
+  }
 
   /// Number of devices registered with the system pairing registry (for troubleshooting UI).
   /// iOS reports AccessorySetupKit accessories; macOS reports 0 (no system registry).

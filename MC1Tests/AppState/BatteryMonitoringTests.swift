@@ -66,7 +66,7 @@ struct BatteryMonitoringTests {
   }
 
   @Test
-  func `appState gates battery refresh loop on foreground override`() {
+  func `appState gates battery refresh loop on scene phase`() {
     let appState = AppState()
     defer { appState.shutdown() }
     let radioID = UUID()
@@ -82,11 +82,11 @@ struct BatteryMonitoringTests {
     appState.connectionManager.persistConnection(deviceID: device.id, radioID: radioID, deviceName: "ForegroundRadio")
     appState.connectionManager.setTestState(services: services, session: session, connectedDevice: device)
 
-    appState.isInForegroundOverride = false
+    appState.scenePhaseOverride = .background
     appState.batteryMonitor.startRefreshLoop(services: services, device: device)
     #expect(!appState.batteryMonitor.isRefreshLoopActiveForTesting)
 
-    appState.isInForegroundOverride = true
+    appState.scenePhaseOverride = .active
     appState.batteryMonitor.startRefreshLoop(services: services, device: device)
     #expect(appState.batteryMonitor.isRefreshLoopActiveForTesting)
 

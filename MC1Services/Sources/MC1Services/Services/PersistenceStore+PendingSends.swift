@@ -415,7 +415,7 @@ public extension PersistenceStore {
       await pendingSendAttemptHandler?()
       try preparePendingSendAttemptFaultInjection?()
     #endif
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let scopedMessageID = messageID
     let predicate = #Predicate<PendingSend> { row in
       row.messageID == scopedMessageID && row.ackDeadline == nil

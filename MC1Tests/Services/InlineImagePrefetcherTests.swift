@@ -488,10 +488,6 @@ private actor StubDataStore: PersistenceStoreProtocol {
     []
   }
 
-  func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool {
-    false
-  }
-
   func incrementMessageHeardRepeats(id: UUID) async throws -> Int {
     0
   }
