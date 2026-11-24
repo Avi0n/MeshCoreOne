@@ -55,6 +55,47 @@ struct MessageServiceACKTests {
     await service.stopAckExpiryChecking()
   }
 
+  @Test
+  func `ackCheckTask spawns lazily only while pendingAcks is non-empty`() async throws {
+    let config = MessageServiceConfig(ackGiveUpWindow: 0.04)
+    let (service, _) = try await MessageService.createForTesting(config: config)
+
+    await service.startAckExpiryChecking(interval: 0.02)
+    #expect(await service.isAckExpiryCheckingActive)
+    #expect(await !service.hasRunningAckCheckTaskForTesting)
+
+    await service.trackPendingAck(
+      messageID: UUID(),
+      contactID: UUID(),
+      ackCode: Data([1, 2, 3, 4]),
+      timeout: 0.04
+    )
+    #expect(await service.hasRunningAckCheckTaskForTesting)
+
+    var drained = false
+    for _ in 0..<50 {
+      if await !service.hasRunningAckCheckTaskForTesting {
+        drained = true
+        break
+      }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    #expect(drained)
+    #expect(await service.isAckExpiryCheckingActive)
+
+    await service.trackPendingAck(
+      messageID: UUID(),
+      contactID: UUID(),
+      ackCode: Data([5, 6, 7, 8]),
+      timeout: 5.0
+    )
+    #expect(await service.hasRunningAckCheckTaskForTesting)
+
+    await service.stopAckExpiryChecking()
+    #expect(await !service.isAckExpiryCheckingActive)
+    #expect(await !service.hasRunningAckCheckTaskForTesting)
+  }
+
   // MARK: - checkExpiredAcks
 
   @Test

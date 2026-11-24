@@ -263,6 +263,9 @@ final class AppState {
   @discardableResult
   func refreshConversations() -> Task<Void, Never> {
     conversationsVersion += 1
+    guard conversationUnreadOperations.shouldPublish(liveActivityManager) else {
+      return Task {}
+    }
     let version = conversationsVersion
     let capturedServices = services
     let radioID = currentRadioID
@@ -285,6 +288,7 @@ final class AppState {
     themeService.refreshFromUserDefaults()
     // Restore is refused while connected, so this cannot race a live session.
     // Empties entries; the registry stays so later opens mint fresh coordinators.
+    chatPrewarmRefresher?.cancelAll()
     chatCoordinatorRegistry?.clear()
     bumpServicesVersion()
     return Task { [weak self] in
@@ -355,9 +359,32 @@ final class AppState {
 
   /// Task consuming RxLogService's entry stream for Live Activity freshness, canceled on disconnect
   var rxLogEventsTask: Task<Void, Never>?
+  @ObservationIgnored var rxLogEventsSubscriptionGeneration: UUID?
+  @ObservationIgnored private var reportedScenePhase: ScenePhase?
+
+  var isInForeground: Bool {
+    #if DEBUG
+      if let isInForegroundOverride { return isInForegroundOverride }
+    #endif
+    let sceneNotBackground = reportedScenePhase.map { $0 != .background } ?? true
+    return sceneNotBackground && UIApplication.shared.applicationState != .background
+  }
+
+  var isForegroundActive: Bool {
+    #if DEBUG
+      if let isInForegroundOverride { return isInForegroundOverride }
+    #endif
+    let sceneActive = reportedScenePhase.map { $0 == .active } ?? true
+    return sceneActive && UIApplication.shared.applicationState == .active
+  }
+
+  func updateScenePhase(_ phase: ScenePhase) {
+    reportedScenePhase = phase
+  }
 
   #if DEBUG
     /// Optional test-only hooks for deterministic lifecycle ordering tests.
+    var isInForegroundOverride: Bool?
     var bleEnterBackgroundOverride: (@MainActor () async -> Void)?
     var bleBecomeActiveOverride: (@MainActor () async -> Void)?
     /// Parks power-off cleanup at the Live Activity await. Nil uses the real activity end.
@@ -503,9 +530,35 @@ final class AppState {
       guard let self, self.connectionState.isConnected else { return nil }
       return self.connectedDevice?.radioID
     }
+    liveActivityManager.isInForegroundProvider = { [weak self] in
+      self?.isInForeground ?? false
+    }
+    liveActivityManager.isForegroundActiveProvider = { [weak self] in
+      self?.isForegroundActive ?? false
+    }
+    liveActivityManager.onActivityStateChanged = { [weak self] isActive in
+      guard let self else { return }
+      if isActive {
+        if let snapshot = connectionManager.currentConnection,
+           connectionManager.isCurrent(snapshot) {
+          syncRxLogLiveActivitySubscription(for: snapshot)
+        }
+      } else {
+        cancelRxLogLiveActivitySubscription()
+        if !isInForeground {
+          batteryMonitor.stop()
+        }
+      }
+    }
+    batteryMonitor.shouldRunRefreshLoopProvider = { [weak self] in
+      guard let self else { return false }
+      return isInForeground || liveActivityManager.hasActiveActivity
+    }
 
     // Wire app state provider for incremental sync support
-    connectionManager.appStateProvider = AppStateProviderImpl()
+    connectionManager.appStateProvider = AppStateProviderImpl(
+      isInForeground: { [weak self] in self?.isInForeground ?? false }
+    )
 
     // Wire connection ready callback - automatically updates UI when connection completes
     connectionManager.onConnectionReady = { [weak self] snapshot in
@@ -525,6 +578,7 @@ final class AppState {
     connectionManager.onLastConnectedDeviceCleared = { [weak self] in
       guard let self else { return }
       navigation.clearWatchlistRoot()
+      chatPrewarmRefresher?.cancelAll()
       chatCoordinatorRegistry?.clear()
       refreshConversations()
       bumpServicesVersion()
@@ -610,6 +664,7 @@ final class AppState {
   /// Connection teardown stays on `ConnectionManager`.
   func shutdown() {
     watchlistRefreshCoordinator.shutdown()
+    chatPrewarmRefresher?.cancelAll()
     cancelFreshPairingOperation()
     cancelStaleNodeCleanup()
     flushChatDrafts()
@@ -664,8 +719,8 @@ final class AppState {
     syncDataEventsTask = nil
     advertisementEventsTask?.cancel()
     advertisementEventsTask = nil
-    rxLogEventsTask?.cancel()
-    rxLogEventsTask = nil
+    cancelRxLogLiveActivitySubscription()
+    chatPrewarmRefresher?.cancelAll()
     messageEventDispatcher.cancelAll()
     navigation.clearPendingLinks()
     resetRadioScopedToolWorkspaces()
@@ -689,6 +744,7 @@ final class AppState {
     draftStore.clearChannelDrafts(radioID: radioID, indices: indices)
     for channelIndex in indices {
       let id = ChatConversationID.channel(radioID: radioID, channelIndex: channelIndex)
+      chatPrewarmRefresher?.cancel(for: id)
       chatCoordinatorRegistry?.remove(for: id)
       channelSlotGenerations[id, default: 0] += 1
     }

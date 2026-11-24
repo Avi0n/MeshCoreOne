@@ -76,6 +76,42 @@ struct AutoMessageFetchTests {
     await session.stop()
   }
 
+  @Test
+  func `auto-fetch retains messagesWaiting across a burst of over 100 rxLogData events`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MeshCore-Tests")
+    )
+    try await startSession(session, transport: transport)
+    await session.startAutoMessageFetching()
+
+    let log = ParsedRxLogData(
+      snr: 5.0,
+      rssi: -70,
+      rawPayload: Data([0x00]),
+      routeType: .flood,
+      payloadType: .advert,
+      payloadVersion: 0,
+      payloadTypeBits: 4,
+      transportCode: nil,
+      pathLength: 0,
+      pathNodes: [],
+      packetPayload: Data()
+    )
+    for _ in 0..<150 {
+      await session.dispatchForTesting(.rxLogData(log))
+    }
+    await session.dispatchForTesting(.messagesWaiting)
+
+    try await waitUntil("auto-fetch must still receive messagesWaiting after rxLogData burst") {
+      await transport.sentData.count == 1
+    }
+
+    await transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
+    await session.stop()
+  }
+
   private func startSession(_ session: MeshCoreSession, transport: MockTransport) async throws {
     let startTask = Task { try await session.start() }
 

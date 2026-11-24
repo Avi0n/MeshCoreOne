@@ -1,5 +1,7 @@
 import Foundation
 @testable import MC1
+@testable import MC1Services
+import MeshCore
 import Testing
 
 @Suite("LiveActivityManager packet rate")
@@ -58,6 +60,40 @@ struct LiveActivityManagerTests {
       now: now,
       refreshLeadTime: 30
     ))
+  }
+
+  @Test
+  func `decay timer does not start without active activity or in background`() async {
+    let manager = LiveActivityManager()
+    var isForeground = false
+    var isForegroundActive = false
+    manager.isInForegroundProvider = { isForeground }
+    manager.isForegroundActiveProvider = { isForegroundActive }
+
+    let device = DeviceDTO(
+      from: Device(
+        radioID: UUID(),
+        publicKey: Data(repeating: 0x11, count: 32),
+        nodeName: "TestRadio"
+      )
+    )
+
+    await manager.handleConnectionReady(device: device, ocvArray: [], unreadCount: 0, isCurrent: { true })
+    #expect(!manager.hasActiveActivity)
+    #expect(!manager.isDecayTimerActiveForTesting)
+
+    await manager.handlePacketReceived()
+    #expect(!manager.isDecayTimerActiveForTesting)
+
+    isForeground = true
+    manager.handleReturnToForeground()
+    await manager.handlePacketReceived()
+    #expect(!manager.isDecayTimerActiveForTesting)
+
+    isForeground = false
+    isForegroundActive = false
+    manager.handleEnterBackground()
+    #expect(!manager.isDecayTimerActiveForTesting)
   }
 
   private func sampleState(packetsPerMinute: Int) -> MeshStatusAttributes.ContentState {

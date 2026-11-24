@@ -137,6 +137,9 @@ struct MC1App: App {
             } else {
               await appState.initialize()
             }
+            if DiscoveryChurnInjector.isRequested {
+              Task { await DiscoveryChurnInjector.run(appState: appState) }
+            }
           #else
             await appState.initialize()
           #endif
@@ -200,6 +203,7 @@ struct MC1App: App {
 
   private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
     MacSuspendLockMarker.markIfNeeded()
+    appState.updateScenePhase(newPhase)
     appState.logToolbarResumeProbe(
       source: "scenePhase",
       scene: "\(scenePhaseName(oldPhase))->\(scenePhaseName(newPhase))"
@@ -215,8 +219,10 @@ struct MC1App: App {
       // (a failing reconnect is exactly that window) services is nil, and unflushed
       // entries die with the process if iOS terminates the suspended app.
       Task {
-        await DebugLogBuffer.shared?.flush()
-        try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
+        await BackgroundTaskRunner.live.run(named: "FlushBackgroundStores") {
+          await DebugLogBuffer.shared?.flush()
+          try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
+        }
       }
     case .inactive:
       break
@@ -236,6 +242,7 @@ struct MC1App: App {
 
   private func runInitialForegroundReconciliationIfNeeded() async {
     guard scenePhase == .active else { return }
+    appState.updateScenePhase(.active)
     await appState.handleReturnToForeground()
   }
 }

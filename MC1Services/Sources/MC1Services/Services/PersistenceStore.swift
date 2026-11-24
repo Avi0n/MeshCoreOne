@@ -73,19 +73,36 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
 
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
   var unsavedRxLogInsertCount = 0
+  var hasPendingDeferredStoreChanges = false
+  var isRxLogBackgroundFlushMode = false
   var rxLogFlushTask: Task<Void, Never>?
+
+  public func setRxLogBackgroundFlushMode(_ isBackground: Bool) {
+    isRxLogBackgroundFlushMode = isBackground
+    if !isBackground {
+      try? commitPendingRxLogEntries()
+    }
+  }
 
   func commitPendingRxLogEntries() throws {
     rxLogFlushTask?.cancel()
     rxLogFlushTask = nil
-    guard unsavedRxLogInsertCount > 0 else { return }
-    try modelContext.save()
-    #if DEBUG
-      rxLogInitiatedSaveCount += 1
-    #endif
+    let hadRxLogInserts = unsavedRxLogInsertCount > 0
+    guard hadRxLogInserts || hasPendingDeferredStoreChanges else { return }
+    if modelContext.hasChanges {
+      try modelContext.save()
+      #if DEBUG
+        if hadRxLogInserts {
+          rxLogInitiatedSaveCount += 1
+        }
+      #endif
+    }
     unsavedRxLogInsertCount = 0
-    for radioID in Array(rxLogEntryCountsByDevice.keys) {
-      try pruneRxLogEntries(radioID: radioID)
+    hasPendingDeferredStoreChanges = false
+    if hadRxLogInserts {
+      for radioID in Array(rxLogEntryCountsByDevice.keys) {
+        try pruneRxLogEntries(radioID: radioID)
+      }
     }
   }
 
@@ -254,7 +271,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   /// so a keyed write would otherwise miss on first contact. Buffered here and drained by the
   /// upsert when the row lands. Bounded; the partner advert normally drains an entry at once.
   private var pendingInboundHops: [PendingHopKey: PendingHop] = [:]
-  private let maxPendingInboundHops = 256
+  private let maxPendingInboundHops = maxDiscoveredNodes
 
   private struct PendingHopKey: Hashable {
     let radioID: UUID
@@ -266,7 +283,11 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     let advertTimestamp: UInt32?
   }
 
-  public func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+  public func upsertDiscoveredNode(
+    radioID: UUID,
+    from frame: ContactFrame,
+    receivedAt: Date = Date()
+  ) throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
     let targetRadioID = radioID
     let publicKey = frame.publicKey
     let predicate = #Predicate<DiscoveredNode> { node in
@@ -279,28 +300,11 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     let node: DiscoveredNode
     let isNew: Bool
     if let existingNode = existing.first {
-      existingNode.name = frame.name
-      existingNode.typeRawValue = frame.typeRawValue
-      existingNode.lastHeard = Date()
-      existingNode.lastAdvertTimestamp = frame.lastAdvertTimestamp
-      existingNode.latitude = frame.latitude
-      existingNode.longitude = frame.longitude
-      existingNode.outPathLength = Int(frame.outPathLength)
-      existingNode.outPath = frame.outPath
+      applyDiscoveredNodeFrame(frame, receivedAt: receivedAt, to: existingNode)
       node = existingNode
       isNew = false
     } else {
-      node = DiscoveredNode(
-        radioID: radioID,
-        publicKey: frame.publicKey,
-        name: frame.name,
-        typeRawValue: frame.typeRawValue,
-        lastAdvertTimestamp: frame.lastAdvertTimestamp,
-        latitude: frame.latitude,
-        longitude: frame.longitude,
-        outPathLength: frame.outPathLength,
-        outPath: frame.outPath
-      )
+      node = makeDiscoveredNode(radioID: radioID, from: frame, receivedAt: receivedAt)
       modelContext.insert(node)
       isNew = true
 
@@ -312,6 +316,91 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     try modelContext.save()
 
     return (node: DiscoveredNodeDTO(from: node), isNew: isNew)
+  }
+
+  public func batchUpsertDiscoveredNodes(
+    radioID: UUID,
+    entries: [(frame: ContactFrame, receivedAt: Date)]
+  ) throws -> [(node: DiscoveredNodeDTO, isNew: Bool)] {
+    guard !entries.isEmpty else { return [] }
+    let targetRadioID = radioID
+    let uniqueKeys = Array(Set(entries.map(\.frame.publicKey)))
+    let existingNodes: [DiscoveredNode]
+    if uniqueKeys.count == 1, let targetKey = uniqueKeys.first {
+      var descriptor = FetchDescriptor<DiscoveredNode>(
+        predicate: #Predicate<DiscoveredNode> { $0.radioID == targetRadioID && $0.publicKey == targetKey }
+      )
+      descriptor.fetchLimit = 1
+      existingNodes = try modelContext.fetch(descriptor)
+    } else {
+      existingNodes = try fetchInChunks(keys: uniqueKeys) { chunk in
+        let descriptor = FetchDescriptor<DiscoveredNode>(
+          predicate: #Predicate<DiscoveredNode> { $0.radioID == targetRadioID && chunk.contains($0.publicKey) }
+        )
+        return try modelContext.fetch(descriptor)
+      }
+    }
+    var existingByKey: [Data: DiscoveredNode] = [:]
+    for node in existingNodes {
+      existingByKey[node.publicKey] = node
+    }
+
+    var results: [(node: DiscoveredNodeDTO, isNew: Bool)] = []
+    results.reserveCapacity(entries.count)
+    var insertedAny = false
+
+    for (frame, receivedAt) in entries {
+      let node: DiscoveredNode
+      let isNew: Bool
+      if let existingNode = existingByKey[frame.publicKey] {
+        applyDiscoveredNodeFrame(frame, receivedAt: receivedAt, to: existingNode)
+        node = existingNode
+        isNew = false
+      } else {
+        node = makeDiscoveredNode(radioID: radioID, from: frame, receivedAt: receivedAt)
+        modelContext.insert(node)
+        existingByKey[frame.publicKey] = node
+        insertedAny = true
+        isNew = true
+      }
+      applyPendingInboundHop(to: node)
+      results.append((node: DiscoveredNodeDTO(from: node), isNew: isNew))
+    }
+
+    if insertedAny {
+      try enforceDiscoveredNodeCap(radioID: radioID)
+    }
+
+    try modelContext.save()
+
+    return results
+  }
+
+  private func applyDiscoveredNodeFrame(_ frame: ContactFrame, receivedAt: Date, to existingNode: DiscoveredNode) {
+    guard receivedAt >= existingNode.lastHeard else { return }
+    existingNode.name = frame.name
+    existingNode.typeRawValue = frame.typeRawValue
+    existingNode.lastHeard = receivedAt
+    existingNode.lastAdvertTimestamp = frame.lastAdvertTimestamp
+    existingNode.latitude = frame.latitude
+    existingNode.longitude = frame.longitude
+    existingNode.outPathLength = Int(frame.outPathLength)
+    existingNode.outPath = frame.outPath
+  }
+
+  private func makeDiscoveredNode(radioID: UUID, from frame: ContactFrame, receivedAt: Date) -> DiscoveredNode {
+    DiscoveredNode(
+      radioID: radioID,
+      publicKey: frame.publicKey,
+      name: frame.name,
+      typeRawValue: frame.typeRawValue,
+      lastHeard: receivedAt,
+      lastAdvertTimestamp: frame.lastAdvertTimestamp,
+      latitude: frame.latitude,
+      longitude: frame.longitude,
+      outPathLength: frame.outPathLength,
+      outPath: frame.outPath
+    )
   }
 
   public func setInboundHopCount(radioID: UUID, publicKey: Data, hopCount: Int, advertTimestamp: UInt32?) throws {
@@ -337,7 +426,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     }
     node.inboundHopCount = adopted.hopCount
     node.inboundHopAdvertTimestamp = adopted.advertTimestamp
-    try modelContext.save()
+    hasPendingDeferredStoreChanges = true
+    scheduleRxLogFlush()
   }
 
   /// Stash an inbound hop count heard before its node row exists. Applies the same adopt rule

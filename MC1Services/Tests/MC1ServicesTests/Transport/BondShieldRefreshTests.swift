@@ -218,7 +218,7 @@ struct BondShieldRefreshTests {
   @Test
   func `onBondRefreshed fires only when refresh mutates`() async {
     let (sm, _) = await makeConnectedMachine(
-      bondVerified: Date().addingTimeInterval(-60),
+      bondVerified: Date().addingTimeInterval(-(BLEStateMachine.defaultBondRefreshPersistInterval + 60)),
       sessionLive: true
     )
     let box = BondRefreshCallbackBox()
@@ -232,6 +232,43 @@ struct BondShieldRefreshTests {
     await sm.clearBondVerification(deviceID: Self.deviceID)
     await sm.handleDidReadRSSI(RSSI: -50, error: nil)
     #expect(box.deviceIDs == [Self.deviceID])
+  }
+
+  @Test
+  func `onBondRefreshed fires past persist interval, on backward clock jump, and resets on clear`() async throws {
+    let sm = BLEStateMachine(bondRefreshPersistInterval: 0.05)
+    await sm.injectBondTestCentralManager(BondRefreshTestCentralManager(delegate: nil, queue: nil))
+    let peripheral = makeLeakedBondRefreshPeripheral()
+    let initial = Date()
+    await sm.recordBondVerification(deviceID: Self.deviceID, at: initial)
+    await sm.primeConnectedWithKeepaliveForBondTests(peripheral: peripheral)
+    await sm.setAppSessionLive(deviceID: Self.deviceID)
+
+    let box = BondRefreshCallbackBox()
+    await sm.setBondRefreshedHandler { deviceID in
+      box.record(deviceID)
+    }
+
+    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    let refreshedInMemory = await sm.bondVerificationDate(for: Self.deviceID)
+    #expect(refreshedInMemory != nil)
+    if let refreshedInMemory {
+      #expect(refreshedInMemory > initial)
+    }
+    #expect(box.deviceIDs.isEmpty)
+
+    try await Task.sleep(for: .milliseconds(70))
+    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    #expect(box.deviceIDs == [Self.deviceID])
+
+    await sm.recordBondVerification(deviceID: Self.deviceID, at: Date().addingTimeInterval(3600))
+    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    #expect(box.deviceIDs == [Self.deviceID, Self.deviceID])
+
+    await sm.clearBondVerification(deviceID: Self.deviceID)
+    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    #expect(box.deviceIDs.count == 2)
   }
 
   // MARK: - Persist re-validation (CM path)

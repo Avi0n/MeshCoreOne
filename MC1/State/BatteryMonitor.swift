@@ -46,6 +46,17 @@ final class BatteryMonitor {
   /// Called when battery info is updated, for Live Activity
   var onBatteryChanged: ((_ battery: BatteryInfo) -> Void)?
 
+  var shouldRunRefreshLoopProvider: (@MainActor () -> Bool)?
+
+  #if DEBUG
+    var isRefreshLoopActiveForTesting: Bool {
+      batteryRefreshTask != nil
+    }
+  #endif
+
+  private static let refreshIntervalSeconds: TimeInterval = 120
+  private static let refreshToleranceSeconds: TimeInterval = 5
+
   /// The active OCV array for the connected device
   func activeBatteryOCVArray(for device: DeviceDTO?) -> [Int] {
     device?.activeOCVArray ?? OCVPreset.liIon.ocvArray
@@ -164,12 +175,17 @@ final class BatteryMonitor {
 
   /// Restart the battery refresh loop (e.g., returning to foreground)
   func startRefreshLoop(services: ServiceContainer, device: DeviceDTO?) {
-    guard let context = context(for: services) else { return }
     batteryRefreshTask?.cancel()
+    batteryRefreshTask = nil
+    guard shouldRunRefreshLoopProvider?() ?? true else { return }
+    guard let context = context(for: services) else { return }
     batteryRefreshTask = Task { [weak self] in
       while true {
         do {
-          try await Task.sleep(for: .seconds(120))
+          try await Task.sleep(
+            for: .seconds(Self.refreshIntervalSeconds),
+            tolerance: .seconds(Self.refreshToleranceSeconds)
+          )
         } catch {
           break
         }

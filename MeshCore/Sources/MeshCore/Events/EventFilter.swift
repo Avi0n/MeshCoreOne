@@ -247,6 +247,16 @@ public struct EventFilter: Sendable {
     }
   }
 
+  /// Matches `.discoverResponse` events carrying `tag`.
+  public static func discoverResponse(tag: Data) -> EventFilter {
+    EventFilter { event in
+      if case let .discoverResponse(response) = event {
+        return response.tag == tag
+      }
+      return false
+    }
+  }
+
   // MARK: - Login Filters
 
   /// Matches any successful login response.

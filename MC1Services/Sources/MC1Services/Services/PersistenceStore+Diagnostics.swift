@@ -141,10 +141,18 @@ public extension PersistenceStore {
     try commitPendingRxLogEntries()
   }
 
-  private func scheduleRxLogFlush() {
+  func scheduleRxLogFlush() {
     guard rxLogFlushTask == nil else { return }
+    let useBackgroundDebounce = isRxLogBackgroundFlushMode
     rxLogFlushTask = Task {
-      try? await Task.sleep(for: RxLogRetention.flushInterval)
+      if useBackgroundDebounce {
+        try? await Task.sleep(
+          for: RxLogRetention.backgroundFlushInterval,
+          tolerance: RxLogRetention.backgroundFlushTolerance
+        )
+      } else {
+        try? await Task.sleep(for: RxLogRetention.flushInterval)
+      }
       guard !Task.isCancelled else { return }
       do {
         try await self.flushPendingRxLogEntries()

@@ -96,6 +96,14 @@ public actor AdvertisementService {
   /// round-scoped and cleared at drain). Flushed on foreground or `stopEventMonitoring`.
   var pendingDeletedKeys: Set<Data> = []
 
+  /// Coalesced background 0x8A adverts waiting for persistence/flush.
+  var pendingNewAdverts: [Data: (frame: ContactFrame, receivedAt: Date)] = [:]
+  private var backgroundNewAdvertPersistTask: Task<Void, Never>?
+  private var backgroundNewAdvertPersistGeneration: UInt64 = 0
+  private var newAdvertFlushTask: Task<Void, Never>?
+  private var hasPendingForegroundContactUpdate = false
+  private var suppressNewAdvertEventsForTeardown = false
+
   /// Keys revived while `flushPendingDeletedKeys` is off-actor in `deleteContacts`.
   /// Read per key so a same-key 0x80 during that hop cannot cascade-delete the row.
   private let revivedDuringDeleteFlush = OSAllocatedUnfairLock(initialState: Set<Data>())
@@ -121,6 +129,7 @@ public actor AdvertisementService {
   /// Backoff before re-arming after a `.busy` outcome. Shorter than
   /// `advertSyncMinInterval` so claim collisions poll cheaply without spinning.
   let advertSyncBusyBackoff: Duration
+  let backgroundNewAdvertCoalesceInterval: Duration
   let appStateProvider: AppStateProvider?
 
   /// Last overwrite-oldest deletion, used to correlate the replacement advert (0x8F then new contact).
@@ -139,6 +148,7 @@ public actor AdvertisementService {
     advertSyncDebounce: Duration = .seconds(5),
     advertSyncMinInterval: Duration = .seconds(30),
     advertSyncBusyBackoff: Duration = .seconds(5),
+    backgroundNewAdvertCoalesceInterval: Duration = .seconds(5),
     appStateProvider: AppStateProvider? = nil,
     notificationService: NotificationService? = nil
   ) {
@@ -148,6 +158,7 @@ public actor AdvertisementService {
     self.advertSyncDebounce = advertSyncDebounce
     self.advertSyncMinInterval = advertSyncMinInterval
     self.advertSyncBusyBackoff = advertSyncBusyBackoff
+    self.backgroundNewAdvertCoalesceInterval = backgroundNewAdvertCoalesceInterval
     self.appStateProvider = appStateProvider
     self.notificationService = notificationService
   }
@@ -166,6 +177,7 @@ public actor AdvertisementService {
   deinit {
     eventMonitorTask?.cancel()
     deltaSyncTask?.cancel()
+    backgroundNewAdvertPersistTask?.cancel()
   }
 
   // MARK: - Events
@@ -216,6 +228,8 @@ public actor AdvertisementService {
 
   /// Stops event monitoring and clears advert delta-sync state.
   public func stopEventMonitoring() async {
+    suppressNewAdvertEventsForTeardown = true
+    cancelBackgroundNewAdvertPersist()
     let monitor = eventMonitorTask
     eventMonitorTask = nil
     monitor?.cancel()
@@ -225,14 +239,17 @@ public actor AdvertisementService {
     let delta = deltaSyncTask
     delta?.cancel()
     deltaSyncGeneration &+= 1
-    // Await `flushPendingDeletedKeys` before clearing `currentRadioID` so a queued
-    // 0x8F cannot outlive `stopEventMonitoring`.
+    // Await `flushPendingDeletedKeys` and `flushPendingNewAdverts` before clearing
+    // `currentRadioID` so queued work cannot outlive `stopEventMonitoring`.
     await monitor?.value
     await delta?.value
     await flushPendingDeletedKeys()
+    await flushPendingNewAdverts(deferContactUpdate: true)
     let receiveTimes = pendingAdvertReceiveTimes
     await stampAdvertReceiveTimes(receiveTimes, radioID: currentRadioID)
+    hasPendingForegroundContactUpdate = false
     currentRadioID = nil
+    suppressNewAdvertEventsForTeardown = false
     deltaSyncTask = nil
     pendingAdvertKeys.removeAll()
     pendingPathKeys.removeAll()
@@ -244,10 +261,13 @@ public actor AdvertisementService {
     // can roll back rows the radio deleted; the next round clears it when it drains.
   }
 
-  /// Flushes queued 0x8F deletes, then re-arms when `hasPendingDeltaSyncWork`.
+  /// Flushes queued 0x8F deletes and 0x8A discoveries, then re-arms delta sync.
   /// Does not re-read `isInForeground`; `AppState.handleReturnToForeground` already ran.
   public func handleReturnToForeground() async {
+    cancelBackgroundNewAdvertPersist()
     await flushPendingDeletedKeys()
+    await flushPendingNewAdverts(deferContactUpdate: false)
+    emitPendingForegroundContactUpdate()
     if hasPendingDeltaSyncWork {
       scheduleDeltaSync()
     }
@@ -566,28 +586,120 @@ public actor AdvertisementService {
   }
 
   /// Handle new advertisement event - New contact discovered (manual add mode)
-  private func handleNewAdvertEvent(contact: MeshContact, radioID: UUID) async {
+  private func handleNewAdvertEvent(contact: MeshContact, radioID _: UUID) async {
     let contactFrame = contact.toContactFrame()
     let pubKeyHex = contactFrame.publicKey.uppercaseHexString()
     discoverTrace.debug("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
 
-    do {
-      let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
-      discoverTrace.debug("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
+    let receivedAt = Date()
+    enqueuePendingNewAdvert(frame: contactFrame, receivedAt: receivedAt)
 
-      eventBroadcaster.yield(.contactUpdated())
-
-      // Notify only first-time discoveries, not repeat adverts for the same contact.
-      if isNew {
-        let contactName = node.name
-        let contactType = node.nodeType
-        eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: node.id, contactType: contactType))
-        logOverwriteReplacementIfRecent(newContactName: contactName, newContactType: contactType)
-      }
-    } catch {
-      logger.error("Error handling new advert event: \(error.localizedDescription)")
-      discoverTrace.error("B2 0x8A upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
+    if await !isInForeground() {
+      scheduleBackgroundNewAdvertPersist()
+      return
     }
+
+    cancelBackgroundNewAdvertPersist()
+    await flushPendingNewAdverts(deferContactUpdate: false)
+  }
+
+  private func enqueuePendingNewAdvert(frame: ContactFrame, receivedAt: Date) {
+    let key = frame.publicKey
+    if let existing = pendingNewAdverts[key], existing.receivedAt > receivedAt {
+      return
+    }
+    if pendingNewAdverts[key] == nil,
+       pendingNewAdverts.count >= PersistenceStore.maxDiscoveredNodes,
+       let oldestKey = pendingNewAdverts.min(by: { $0.value.receivedAt < $1.value.receivedAt })?.key {
+      pendingNewAdverts.removeValue(forKey: oldestKey)
+    }
+    pendingNewAdverts[key] = (frame: frame, receivedAt: receivedAt)
+  }
+
+  private func scheduleBackgroundNewAdvertPersist() {
+    guard backgroundNewAdvertPersistTask == nil, !pendingNewAdverts.isEmpty else { return }
+    backgroundNewAdvertPersistGeneration &+= 1
+    let generation = backgroundNewAdvertPersistGeneration
+    let delay = backgroundNewAdvertCoalesceInterval
+    let tolerance: Duration? = delay >= .seconds(1) ? .seconds(1) : nil
+    backgroundNewAdvertPersistTask = Task { [weak self] in
+      do {
+        try await Task.sleep(for: delay, tolerance: tolerance)
+      } catch {
+        return
+      }
+      await self?.runBackgroundNewAdvertPersist(generation: generation)
+    }
+  }
+
+  private func cancelBackgroundNewAdvertPersist() {
+    backgroundNewAdvertPersistGeneration &+= 1
+    backgroundNewAdvertPersistTask?.cancel()
+    backgroundNewAdvertPersistTask = nil
+  }
+
+  private func runBackgroundNewAdvertPersist(generation: UInt64) async {
+    guard backgroundNewAdvertPersistGeneration == generation else { return }
+    backgroundNewAdvertPersistTask = nil
+    guard !suppressNewAdvertEventsForTeardown, !pendingNewAdverts.isEmpty else { return }
+    await flushPendingNewAdverts(deferContactUpdate: true)
+  }
+
+  func flushPendingNewAdverts(deferContactUpdate: Bool) async {
+    if let newAdvertFlushTask {
+      await newAdvertFlushTask.value
+    }
+    await startNewAdvertFlush(deferContactUpdate: deferContactUpdate)?.value
+  }
+
+  private func startNewAdvertFlush(deferContactUpdate: Bool) -> Task<Void, Never>? {
+    if let newAdvertFlushTask { return newAdvertFlushTask }
+    guard !pendingNewAdverts.isEmpty, let radioID = currentRadioID else { return nil }
+
+    let task = Task {
+      defer { newAdvertFlushTask = nil }
+      while !pendingNewAdverts.isEmpty {
+        guard let activeRadioID = currentRadioID else { return }
+        let drained = pendingNewAdverts.values.sorted { $0.receivedAt < $1.receivedAt }
+        pendingNewAdverts.removeAll()
+        let entries = drained.map { (frame: $0.frame, receivedAt: $0.receivedAt) }
+        do {
+          let results = try await dataStore.batchUpsertDiscoveredNodes(
+            radioID: activeRadioID,
+            entries: entries
+          )
+          guard !suppressNewAdvertEventsForTeardown, currentRadioID == radioID else { return }
+          guard !results.isEmpty else { continue }
+          emitNewContactDiscoveries(results)
+          if deferContactUpdate {
+            hasPendingForegroundContactUpdate = true
+          } else {
+            hasPendingForegroundContactUpdate = false
+            eventBroadcaster.yield(.contactUpdated())
+          }
+        } catch {
+          logger.error("Error handling new advert batch: \(error.localizedDescription)")
+          discoverTrace.error("B2 0x8A batch upsert FAILED count=\(entries.count): \(error.localizedDescription)")
+        }
+      }
+    }
+    newAdvertFlushTask = task
+    return task
+  }
+
+  private func emitNewContactDiscoveries(_ results: [(node: DiscoveredNodeDTO, isNew: Bool)]) {
+    for (node, isNew) in results where isNew {
+      let contactName = node.name
+      let contactType = node.nodeType
+      eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: node.id, contactType: contactType))
+      logOverwriteReplacementIfRecent(newContactName: contactName, newContactType: contactType)
+    }
+  }
+
+  private func emitPendingForegroundContactUpdate() {
+    guard !suppressNewAdvertEventsForTeardown, hasPendingForegroundContactUpdate else { return }
+    hasPendingForegroundContactUpdate = false
+    eventBroadcaster.yield(.contactUpdated())
   }
 
   /// Path changed on the radio: record the key and schedule contact delta sync.

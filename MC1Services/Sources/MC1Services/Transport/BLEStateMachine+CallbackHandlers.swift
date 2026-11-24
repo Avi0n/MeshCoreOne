@@ -110,6 +110,7 @@ extension BLEStateMachine {
   private func handleBluetoothBecomingUnavailable(error: BLEError) {
     isCurrentlyScanning = false
     pendingScanRequest = false
+    isScanPausedForBackground = false
     if case let .waitingForBluetooth(continuation) = phase {
       transition(to: .idle)
       continuation.resume(throwing: error)
@@ -768,7 +769,9 @@ extension BLEStateMachine {
     else { return }
 
     let now = Date()
-    if reconnectPolicy.refreshBondVerification(deviceID: deviceID, at: now) {
+    if reconnectPolicy.refreshBondVerification(deviceID: deviceID, at: now),
+       shouldEmitBondRefreshPersist(for: deviceID, at: now) {
+      markBondRefreshPersisted(for: deviceID, at: now)
       onBondRefreshed?(deviceID)
     }
   }

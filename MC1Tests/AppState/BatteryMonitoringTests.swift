@@ -64,4 +64,33 @@ struct BatteryMonitoringTests {
 
     #expect(appState.batteryMonitor.deviceBattery == nil)
   }
+
+  @Test
+  func `appState gates battery refresh loop on foreground override`() {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    let radioID = UUID()
+    let session = MeshCoreSession(transport: MockTransport())
+    let services = ServiceContainer(
+      session: session,
+      dataStore: appState.connectionManager.persistenceStore,
+      radioID: radioID
+    )
+    let device = DeviceDTO(
+      from: Device(radioID: radioID, publicKey: Data(repeating: 0x13, count: 32), nodeName: "ForegroundRadio")
+    )
+    appState.connectionManager.persistConnection(deviceID: device.id, radioID: radioID, deviceName: "ForegroundRadio")
+    appState.connectionManager.setTestState(services: services, session: session, connectedDevice: device)
+
+    appState.isInForegroundOverride = false
+    appState.batteryMonitor.startRefreshLoop(services: services, device: device)
+    #expect(!appState.batteryMonitor.isRefreshLoopActiveForTesting)
+
+    appState.isInForegroundOverride = true
+    appState.batteryMonitor.startRefreshLoop(services: services, device: device)
+    #expect(appState.batteryMonitor.isRefreshLoopActiveForTesting)
+
+    appState.batteryMonitor.stop()
+    #expect(!appState.batteryMonitor.isRefreshLoopActiveForTesting)
+  }
 }

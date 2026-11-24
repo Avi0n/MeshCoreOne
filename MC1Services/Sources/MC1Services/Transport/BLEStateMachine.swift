@@ -119,6 +119,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   let serviceDiscoveryTimeout: TimeInterval
   private let autoReconnectDiscoveryTimeout: TimeInterval
   private let writeTimeout: TimeInterval
+  static let defaultBondRefreshPersistInterval: TimeInterval = 15 * 60
+  private let bondRefreshPersistInterval: TimeInterval
+  private var lastPersistedBondRefreshDates: [UUID: Date] = [:]
 
   /// Delay between write operations for ESP32 compatibility (0 = no pacing)
   var writePacingDelay: TimeInterval = 0
@@ -231,6 +234,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   var isCurrentlyScanning = false
   var pendingScanRequest = false
+  var isScanPausedForBackground = false
   /// Installed by `ConnectionManager.startBLEScanning` and reset to a no-op when scanning ends.
   private var onDeviceDiscovered: (@Sendable (UUID, String?, Int) -> Void)?
 
@@ -267,7 +271,8 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     writeTimeout: TimeInterval = 5.0,
     writePacingDelay: TimeInterval = 0,
     centralManager: CBCentralManager? = nil,
-    operationClock: BLEOperationClock = .continuous
+    operationClock: BLEOperationClock = .continuous,
+    bondRefreshPersistInterval: TimeInterval = defaultBondRefreshPersistInterval
   ) {
     self.operationClock = operationClock
     self.connectionTimeout = connectionTimeout
@@ -275,6 +280,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     self.autoReconnectDiscoveryTimeout = autoReconnectDiscoveryTimeout
     self.writeTimeout = writeTimeout
     self.writePacingDelay = writePacingDelay
+    self.bondRefreshPersistInterval = bondRefreshPersistInterval
     delegateHandler = BLEDelegateHandler()
     earliestNextWrite = operationClock.now()
     if let centralManager {
@@ -469,12 +475,14 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// tearing down. `ConnectionManager` seeds and refreshes this stamp.
   func recordBondVerification(deviceID: UUID, at date: Date) {
     reconnectPolicy.recordBondVerification(deviceID: deviceID, at: date)
+    lastPersistedBondRefreshDates[deviceID] = date
   }
 
   func recordBondVerification(deviceID: UUID, at date: Date, sessionBinding: SessionTransportBinding) {
     guard activeSessionBinding === sessionBinding else { return }
     try? sessionBinding.performIfActive {
       reconnectPolicy.recordBondVerification(deviceID: deviceID, at: date)
+      lastPersistedBondRefreshDates[deviceID] = date
     }
   }
 
@@ -482,6 +490,17 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// forgotten, so a stale verification cannot shield the next episode.
   func clearBondVerification(deviceID: UUID) {
     reconnectPolicy.clearBondVerification(deviceID: deviceID)
+    lastPersistedBondRefreshDates[deviceID] = nil
+  }
+
+  func shouldEmitBondRefreshPersist(for deviceID: UUID, at now: Date) -> Bool {
+    guard let lastPersisted = lastPersistedBondRefreshDates[deviceID] else { return true }
+    if now < lastPersisted { return true }
+    return now.timeIntervalSince(lastPersisted) >= bondRefreshPersistInterval
+  }
+
+  func markBondRefreshPersisted(for deviceID: UUID, at date: Date) {
+    lastPersistedBondRefreshDates[deviceID] = date
   }
 
   func setAppSessionLive(deviceID: UUID?) {
@@ -547,6 +566,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Scanning is orthogonal to the connection lifecycle — it works while connected.
   /// Requires `activate()` to have been called and Bluetooth to be powered on.
   func startScanning() {
+    isScanPausedForBackground = false
     activate()
     guard centralManager.state == .poweredOn else {
       logger.info("[BLE] Cannot start scanning: Bluetooth not powered on, will start when ready")
@@ -565,6 +585,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   /// Stops an active BLE scan.
   func stopScanning() {
+    isScanPausedForBackground = false
     pendingScanRequest = false
     guard isCurrentlyScanning else { return }
     isCurrentlyScanning = false
@@ -1039,12 +1060,29 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     isAppActive = false
     autoReconnectDiscoveryTimeoutTask?.cancel()
     autoReconnectDiscoveryTimeoutTask = nil
+    if isCurrentlyScanning || pendingScanRequest {
+      if isCurrentlyScanning {
+        isCurrentlyScanning = false
+        if centralManager?.state == .poweredOn {
+          centralManager.stopScan()
+        }
+        logger.info("[BLE] App entered background: paused BLE scan")
+      }
+      pendingScanRequest = false
+      isScanPausedForBackground = true
+    }
     logger.info("[BLE] App entered background: cancelled auto-reconnect timeout (keepalive persists)")
   }
 
   func appDidBecomeActive() {
     isAppActive = true
     logger.info("[BLE] App became active, phase: \(phase.name)")
+
+    if isScanPausedForBackground {
+      isScanPausedForBackground = false
+      logger.info("[BLE] App became active: resuming paused BLE scan")
+      startScanning()
+    }
 
     // Defensive restart: only if connected but keepalive task died unexpectedly
     if case let .connected(peripheral, _, _, _) = phase, rssiKeepaliveTask == nil {

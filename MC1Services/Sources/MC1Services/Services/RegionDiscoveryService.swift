@@ -63,7 +63,9 @@ public enum RegionDiscoveryService {
       )
       let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
 
-      let (subscriptionID, events) = await session.eventsTracked()
+      let (subscriptionID, events) = await session.eventsTracked(
+        filter: .discoverResponse(tag: tagData)
+      )
       let listenTask = Task { () -> Set<Data> in
         var keys = Set<Data>()
         for await event in events {

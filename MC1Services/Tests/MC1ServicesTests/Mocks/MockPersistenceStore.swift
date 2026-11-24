@@ -2307,15 +2307,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public var discoveredNodes: [UUID: DiscoveredNodeDTO] = [:]
 
-  public func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+  public func upsertDiscoveredNode(
+    radioID: UUID,
+    from frame: ContactFrame,
+    receivedAt: Date = Date()
+  ) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
     if let existing = discoveredNodes.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
+      guard receivedAt >= existing.lastHeard else {
+        return (node: existing, isNew: false)
+      }
       let updated = DiscoveredNodeDTO(
         id: existing.id,
         radioID: radioID,
         publicKey: frame.publicKey,
         name: frame.name,
         typeRawValue: frame.type.rawValue,
-        lastHeard: Date(),
+        lastHeard: receivedAt,
         lastAdvertTimestamp: frame.lastAdvertTimestamp,
         latitude: frame.latitude,
         longitude: frame.longitude,
@@ -2335,7 +2342,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       publicKey: frame.publicKey,
       name: frame.name,
       typeRawValue: frame.type.rawValue,
-      lastHeard: Date(),
+      lastHeard: receivedAt,
       lastAdvertTimestamp: frame.lastAdvertTimestamp,
       latitude: frame.latitude,
       longitude: frame.longitude,
@@ -2346,6 +2353,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     )
     discoveredNodes[id] = dto
     return (node: dto, isNew: true)
+  }
+
+  public private(set) var batchUpsertCallCount = 0
+
+  public func batchUpsertDiscoveredNodes(
+    radioID: UUID,
+    entries: [(frame: ContactFrame, receivedAt: Date)]
+  ) async throws -> [(node: DiscoveredNodeDTO, isNew: Bool)] {
+    batchUpsertCallCount += 1
+    var results: [(node: DiscoveredNodeDTO, isNew: Bool)] = []
+    results.reserveCapacity(entries.count)
+    for entry in entries {
+      try await results.append(upsertDiscoveredNode(
+        radioID: radioID,
+        from: entry.frame,
+        receivedAt: entry.receivedAt
+      ))
+    }
+    return results
   }
 
   /// Records every `setInboundHopCount` call for assertion and applies the same adopt rule as the

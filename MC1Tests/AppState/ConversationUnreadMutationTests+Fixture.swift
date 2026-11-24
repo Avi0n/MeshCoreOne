@@ -31,6 +31,7 @@ extension ConversationUnreadMutationTests {
       let appState = try AppState(
         modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true,
         defaults: defaults, conversationUnreadOperations: .init(
+          shouldPublish: { _ in true },
           read: AppState.ConversationUnreadOperations.live.read,
           publish: { _, count in recorder.publish(count) }
         )

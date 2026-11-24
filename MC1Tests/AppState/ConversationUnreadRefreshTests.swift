@@ -16,6 +16,7 @@ struct ConversationUnreadRefreshTests {
     let appState = try AppState(
       modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true,
       defaults: defaults, conversationUnreadOperations: .init(
+        shouldPublish: { _ in true },
         read: AppState.ConversationUnreadOperations.live.read,
         publish: { _, count in publications.append(count) }
       )
@@ -51,6 +52,7 @@ struct ConversationUnreadRefreshTests {
     var reads = 0
     var publications: [Int] = []
     let operations = AppState.ConversationUnreadOperations(
+      shouldPublish: { _ in true },
       read: { store, radioID in
         let count = await AppState.ConversationUnreadOperations.live.read(store, radioID)
         reads += 1
@@ -96,6 +98,37 @@ struct ConversationUnreadRefreshTests {
       #expect(publications == [2])
     }
     #expect(appState.conversationsVersion == 2)
+  }
+
+  @Test
+  func `refreshConversations skips unread store read when live activity is inactive`() async throws {
+    let suite = "ConversationUnreadRefresh.\(UUID())"
+    let defaults = try #require(UserDefaults(suiteName: suite))
+    defer { defaults.removePersistentDomain(forName: suite) }
+    var reads = 0
+    var publications: [Int] = []
+    let appState = try AppState(
+      modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true,
+      defaults: defaults, conversationUnreadOperations: .init(
+        shouldPublish: { $0.hasActiveActivity },
+        read: { store, radioID in
+          reads += 1
+          return await AppState.ConversationUnreadOperations.live.read(store, radioID)
+        },
+        publish: { _, count in publications.append(count) }
+      )
+    )
+    defer { appState.shutdown() }
+    let radioID = UUID()
+    let services = installServices(appState, radioID: radioID)
+    defer { Task { await services.tearDown() } }
+
+    #expect(!appState.liveActivityManager.hasActiveActivity)
+    await appState.refreshConversations().value
+
+    #expect(appState.conversationsVersion == 1)
+    #expect(reads == 0)
+    #expect(publications.isEmpty)
   }
 
   private func installServices(_ appState: AppState, radioID: UUID) -> ServiceContainer {

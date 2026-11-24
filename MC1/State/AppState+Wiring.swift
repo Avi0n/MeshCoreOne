@@ -1,6 +1,8 @@
 import Foundation
 import MC1Services
 
+private let discoverTraceLogger = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+
 // MARK: - Service Wiring Helpers
 
 extension AppState {
@@ -120,8 +122,7 @@ extension AppState {
             guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
           }
           contactsVersion += 1
-          PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
-            .debug("B4 contactUpdated bump contactsVersion=\(contactsVersion)")
+          discoverTraceLogger.debug("B4 contactUpdated bump contactsVersion=\(contactsVersion)")
         case .conversationsChanged:
           refreshConversations()
         case let .contactDeletedCleanup(contactIDs):
@@ -158,10 +159,48 @@ extension AppState {
     let context = ConnectionCallbackContext(snapshot)
     let services = snapshot.services
     guard context.isCurrent(connectionManager) else { return }
-    // Every received RF packet refreshes Live Activity freshness and may
-    // trigger an overdue battery read. Re-subscribes per connection
-    // because ServiceContainer is rebuilt.
-    rxLogEventsTask?.cancel()
+
+    batteryMonitor.onBatteryChanged = { [weak self] battery in
+      Task { @MainActor [weak self] in
+        guard let self, context.isCurrent(connectionManager) else { return }
+        await liveActivityManager.handleBatteryChanged(battery: battery)
+      }
+    }
+
+    let device = snapshot.device
+    let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
+    let shouldReadUnread = liveActivityManager.hasActiveActivity || liveActivityManager.isEnabled
+    let unreadCount = shouldReadUnread ? await totalUnreadCount(from: services) : 0
+
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    await liveActivityManager.handleConnectionReady(
+      device: device,
+      ocvArray: ocvArray,
+      unreadCount: unreadCount,
+      isCurrent: { [weak self] in
+        guard let self else { return false }
+        return context.isCurrent(connectionManager)
+      }
+    )
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    syncRxLogLiveActivitySubscription(for: snapshot)
+  }
+
+  /// Subscribes to `RxLogService.entryStream()` only while a Live Activity is active,
+  /// keyed by connection generation so state callbacks cannot double-subscribe.
+  func syncRxLogLiveActivitySubscription(for snapshot: ConnectionSnapshot) {
+    guard liveActivityManager.hasActiveActivity else {
+      cancelRxLogLiveActivitySubscription()
+      return
+    }
+    let context = ConnectionCallbackContext(snapshot)
+    guard context.isCurrent(connectionManager) else { return }
+    if rxLogEventsTask != nil, rxLogEventsSubscriptionGeneration == snapshot.generation {
+      return
+    }
+    cancelRxLogLiveActivitySubscription()
+    let services = snapshot.services
+    rxLogEventsSubscriptionGeneration = snapshot.generation
     let rxLogEntries = services.rxLogService.entryStream()
     rxLogEventsTask = Task { [weak self] in
       for await _ in rxLogEntries {
@@ -175,28 +214,12 @@ extension AppState {
         }
       }
     }
+  }
 
-    batteryMonitor.onBatteryChanged = { [weak self] battery in
-      Task { @MainActor [weak self] in
-        guard let self, context.isCurrent(connectionManager) else { return }
-        await liveActivityManager.handleBatteryChanged(battery: battery)
-      }
-    }
-
-    let device = snapshot.device
-    let ocvArray = batteryMonitor.activeBatteryOCVArray(for: device)
-    let unreadCount = await totalUnreadCount(from: services)
-
-    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
-    await liveActivityManager.handleConnectionReady(
-      device: device,
-      ocvArray: ocvArray,
-      unreadCount: unreadCount,
-      isCurrent: { [weak self] in
-        guard let self else { return false }
-        return context.isCurrent(connectionManager)
-      }
-    )
+  func cancelRxLogLiveActivitySubscription() {
+    rxLogEventsTask?.cancel()
+    rxLogEventsTask = nil
+    rxLogEventsSubscriptionGeneration = nil
   }
 
   /// `Activity.request` only succeeds in the foreground, so a `startActivity`

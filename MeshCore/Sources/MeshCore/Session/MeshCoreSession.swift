@@ -398,7 +398,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
     // Subscribe before spawning the loop so a messagesWaiting event
     // dispatched right after this method returns cannot be missed.
-    let events = await dispatcher.subscribe()
+    let events = await dispatcher.subscribe(filter: EventFilter.messagesWaiting.matches)
     autoMessageFetchTask = Task { [weak self] in
       guard let self else { return }
       await autoMessageFetchLoop(events: events)

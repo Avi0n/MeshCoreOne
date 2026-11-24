@@ -423,7 +423,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - Discovered Nodes (stubs)
 
-  func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
+  func upsertDiscoveredNode(radioID: UUID, from frame: ContactFrame, receivedAt: Date) async throws -> (node: DiscoveredNodeDTO, isNew: Bool) {
     fatalError("Not implemented")
   }
 

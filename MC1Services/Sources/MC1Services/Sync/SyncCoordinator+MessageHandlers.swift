@@ -2,6 +2,8 @@
 import CryptoKit
 import Foundation
 
+private let discoverTraceLogger = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+
 // MARK: - Message & Discovery Handler Wiring
 
 extension SyncCoordinator {
@@ -640,15 +642,14 @@ extension SyncCoordinator {
         guard let self else { return }
         switch event {
         case let .newContactDiscovered(name, contactID, contactType):
-          // Manual-add mode: a new contact was discovered via advertisement
-          PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
-            .debug("B4 relay newContactDiscovered \(contactID) -> notifyContactsChanged")
+          // Producers already emit `.contactUpdated()`, so skip `notifyContactsChanged()`
+          // here to avoid a duplicate reload per discovered contact.
+          discoverTraceLogger.debug("B4 relay newContactDiscovered \(contactID)")
           await dependencies.notificationService.postNewContactNotification(
             contactName: name,
             contactID: contactID,
             contactType: contactType
           )
-          await notifyContactsChanged()
         case let .orphanDirectMessagesAdopted(contactIDs):
           // These DMs arrived before their sender's contact existed, so no
           // banner or badge fired at receipt. Adoption bumped the unread counts;
