@@ -2,6 +2,7 @@
 import Foundation
 import MC1Services
 import MeshCore
+import os
 import OSLog
 import SwiftUI
 
@@ -27,6 +28,15 @@ final class LiveActivityManager {
 
   var onActivityStateChanged: (@MainActor (_ isActive: Bool) -> Void)?
 
+  private struct RateTrackerState: Sendable {
+    var timestamps: [Date] = []
+    var isActive = false
+    var isInForeground = false
+    var nextMainActorForwardDate: Date = .distantPast
+  }
+
+  private nonisolated let rateTracker = OSAllocatedUnfairLock(initialState: RateTrackerState())
+
   private var currentActivity: Activity<MeshStatusAttributes>?
   private var lifecycleGeneration = UUID()
   private var decayTimer: Task<Void, Never>?
@@ -35,7 +45,6 @@ final class LiveActivityManager {
   private var stateObservationTask: Task<Void, Never>?
   private var throttleTask: Task<Void, Never>?
   private var ocvArray: [Int] = []
-  private var recentPacketTimestamps: [Date] = []
   private var pendingUpdate: PendingUpdate?
   private var lastFlushDate: Date = .distantPast
 
@@ -65,7 +74,7 @@ final class LiveActivityManager {
   static let decayInterval: TimeInterval = 15
   static let decayTolerance: TimeInterval = 1
   nonisolated static let packetWindowSeconds: TimeInterval = 60
-  static let secondsPerMinute: TimeInterval = 60
+  nonisolated static let secondsPerMinute: TimeInterval = 60
   static let disconnectGracePeriod: TimeInterval = 300
 
   private var scenePhase: ScenePhase {
@@ -88,12 +97,17 @@ final class LiveActivityManager {
   /// full-minute window makes this the true count for that minute, so the
   /// displayed value matches the RX Log instead of extrapolating a burst.
   private var recentPacketsPerMinute: Int {
-    Self.packetsPerMinute(timestamps: recentPacketTimestamps, now: .now)
+    let now = Date.now
+    return rateTracker.withLock { state in
+      let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
+      state.timestamps.removeAll { $0 < cutoff }
+      return Self.packetsPerMinute(timestamps: state.timestamps, now: now)
+    }
   }
 
   /// Packets within `window` ending at `now` as a per-minute rate. Pure so the
   /// rate math is unit-testable without an `Activity`.
-  static func packetsPerMinute(
+  nonisolated static func packetsPerMinute(
     timestamps: [Date],
     now: Date,
     window: TimeInterval = packetWindowSeconds
@@ -162,7 +176,7 @@ final class LiveActivityManager {
        activityRadioID == device.radioID {
       disconnectTimer?.cancel()
       disconnectTimer = nil
-      recentPacketTimestamps = []
+      syncRateTracker(isActive: true, isInForeground: isInForeground, resetTimestamps: true, resetForwardDate: true)
       clearPendingUpdate()
       let resolvedUnreadCount = await unreadCount()
       guard lifecycleGeneration == generation, isCurrent(), currentActivity?.id == activity.id else { return }
@@ -202,7 +216,7 @@ final class LiveActivityManager {
     let generation = UUID()
     lifecycleGeneration = generation
     stopDecayTimer()
-    recentPacketTimestamps = []
+    syncRateTracker(isInForeground: isInForeground, resetTimestamps: true, resetForwardDate: true)
     clearPendingUpdate()
     await updateActivity(
       isConnected: false,
@@ -224,6 +238,7 @@ final class LiveActivityManager {
 
   func handleEnterBackground() {
     stopDecayTimer()
+    syncRateTracker(isInForeground: false)
     // `throttleTask` pauses while suspended, so the coalesced rate is published here.
     guard pendingUpdate != nil else { return }
     Task {
@@ -234,6 +249,7 @@ final class LiveActivityManager {
   }
 
   func handleReturnToForeground() {
+    syncRateTracker(isInForeground: true, resetForwardDate: true)
     guard hasActiveActivity else { return }
     startDecayTimer()
     if pendingUpdate != nil {
@@ -241,24 +257,56 @@ final class LiveActivityManager {
     }
   }
 
+  /// Accumulates packet timestamps off the main actor and only hops to `@MainActor`
+  /// once per cadence interval while an activity is active.
+  nonisolated func recordPacketFromRxLog(at now: Date = .now) {
+    let forwardedRate: Int? = rateTracker.withLock { state in
+      guard state.isActive else { return nil }
+      let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
+      state.timestamps.removeAll { $0 < cutoff }
+      state.timestamps.append(now)
+      guard now >= state.nextMainActorForwardDate else { return nil }
+      let interval = state.isInForeground
+        ? UpdateCadence.foreground.updateInterval
+        : UpdateCadence.background.updateInterval
+      state.nextMainActorForwardDate = now.addingTimeInterval(interval)
+      return Self.packetsPerMinute(timestamps: state.timestamps, now: now)
+    }
+    guard let rate = forwardedRate else { return }
+    Task { @MainActor [weak self] in
+      await self?.scheduleUpdate(packetsPerMinute: rate)
+    }
+  }
+
   func handlePacketReceived() async {
     let now = Date.now
-    recentPacketTimestamps.append(now)
-    let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
-    recentPacketTimestamps.removeAll { $0 < cutoff }
-    await scheduleUpdate(packetsPerMinute: recentPacketsPerMinute)
+    let rate = rateTracker.withLock { state in
+      let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
+      state.timestamps.removeAll { $0 < cutoff }
+      state.timestamps.append(now)
+      return Self.packetsPerMinute(timestamps: state.timestamps, now: now)
+    }
+    await scheduleUpdate(packetsPerMinute: rate)
   }
 
   func handleBatteryChanged(battery: BatteryInfo) async {
+    guard let activity = currentActivity else { return }
     let generation = lifecycleGeneration
     let percent = battery.percentage(using: ocvArray)
+    let displayedPercent = pendingUpdate?.battery ?? activity.content.state.batteryPercent
+    guard displayedPercent != percent else { return }
     await scheduleUpdate(battery: .some(percent))
     guard lifecycleGeneration == generation else { return }
-    await flushPendingUpdate()
+    if isInForeground {
+      await flushPendingUpdate()
+    }
   }
 
   func handleUnreadCountChanged(unreadCount: Int) async {
+    guard let activity = currentActivity else { return }
     let generation = lifecycleGeneration
+    let displayedUnread = pendingUpdate?.unreadCount ?? activity.content.state.unreadCount
+    guard displayedUnread != unreadCount else { return }
     await scheduleUpdate(unreadCount: unreadCount)
     guard lifecycleGeneration == generation else { return }
     await flushPendingUpdate()
@@ -296,6 +344,7 @@ final class LiveActivityManager {
     guard lifecycleGeneration == generation else { return }
     currentActivity = activeOrStale.first
     guard let activity = currentActivity else { return }
+    syncRateTracker(isActive: true, isInForeground: isInForeground, resetForwardDate: true)
 
     onActivityStateChanged?(true)
     startObservingActivityState()
@@ -344,8 +393,6 @@ final class LiveActivityManager {
           tolerance: .seconds(Self.decayTolerance)
         )
         guard !Task.isCancelled, let self else { return }
-        let cutoff = Date.now.addingTimeInterval(-Self.packetWindowSeconds)
-        recentPacketTimestamps.removeAll { $0 < cutoff }
         await scheduleUpdate(packetsPerMinute: recentPacketsPerMinute)
       }
     }
@@ -354,6 +401,20 @@ final class LiveActivityManager {
   private func stopDecayTimer() {
     decayTimer?.cancel()
     decayTimer = nil
+  }
+
+  private func syncRateTracker(
+    isActive: Bool? = nil,
+    isInForeground: Bool? = nil,
+    resetTimestamps: Bool = false,
+    resetForwardDate: Bool = false
+  ) {
+    rateTracker.withLock { state in
+      if let isActive { state.isActive = isActive }
+      if let isInForeground { state.isInForeground = isInForeground }
+      if resetTimestamps { state.timestamps.removeAll() }
+      if resetForwardDate { state.nextMainActorForwardDate = .distantPast }
+    }
   }
 
   private func clearActivityReference() {
@@ -371,7 +432,7 @@ final class LiveActivityManager {
     disconnectTimer = nil
     stopDecayTimer()
     clearPendingUpdate()
-    recentPacketTimestamps = []
+    syncRateTracker(isActive: false, resetTimestamps: true, resetForwardDate: true)
     if wasActive {
       onActivityStateChanged?(false)
     }
@@ -426,8 +487,7 @@ final class LiveActivityManager {
       unreadCount: resolvedUnreadCount,
       disconnectedDate: nil
     )
-    let staleDate = Calendar.current.date(byAdding: .minute, value: 5, to: .now)
-    let content = ActivityContent(state: state, staleDate: staleDate)
+    let content = ActivityContent(state: state, staleDate: nil)
 
     do {
       currentActivity = try Activity.request(
@@ -435,6 +495,7 @@ final class LiveActivityManager {
         content: content,
         pushType: nil
       )
+      syncRateTracker(isActive: true, isInForeground: isInForeground, resetTimestamps: true, resetForwardDate: true)
       onActivityStateChanged?(true)
       LiveActivityTip.radioConnected.sendDonation()
       startObservingActivityState()
@@ -519,14 +580,14 @@ final class LiveActivityManager {
             logger.warning("Stale Live Activity cached disconnected but radio connected — restoring connected state")
             disconnectTimer?.cancel()
             disconnectTimer = nil
-            recentPacketTimestamps = []
+            syncRateTracker(isActive: true, isInForeground: isInForeground, resetTimestamps: true, resetForwardDate: true)
             clearPendingUpdate()
             await updateActivity(isConnected: true, disconnectedDate: .some(nil))
             guard lifecycleGeneration == generation, currentActivity?.id == activity.id else { return }
             startDecayTimer()
           } else if currentState.isConnected, currentState.packetsPerMinute > 0 {
             logger.debug("Live Activity stale with active rate, resetting to 0")
-            recentPacketTimestamps = []
+            syncRateTracker(resetTimestamps: true, resetForwardDate: true)
             clearPendingUpdate()
             await updateActivity(packetsPerMinute: 0)
           } else if pendingUpdate != nil {
@@ -601,11 +662,24 @@ final class LiveActivityManager {
   }
 
   private func flushPendingUpdate() async {
-    guard let pending = pendingUpdate else { return }
+    guard var pending = pendingUpdate else { return }
     pendingUpdate = nil
     throttleTask?.cancel()
     throttleTask = nil
-    lastFlushDate = .now
+    let now = Date.now
+    lastFlushDate = now
+    let interval = activeCadence.updateInterval
+    let shouldRefreshRate = pending.packetsPerMinute != nil
+    let refreshedRate: Int? = rateTracker.withLock { state in
+      state.nextMainActorForwardDate = now.addingTimeInterval(interval)
+      guard shouldRefreshRate else { return nil }
+      let cutoff = now.addingTimeInterval(-Self.packetWindowSeconds)
+      state.timestamps.removeAll { $0 < cutoff }
+      return Self.packetsPerMinute(timestamps: state.timestamps, now: now)
+    }
+    if let refreshedRate {
+      pending.packetsPerMinute = refreshedRate
+    }
     await updateActivity(
       isConnected: pending.isConnected,
       battery: pending.battery,
@@ -643,7 +717,7 @@ final class LiveActivityManager {
     let staleDate: Date? = if state.isConnected, state.packetsPerMinute > 0 {
       now.addingTimeInterval(cadence.connectedStaleInterval)
     } else {
-      Calendar.current.date(byAdding: .minute, value: 5, to: now)
+      nil
     }
     // Republish unchanged content before its stale date. `displayedPacketRate` shows 0 after that.
     guard Self.shouldPublishUpdate(
@@ -665,6 +739,7 @@ final class LiveActivityManager {
     refreshLeadTime: TimeInterval
   ) -> Bool {
     if current != proposed { return true }
+    guard proposed.isConnected, proposed.packetsPerMinute > 0 else { return false }
     guard let currentStaleDate else { return true }
     return currentStaleDate.timeIntervalSince(now) <= refreshLeadTime
   }

@@ -5,6 +5,7 @@ import SwiftUI
 struct ChatsListModifiers: ViewModifier {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
+  @Environment(\.scenePhase) private var scenePhase
 
   let viewModel: ChatViewModel
 
@@ -71,7 +72,11 @@ struct ChatsListModifiers: ViewModifier {
         await viewModel.requestConversationReload()?.value
         onAnnounceOfflineStateIfNeeded()
       }
-      .task {
+      .task(id: scenePhase != .background) {
+        guard scenePhase != .background else { return }
+        if viewModel.hasLoadedOnce {
+          await viewModel.refreshFailedSendIndicators()
+        }
         for await event in appState.messageEventStream.events() {
           if viewModel.shouldRefreshFailedSendIndicators(for: event) {
             await viewModel.refreshFailedSendIndicators()
@@ -79,13 +84,14 @@ struct ChatsListModifiers: ViewModifier {
         }
       }
       .onChange(of: appState.servicesVersion) { _, _ in
+        guard scenePhase != .background else { return }
         viewModel.requestConversationReload()
       }
       .onChange(of: appState.conversationsVersion) { _, _ in
         viewModel.requestConversationReload()
       }
       .onChange(of: appState.connectionState) { _, newState in
-        if newState == .disconnected {
+        if newState == .disconnected, scenePhase != .background {
           viewModel.requestConversationReload()
         }
       }

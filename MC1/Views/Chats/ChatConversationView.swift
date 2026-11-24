@@ -347,7 +347,8 @@ struct ChatConversationView: View {
         mentionSenderOrder = nil
       }
     }
-    .task {
+    .task(id: scenePhase != .background) {
+      guard scenePhase != .background else { return }
       for await event in appState.messageEventStream.events() {
         await chatViewModel.handle(event)
       }

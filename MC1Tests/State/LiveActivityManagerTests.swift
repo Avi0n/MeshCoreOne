@@ -99,6 +99,25 @@ struct LiveActivityManagerTests {
   }
 
   @Test
+  func `idle activity with zero rate does not republish on nil or approaching staleDate`() {
+    let idle = sampleState(packetsPerMinute: 0)
+    #expect(!LiveActivityManager.shouldPublishUpdate(
+      current: idle,
+      proposed: idle,
+      currentStaleDate: nil,
+      now: now,
+      refreshLeadTime: 30
+    ))
+    #expect(!LiveActivityManager.shouldPublishUpdate(
+      current: idle,
+      proposed: idle,
+      currentStaleDate: now.addingTimeInterval(5),
+      now: now,
+      refreshLeadTime: 30
+    ))
+  }
+
+  @Test
   func `decay timer does not start without active activity or in background`() async {
     let manager = LiveActivityManager()
     var phase: ScenePhase = .background

@@ -32,7 +32,7 @@ extension AppState {
         guard let self, !Task.isCancelled, context.isCurrent(connectionManager) else { return }
         switch event {
         case .contactsChanged:
-          contactsVersion += 1
+          noteContactsChanged()
           await invalidateMissingNodesContact(from: serviceID, contactExists: nodesContactExists)
         case .conversationsChanged:
           refreshConversations()
@@ -121,7 +121,7 @@ extension AppState {
                   scope.isCurrent else { continue }
             guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
           }
-          contactsVersion += 1
+          noteContactsChanged()
           discoverTraceLogger.debug("B4 contactUpdated bump contactsVersion=\(contactsVersion)")
         case .conversationsChanged:
           refreshConversations()
@@ -183,30 +183,12 @@ extension AppState {
       }
     )
     guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
-    reconcileLiveActivityMonitoring()
   }
 
-  func reconcileLiveActivityMonitoring() {
-    if liveActivityManager.hasActiveActivity {
-      if let snapshot = connectionManager.currentConnection,
-         connectionManager.isCurrent(snapshot) {
-        syncRxLogLiveActivitySubscription(for: snapshot)
-      }
-    } else {
-      cancelRxLogLiveActivitySubscription()
-      if !isInForeground {
-        batteryMonitor.stop()
-      }
-    }
-  }
+  func reconcileLiveActivityMonitoring() {}
 
-  /// Subscribes to `RxLogService.entryStream()` only while a Live Activity is active,
-  /// keyed by connection generation so state callbacks cannot double-subscribe.
-  func syncRxLogLiveActivitySubscription(for snapshot: ConnectionSnapshot) {
-    guard liveActivityManager.hasActiveActivity else {
-      cancelRxLogLiveActivitySubscription()
-      return
-    }
+  /// Consumes `RxLogService.entryStream()` off the main actor to avoid per-packet `@MainActor` hops.
+  func wireRxLogMonitor(snapshot: ConnectionSnapshot) {
     let context = ConnectionCallbackContext(snapshot)
     guard context.isCurrent(connectionManager) else { return }
     if rxLogEventsTask != nil, rxLogEventsSubscriptionGeneration == snapshot.generation {
@@ -214,16 +196,33 @@ extension AppState {
     }
     cancelRxLogLiveActivitySubscription()
     let services = snapshot.services
+    let device = snapshot.device
+    let liveActivityManager = liveActivityManager
+    let batteryMonitor = batteryMonitor
     rxLogEventsSubscriptionGeneration = snapshot.generation
     let rxLogEntries = services.rxLogService.entryStream()
-    rxLogEventsTask = Task { [weak self] in
+    let performBatteryFetch: @MainActor @Sendable () async -> Void = {
+      await batteryMonitor.fetchDeviceBattery(services: services, device: device)
+    }
+    rxLogEventsTask = Self.makeRxLogMonitorTask(
+      rxLogEntries: rxLogEntries,
+      liveActivityManager: liveActivityManager,
+      batteryMonitor: batteryMonitor,
+      performBatteryFetch: performBatteryFetch
+    )
+  }
+
+  private nonisolated static func makeRxLogMonitorTask(
+    rxLogEntries: AsyncStream<RxLogEntryDTO>,
+    liveActivityManager: LiveActivityManager,
+    batteryMonitor: BatteryMonitor,
+    performBatteryFetch: @escaping @MainActor @Sendable () async -> Void
+  ) -> Task<Void, Never> {
+    Task(priority: .utility) {
       for await _ in rxLogEntries {
-        guard let self, !Task.isCancelled, context.isCurrent(connectionManager) else { return }
-        await liveActivityManager.handlePacketReceived()
-        guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
-        await batteryMonitor.fetchBatteryIfOverdue(
-          services: services, device: snapshot.device
-        )
+        guard !Task.isCancelled else { return }
+        liveActivityManager.recordPacketFromRxLog()
+        batteryMonitor.requestOverdueBackgroundFetch(perform: performBatteryFetch)
       }
     }
   }

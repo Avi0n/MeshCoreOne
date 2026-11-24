@@ -151,6 +151,9 @@ struct MC1App: App {
           handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
     }
+    .backgroundTask(.appRefresh(BatteryRefreshScheduler.taskIdentifier)) {
+      await appState.handleBackgroundBatteryRefresh()
+    }
   }
 
   #if DEBUG && targetEnvironment(simulator)

@@ -131,6 +131,51 @@ struct ConversationUnreadRefreshTests {
     #expect(publications.isEmpty)
   }
 
+  @Test
+  func `background view refreshes defer version bumps until foreground and still publish unread`() async throws {
+    let suite = "ConversationUnreadRefresh.\(UUID())"
+    let defaults = try #require(UserDefaults(suiteName: suite))
+    defer { defaults.removePersistentDomain(forName: suite) }
+    var publications: [Int] = []
+    let appState = try AppState(
+      modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true,
+      defaults: defaults, conversationUnreadOperations: .init(
+        shouldPublish: { _ in true },
+        read: AppState.ConversationUnreadOperations.live.read,
+        publish: { _, count in publications.append(count) }
+      )
+    )
+    defer { appState.shutdown() }
+    let store = appState.connectionManager.persistenceStore
+    let radioID = UUID()
+    try await store.saveContact(makeContact(radioID: radioID, unreadCount: 4))
+    let services = installServices(appState, radioID: radioID)
+    defer { Task { await services.tearDown() } }
+
+    appState.scenePhaseOverride = .background
+    let initialConversations = appState.conversationsVersion
+    let initialContacts = appState.contactsVersion
+
+    await appState.refreshConversations().value
+    await appState.refreshConversations().value
+    appState.noteContactsChanged()
+    appState.noteContactsChanged()
+
+    #expect(appState.conversationsVersion == initialConversations)
+    #expect(appState.contactsVersion == initialContacts)
+    #expect(publications == [4, 4])
+
+    appState.scenePhaseOverride = .active
+    appState.updateScenePhase(.active)
+
+    #expect(appState.conversationsVersion == initialConversations + 1)
+    #expect(appState.contactsVersion == initialContacts + 1)
+
+    appState.updateScenePhase(.active)
+    #expect(appState.conversationsVersion == initialConversations + 1)
+    #expect(appState.contactsVersion == initialContacts + 1)
+  }
+
   private func installServices(_ appState: AppState, radioID: UUID) -> ServiceContainer {
     let services = ServiceContainer(
       session: MeshCoreSession(transport: MockTransport()),

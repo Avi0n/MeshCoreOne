@@ -61,7 +61,10 @@ extension AppState {
     activeRecoveryFallbackTask = nil
 
     liveActivityManager.handleEnterBackground()
-    reconcileLiveActivityMonitoring()
+    batteryMonitor.stop()
+    if connectionState.isConnected {
+      BatteryRefreshScheduler.scheduleIfNeeded()
+    }
 
     // Stop room keepalives to save battery/bandwidth
     Task {
@@ -121,6 +124,19 @@ extension AppState {
 
     offlineMapService.resumeAllPacks()
     logToolbarResumeProbe(source: "returnToForegroundDone")
+  }
+
+  func handleBackgroundBatteryRefresh() async {
+    guard connectionState.isConnected,
+          let snapshot = connectionManager.currentConnection,
+          connectionManager.isCurrent(snapshot) else { return }
+    if !isInForeground {
+      BatteryRefreshScheduler.scheduleIfNeeded()
+    }
+    await batteryMonitor.fetchBatteryIfOverdue(
+      services: snapshot.services,
+      device: snapshot.device
+    )
   }
 
   func logToolbarResumeProbe(source: String, scene: String? = nil) {

@@ -93,4 +93,86 @@ struct BatteryMonitoringTests {
     appState.batteryMonitor.stop()
     #expect(!appState.batteryMonitor.isRefreshLoopActiveForTesting)
   }
+
+  @Test
+  func `fetchDeviceBattery fires onBatteryChanged only when percentage changes`() async throws {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    let radioID = UUID()
+    let radio = ConnectionTestRadioTransport()
+    let session = MeshCoreSession(transport: radio)
+    try await session.start()
+    let services = ServiceContainer(
+      session: session,
+      dataStore: appState.connectionManager.persistenceStore,
+      radioID: radioID
+    )
+    let device = DeviceDTO(
+      from: Device(radioID: radioID, publicKey: Data(repeating: 0x14, count: 32), nodeName: "BatteryRadio")
+    )
+    appState.connectionManager.persistConnection(deviceID: device.id, radioID: radioID, deviceName: "BatteryRadio")
+    appState.connectionManager.setTestState(services: services, session: session, connectedDevice: device)
+
+    var notifications: [Int] = []
+    let ocv = appState.batteryMonitor.activeBatteryOCVArray(for: device)
+    appState.batteryMonitor.onBatteryChanged = { battery in
+      notifications.append(battery.percentage(using: ocv))
+    }
+
+    await appState.batteryMonitor.fetchDeviceBattery(services: services, device: device)
+    #expect(notifications.count == 1)
+
+    await appState.batteryMonitor.fetchDeviceBattery(services: services, device: device)
+    #expect(notifications.count == 1)
+
+    await radio.setResponsePackets(for: .getBattery, packets: [Data([ResponseCode.battery.rawValue, 0x68, 0x10])])
+    await appState.batteryMonitor.fetchDeviceBattery(services: services, device: device)
+    #expect(notifications.count == 2)
+    #expect(notifications.last == 100)
+  }
+
+  @Test
+  func `fetchBatteryIfOverdue backs off after a failed BLE read`() async throws {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    let radioID = UUID()
+    let radio = ConnectionTestRadioTransport()
+    let session = MeshCoreSession(transport: radio)
+    try await session.start()
+    let services = ServiceContainer(
+      session: session,
+      dataStore: appState.connectionManager.persistenceStore,
+      radioID: radioID
+    )
+    let device = DeviceDTO(
+      from: Device(radioID: radioID, publicKey: Data(repeating: 0x15, count: 32), nodeName: "BackoffRadio")
+    )
+    appState.connectionManager.persistConnection(deviceID: device.id, radioID: radioID, deviceName: "BackoffRadio")
+    appState.connectionManager.setTestState(services: services, session: session, connectedDevice: device)
+
+    let t0 = Date.now
+    await radio.setSendError(MeshCoreError.notConnected, for: .getBattery)
+    await appState.batteryMonitor.fetchBatteryIfOverdue(services: services, device: device, now: t0)
+    let failedCount = await radio.failedSendCount
+    let initialSentCount = await radio.sentData.count { $0.first == CommandCode.getBattery.rawValue }
+    #expect(failedCount == 1)
+    #expect(initialSentCount == 0)
+
+    await radio.setSendError(nil, for: .getBattery)
+    await appState.batteryMonitor.fetchBatteryIfOverdue(
+      services: services,
+      device: device,
+      now: t0.addingTimeInterval(30)
+    )
+    let duringBackoffCount = await radio.sentData.count { $0.first == CommandCode.getBattery.rawValue }
+    #expect(duringBackoffCount == 0)
+
+    await appState.batteryMonitor.fetchBatteryIfOverdue(
+      services: services,
+      device: device,
+      now: t0.addingTimeInterval(BatteryMonitor.backgroundFailureBackoffSeconds + 1)
+    )
+    let afterBackoffCount = await radio.sentData.count { $0.first == CommandCode.getBattery.rawValue }
+    #expect(afterBackoffCount == 1)
+  }
 }
