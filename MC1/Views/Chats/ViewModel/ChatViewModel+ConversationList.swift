@@ -70,6 +70,14 @@ extension ChatViewModel {
     await setNotificationLevel(current, level: newLevel)
   }
 
+  func toggleMentionsOnly(_ conversation: Conversation) async {
+    guard let current = liveConversation(id: conversation.id) else { return }
+    // Only a channel stores this level and notifies from it.
+    guard case .channel = current else { return }
+    let newLevel: NotificationLevel = current.notificationLevel == .mentionsOnly ? .all : .mentionsOnly
+    await setNotificationLevel(current, level: newLevel)
+  }
+
   /// Updates the notification level in the local conversations array
   private func updateConversationNotificationLevel(_ conversation: Conversation, level: NotificationLevel) {
     updateConversation(

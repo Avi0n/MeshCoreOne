@@ -308,6 +308,22 @@ struct ChatViewModelConversationTests {
     #expect(!viewModel.conversations[0].isMuted)
   }
 
+  @Test
+  func `toggleMentionsOnly with stale all snapshot returns the live channel to all`() async {
+    let viewModel = ChatViewModel()
+    viewModel.connectionStateProvider = { .ready }
+    let channel = makeChannel()
+    viewModel.channels = [channel]
+    viewModel.recomputeSnapshot()
+    let stale = Conversation.channel(channel)
+
+    await viewModel.toggleMentionsOnly(stale)
+    #expect(viewModel.channels[0].notificationLevel == .mentionsOnly)
+
+    await viewModel.toggleMentionsOnly(stale)
+    #expect(viewModel.channels[0].notificationLevel == .all)
+  }
+
   /// A second tap keeps the row captured at first reveal, and still flips the live pin offline.
   @Test
   func `togglePinned with stale unpinned snapshot unpins the live channel while disconnected`() async throws {
