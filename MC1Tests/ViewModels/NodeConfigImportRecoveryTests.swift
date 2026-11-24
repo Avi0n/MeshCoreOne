@@ -30,7 +30,7 @@ struct NodeConfigImportRecoveryTests {
 
       model.applyConfig()
       #expect(model.recoverySheetDismissalDisabled)
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
 
       #expect(!model.recoverySheetDismissalDisabled)
       #expect(model.identityRecoveryComplete)
@@ -60,12 +60,12 @@ struct NodeConfigImportRecoveryTests {
       ), source: nil)
       model.sections = ConfigSections(channels: true)
       model.prepareConfirmation()
-      try await waitUntil(timeout: .seconds(35)) { model.showConfirmation || model.errorMessage != nil }
+      try await env.waitAdvancingClock { model.showConfirmation || model.errorMessage != nil }
       #expect(model.showConfirmation)
       #expect(model.confirmButtonRole == nil)
       #expect(!model.recoverySheetDismissalDisabled)
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
       #expect(model.importComplete)
       #expect(try await env.manager.persistenceStore.fetchChannels(radioID: device.radioID)
         .contains { $0.name == Self.tailChannelName })
@@ -176,11 +176,11 @@ struct NodeConfigImportRecoveryTests {
       let configB = MeshCoreNodeConfig(privateKey: Self.replacementPrivateKey)
       try await selectFile(configB, model: model)
       model.prepareConfirmation()
-      try await waitUntil(timeout: .seconds(35)) { model.showConfirmation || model.errorMessage != nil }
+      try await env.waitAdvancingClock { model.showConfirmation || model.errorMessage != nil }
       #expect(model.showConfirmation)
       await env.wifi.enqueueResponsePackets(for: .importPrivateKey, packets: [])
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
       let recoveryB = try #require(model.recovery)
       #expect(recoveryB.receiptID != recoveryA.receiptID)
       let retainedB = model.importedConfig == configB
@@ -222,7 +222,7 @@ struct NodeConfigImportRecoveryTests {
       await env.bluetooth.setPublicKey(Self.recoveredPublicKey, for: env.device.id)
       var connectionFailure: (any Error)?
       do {
-        _ = try await env.appState.connectViaBluetooth(peripheralID: env.device.id)
+        try await env.advancingClock { _ = try await env.appState.connectViaBluetooth(peripheralID: env.device.id) }
         Issue.record("An ordinary connection must require explicit identity recovery")
       } catch {
         connectionFailure = error
@@ -245,7 +245,7 @@ struct NodeConfigImportRecoveryTests {
   private func withInterruptedImport(
     _ body: (ConnectionLinkSwitchHarness, NodeConfigImportViewModel, IdentityImportRecovery) async throws -> Void
   ) async throws {
-    let env = try await ConnectionLinkSwitchHarness.make()
+    let env = try await ConnectionLinkSwitchHarness.make(sessionClock: TestClock())
     let model = NodeConfigImportViewModel()
     configure(model, environment: env)
     do {
@@ -255,11 +255,11 @@ struct NodeConfigImportRecoveryTests {
       ), source: nil)
       model.sections = ConfigSections(nodeIdentity: true, channels: true, contacts: false)
       model.prepareConfirmation()
-      try await waitUntil(timeout: .seconds(35)) { model.showConfirmation || model.errorMessage != nil }
+      try await env.waitAdvancingClock { model.showConfirmation || model.errorMessage != nil }
       #expect(model.showConfirmation)
       await env.bluetooth.enqueueResponsePackets(for: .importPrivateKey, packets: [])
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
       let recovery = try #require(env.manager.identityImportRecoveries.first)
       #expect(model.errorMessage == L10n.Settings.ConfigImport.identityOutcomeUnknown(recovery.sourceName))
       try await body(env, model, recovery)
@@ -296,7 +296,7 @@ struct NodeConfigImportRecoveryTests {
     await env.wifi.setDeviceID(other.id)
     await env.wifi.setPublicKey(other.publicKey, for: other.id)
     await env.wifi.setConnectError(nil)
-    _ = try await env.manager.connectViaWiFi(host: "other.local", port: 4242)
+    try await env.advancingClock { _ = try await env.manager.connectViaWiFi(host: "other.local", port: 4242) }
     #expect(env.manager.connectedDevice?.radioID == other.radioID)
     return other
   }

@@ -29,7 +29,7 @@ struct NodeConfigImportOperationTests {
         model.handleDismissal()
       }
       await env.bluetooth.releaseReplies(for: .deviceQuery)
-      await preview?.value
+      try await env.advancingClock { await preview?.value }
 
       #expect(!model.isPreparingConfirmation)
       #expect(!model.showConfirmation)
@@ -41,7 +41,7 @@ struct NodeConfigImportOperationTests {
       switch replacement {
       case .file:
         #expect(model.importedConfig == Self.replacementConfig)
-        try await prepareConfirmation(model)
+        try await prepareConfirmation(model, env: env)
         #expect(model.showConfirmation)
       case .dismissal:
         #expect(model.importedConfig == nil)
@@ -56,7 +56,7 @@ struct NodeConfigImportOperationTests {
   ) async throws {
     try await withImporter { env, model in
       try await selectFile(Self.originalConfig, model: model)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
       let source = try #require(env.manager.currentConnection)
 
       switch change {
@@ -65,9 +65,9 @@ struct NodeConfigImportOperationTests {
       case .file:
         try await selectFile(Self.replacementConfig, model: model)
       case .connection:
-        await env.startDisconnect().value
+        try await env.advancingClock { await env.startDisconnect().value }
         await env.bluetooth.setConnectError(nil)
-        _ = try await env.appState.connectViaBluetooth(peripheralID: env.device.id)
+        try await env.advancingClock { _ = try await env.appState.connectViaBluetooth(peripheralID: env.device.id) }
         let replacement = try #require(env.manager.currentConnection)
         #expect(replacement.device.id == source.device.id)
         #expect(replacement.device.radioID == source.device.radioID)
@@ -88,12 +88,12 @@ struct NodeConfigImportOperationTests {
   func `confirmation presentation can dismiss before its apply action`() async throws {
     try await withImporter { env, model in
       try await selectFile(Self.originalConfig, model: model)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
 
       model.showConfirmation = false
       model.applyConfig()
 
-      try await waitUntil("the confirmed import should complete") { !model.isApplying }
+      try await env.waitAdvancingClock("the confirmed import should complete") { !model.isApplying }
       #expect(model.importComplete)
       #expect(model.errorMessage == nil)
       #expect(await positionWriteCount(env.bluetooth) == 1)
@@ -108,10 +108,10 @@ struct NodeConfigImportOperationTests {
   func `success cleanup preserves a subsequently selected file`() async throws {
     try await withImporter { env, model in
       try await selectFile(Self.originalConfig, model: model)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
       model.applyConfig()
       let completedImport = model.importTask
-      try await waitUntil("the import should display its completed result") { !model.isApplying }
+      try await env.waitAdvancingClock("the import should display its completed result") { !model.isApplying }
       try #require(model.importComplete)
       try #require(model.errorMessage == nil)
       #expect(await positionWriteCount(env.bluetooth) == 1)
@@ -119,7 +119,7 @@ struct NodeConfigImportOperationTests {
       try await selectFile(Self.replacementConfig, model: model)
       let replacementID = model.inputID
       let replacementSource = model.inputSource
-      await completedImport?.value
+      try await env.advancingClock { await completedImport?.value }
 
       #expect(model.importedConfig == Self.replacementConfig)
       #expect(model.inputID == replacementID)
@@ -135,7 +135,7 @@ struct NodeConfigImportOperationTests {
   private func withImporter(
     body: (ConnectionLinkSwitchHarness, NodeConfigImportViewModel) async throws -> Void
   ) async throws {
-    let env = try await ConnectionLinkSwitchHarness.make()
+    let env = try await ConnectionLinkSwitchHarness.make(sessionClock: TestClock())
     let model = NodeConfigImportViewModel()
     model.configure(
       nodeConfigService: { env.manager.services?.nodeConfigService },
@@ -154,9 +154,15 @@ struct NodeConfigImportOperationTests {
     model.previewTask?.cancel()
     await env.bluetooth.releaseAllGates()
     await env.wifi.releaseAllGates()
-    await model.importTask?.value
+    do {
+      try await env.advancingClock {
+        await model.importTask?.value
+        await model.previewTask?.value
+      }
+    } catch {
+      bodyError = bodyError ?? error
+    }
     await model.parseTask?.value
-    await model.previewTask?.value
     await env.close()
     if let bodyError { throw bodyError }
   }
@@ -173,9 +179,9 @@ struct NodeConfigImportOperationTests {
     try #require(!model.isParsing)
   }
 
-  private func prepareConfirmation(_ model: NodeConfigImportViewModel) async throws {
+  private func prepareConfirmation(_ model: NodeConfigImportViewModel, env: ConnectionLinkSwitchHarness) async throws {
     model.prepareConfirmation()
-    await model.previewTask?.value
+    try await env.advancingClock { await model.previewTask?.value }
     try #require(model.showConfirmation)
     try #require(!model.isPreparingConfirmation)
     try #require(model.errorMessage == nil)

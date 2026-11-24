@@ -4,7 +4,7 @@ import Foundation
 import MeshCore
 import Testing
 
-@Suite("Node config normal import input", .serialized)
+@Suite("Node config normal import input", .serialized, .timeLimit(.minutes(1)))
 @MainActor
 struct NodeConfigImportNormalInputTests {
   @Test(arguments: InterruptedSettlement.allCases)
@@ -19,14 +19,14 @@ struct NodeConfigImportNormalInputTests {
         NodeConfigImportViewModel.ImportSource($0)
       }
       try #require(inputWasBoundToLiveSource)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
       await env.bluetooth.holdReplies(for: .setCoordinates)
       await env.bluetooth.rejectNext(.setCoordinates)
 
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { await self.positionWriteCount(env.bluetooth) == 1 }
+      try await env.waitAdvancingClock { await self.positionWriteCount(env.bluetooth) == 1 }
       let disconnect = env.startDisconnect()
-      try await waitUntil(timeout: .seconds(35)) { env.appState.navigation.selectedSetting == nil }
+      try await env.waitAdvancingClock { env.appState.navigation.selectedSetting == nil }
       let detachedWhileApplying = env.manager.services == nil && model.isApplying
       try #require(detachedWhileApplying)
 
@@ -36,15 +36,15 @@ struct NodeConfigImportNormalInputTests {
       #expect(retainedWhileApplying)
       if settlement == .cancel { model.cancelImport() }
       await env.bluetooth.releaseReplies(for: .setCoordinates)
-      await model.importTask?.value
-      await disconnect.value
+      try await env.advancingClock { await model.importTask?.value }
+      try await env.advancingClock { await disconnect.value }
       let failedImportSettled = !model.isApplying && !model.importComplete && model.errorMessage != nil
       try #require(failedImportSettled)
       let retainedAfterFailure = model.importedConfig == Self.originalConfig
       try #require(retainedAfterFailure)
 
       await env.bluetooth.setConnectError(nil)
-      _ = try await env.appState.connectViaBluetooth(peripheralID: env.device.id)
+      try await env.advancingClock { _ = try await env.appState.connectViaBluetooth(peripheralID: env.device.id) }
       let replacementSource = env.manager.currentConnection.map { NodeConfigImportViewModel.ImportSource($0) }
       let sameDeviceReconnected = replacementSource?.deviceID == originalSource?.deviceID
         && replacementSource?.radioID == originalSource?.radioID
@@ -64,9 +64,9 @@ struct NodeConfigImportNormalInputTests {
       try await selectFile(Self.replacementConfig, model: model)
       let deliberateInputUsesFreshSource = model.inputSource == replacementSource
       try #require(deliberateInputUsesFreshSource)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
       let selectedImportCompleted = model.importComplete && model.didApplyAnyWrite && model.errorMessage == nil
       #expect(selectedImportCompleted)
       let writesAfterSelection = await positionWriteCount(env.bluetooth)
@@ -80,7 +80,7 @@ struct NodeConfigImportNormalInputTests {
       let laterTime = try await env.manager.session?.getTime()
       let laterIOCompleted = (laterTime?.timeIntervalSince1970 ?? 0) > 0
       #expect(laterIOCompleted)
-      await model.importTask?.value
+      try await env.advancingClock { await model.importTask?.value }
       let successfulImportReleasedInput = model.importedConfig == nil
       #expect(successfulImportReleasedInput)
     }
@@ -93,10 +93,10 @@ struct NodeConfigImportNormalInputTests {
       try await selectFile(Self.originalConfig, model: model)
       let inputID = model.inputID
       let source = model.inputSource
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
       await env.bluetooth.rejectNext(.setCoordinates)
       model.applyConfig()
-      await model.importTask?.value
+      try await env.advancingClock { await model.importTask?.value }
       let failedImportSettled = !model.isApplying && !model.importComplete && model.errorMessage != nil
       try #require(failedImportSettled)
 
@@ -105,9 +105,9 @@ struct NodeConfigImportNormalInputTests {
       let failedInputRetained = model.importedConfig == Self.originalConfig
         && model.inputID == inputID && model.inputSource == source
       #expect(failedInputRetained)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
       let retryCompleted = model.importComplete && model.didApplyAnyWrite && model.errorMessage == nil
       #expect(retryCompleted)
       let writesAfterRetry = await positionWriteCount(env.bluetooth)
@@ -115,7 +115,7 @@ struct NodeConfigImportNormalInputTests {
       let laterTime = try await env.manager.session?.getTime()
       let laterIOCompleted = (laterTime?.timeIntervalSince1970 ?? 0) > 0
       #expect(laterIOCompleted)
-      await model.importTask?.value
+      try await env.advancingClock { await model.importTask?.value }
     }
   }
 
@@ -124,7 +124,7 @@ struct NodeConfigImportNormalInputTests {
     try await withImporter(hostNavigation: false) { env, model in
       model.beginImport()
       try await selectFile(Self.originalConfig, model: model)
-      try await prepareConfirmation(model)
+      try await prepareConfirmation(model, env: env)
 
       model.handleDismissal()
 
@@ -141,7 +141,7 @@ struct NodeConfigImportNormalInputTests {
     hostNavigation: Bool,
     body: (ConnectionLinkSwitchHarness, NodeConfigImportViewModel) async throws -> Void
   ) async throws {
-    let env = try await ConnectionLinkSwitchHarness.make()
+    let env = try await ConnectionLinkSwitchHarness.make(sessionClock: TestClock())
     let model = NodeConfigImportViewModel()
     model.configure(
       nodeConfigService: { env.manager.services?.nodeConfigService },
@@ -169,7 +169,11 @@ struct NodeConfigImportNormalInputTests {
     model.previewTask?.cancel()
     await env.bluetooth.releaseAllGates()
     await env.wifi.releaseAllGates()
-    await model.importTask?.value
+    do {
+      try await env.advancingClock { await model.importTask?.value }
+    } catch {
+      bodyError = bodyError ?? error
+    }
     await model.parseTask?.value
     await model.previewTask?.value
     await env.close()
@@ -189,9 +193,9 @@ struct NodeConfigImportNormalInputTests {
     try #require(parsedSelectedInput)
   }
 
-  private func prepareConfirmation(_ model: NodeConfigImportViewModel) async throws {
+  private func prepareConfirmation(_ model: NodeConfigImportViewModel, env: ConnectionLinkSwitchHarness) async throws {
     model.prepareConfirmation()
-    await model.previewTask?.value
+    try await env.advancingClock { await model.previewTask?.value }
     let confirmationReady = model.showConfirmation && !model.isPreparingConfirmation && model.errorMessage == nil
     try #require(confirmationReady)
   }

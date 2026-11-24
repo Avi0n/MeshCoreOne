@@ -9,7 +9,7 @@ import Testing
 struct CanonicalIdentityCallerTests {
   @Test(arguments: [false, true])
   func `interrupted identity apply surfaces unknown outcome and retains source`(losesAcknowledgement: Bool) async throws {
-    let env = try await ConnectionLinkSwitchHarness.make()
+    let env = try await ConnectionLinkSwitchHarness.make(sessionClock: TestClock())
     let model = NodeConfigImportViewModel()
     model.configure(
       nodeConfigService: { env.manager.services?.nodeConfigService },
@@ -28,14 +28,14 @@ struct CanonicalIdentityCallerTests {
       model.acceptInput(config, source: nil)
       model.sections = ConfigSections(nodeIdentity: true)
       model.prepareConfirmation()
-      try await waitUntil { model.showConfirmation || model.errorMessage != nil }
+      try await env.waitAdvancingClock { model.showConfirmation || model.errorMessage != nil }
       #expect(model.showConfirmation)
       await env.bluetooth.enqueueResponsePackets(
         for: losesAcknowledgement ? .importPrivateKey : .appStart, packets: []
       )
 
       model.applyConfig()
-      try await waitUntil(timeout: .seconds(35)) { !model.isApplying }
+      try await env.waitAdvancingClock { !model.isApplying }
 
       #expect(!model.importComplete)
       #expect(model.applyProgress == (losesAcknowledgement ? 0 : 1))

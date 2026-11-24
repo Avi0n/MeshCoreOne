@@ -10,7 +10,7 @@ import Testing
 struct RadioWiFiContractManagerProvenanceTests {
   @Test(arguments: [false, true])
   func `timed out password cannot cross actual manager session replacement`(canonicalImport: Bool) async throws {
-    let env = try await ConnectionLinkSwitchHarness.make()
+    let env = try await ConnectionLinkSwitchHarness.make(sessionClock: TestClock())
     let model = RadioWiFiViewModel()
     let importer = NodeConfigImportViewModel()
     importer.configure(
@@ -50,18 +50,19 @@ struct RadioWiFiContractManagerProvenanceTests {
       try await waitUntil("the original password frame remains physically delayed") {
         await env.bluetooth.heldCLIReplyCount(for: "get wifi.pwd") == 1
       }
-      await first.value
+      // The held password reply is the timeout under test; let it elapse on the session clock.
+      try await env.advancingClock { await first.value }
       let oldPasswordCommand = try #require(await env.bluetooth.cliCommands.last {
         ConnectionTestRadioTransport.splitCLICommand($0).command == "get wifi.pwd"
       })
       let oldSession = try #require(env.manager.session)
       sessions.append(oldSession)
       await env.bluetooth.simulateAutoReconnecting(deviceID: env.device.id)
-      try await waitUntil("the previous session is withdrawn during automatic Bluetooth recovery") {
+      try await env.waitAdvancingClock("the previous session is withdrawn during automatic Bluetooth recovery") {
         env.manager.services == nil
       }
       await env.bluetooth.simulateReconnected()
-      try await waitUntil("the same request finishes recovery with a new session") {
+      try await env.waitAdvancingClock("the same request finishes recovery with a new session") {
         env.manager.connectionState == .ready && env.manager.services != nil
           && env.manager.session !== oldSession && env.manager.installedLink?.didCompleteSync == true
       }
@@ -86,12 +87,12 @@ struct RadioWiFiContractManagerProvenanceTests {
         importer.acceptInput(MeshCoreNodeConfig(privateKey: Self.privateKey), source: nil)
         importer.sections = ConfigSections(nodeIdentity: true, channels: false, contacts: false)
         importer.prepareConfirmation()
-        try await waitUntil("the real identity import caller presents confirmation") {
+        try await env.waitAdvancingClock("the real identity import caller presents confirmation") {
           importer.showConfirmation || importer.errorMessage != nil
         }
         #expect(importer.showConfirmation)
         importer.applyConfig()
-        try await waitUntil("the actual identity import and canonical graph rebuild settle") {
+        try await env.waitAdvancingClock("the actual identity import and canonical graph rebuild settle") {
           !importer.isApplying && importer.importComplete && env.manager.connectionState == .ready
             && env.manager.connectedDevice?.radioID == ghost.radioID
             && env.manager.installedLink?.didCompleteSync == true
@@ -147,7 +148,7 @@ struct RadioWiFiContractManagerProvenanceTests {
     } catch {
       importer.cancelImport()
       await env.bluetooth.releaseAllGates()
-      await env.manager.disconnect(reason: .userInitiated)
+      _ = try? await env.advancingClock { await env.manager.disconnect(reason: .userInitiated) }
       for worker in workers {
         await worker.value
       }
