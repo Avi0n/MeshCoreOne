@@ -797,7 +797,10 @@ struct PreselectedContactTests {
   @Test
   func `Preselected contact sets point A`() async throws {
     let contact = createTestContact(name: "Preselected", latitude: 37.8, longitude: -122.4)
-    let viewModel = LineOfSightViewModel(preselectedContact: contact)
+    let viewModel = LineOfSightViewModel(
+      preselectedContact: contact,
+      elevationService: MockElevationService()
+    )
 
     try await waitUntil("preselected contact elevation should load") {
       viewModel.pointA?.isLoadingElevation == false
@@ -811,14 +814,20 @@ struct PreselectedContactTests {
   @Test
   func `Preselected contact with no location does not set point A`() {
     let contact = createTestContact(name: "No Location", latitude: 0, longitude: 0)
-    let viewModel = LineOfSightViewModel(preselectedContact: contact)
+    let viewModel = LineOfSightViewModel(
+      preselectedContact: contact,
+      elevationService: MockElevationService()
+    )
 
     #expect(viewModel.pointA == nil)
   }
 
   @Test
   func `Nil preselected contact leaves point A nil`() {
-    let viewModel = LineOfSightViewModel(preselectedContact: nil)
+    let viewModel = LineOfSightViewModel(
+      preselectedContact: nil,
+      elevationService: MockElevationService()
+    )
 
     #expect(viewModel.pointA == nil)
   }

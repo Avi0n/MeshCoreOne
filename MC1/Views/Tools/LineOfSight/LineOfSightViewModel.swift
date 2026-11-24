@@ -565,8 +565,11 @@ final class LineOfSightViewModel {
     self.elevationService = elevationService
   }
 
-  convenience init(preselectedContact: ContactDTO?) {
-    self.init()
+  convenience init(
+    preselectedContact: ContactDTO?,
+    elevationService: ElevationServiceProtocol = ElevationService()
+  ) {
+    self.init(elevationService: elevationService)
     if let contact = preselectedContact, contact.hasLocation {
       let coordinate = CLLocationCoordinate2D(
         latitude: contact.latitude,
