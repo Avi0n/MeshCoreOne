@@ -12,6 +12,7 @@ public actor RxLogService {
 
   // Caches for fast lookup
   private var channelSecrets: [UInt8: Data] = [:] // channelIndex -> secret
+  private var channelSecretsByHash: [UInt8: [(index: UInt8, secret: Data)]] = [:] // channelHash -> candidates
   private var channelNames: [UInt8: String] = [:] // channelIndex -> name
   private var contactNames: [Data: String] = [:] // pubkey prefix -> name
 
@@ -90,7 +91,7 @@ public actor RxLogService {
     regionReprocessTask = nil
     let generation = regionCacheGeneration
 
-    eventMonitorTask = Task { [weak self] in
+    eventMonitorTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
 
       // Build known-regions cache (and channel/contact secrets).
@@ -127,6 +128,7 @@ public actor RxLogService {
       // Channels arrive sorted by slot index; a corrupt store can hold duplicate
       // indices, so keep the first match for a deterministic choice.
       channelSecrets = Dictionary(channels.map { ($0.index, $0.secret) }, uniquingKeysWith: { first, _ in first })
+      rebuildChannelSecretsByHash()
       channelNames = Dictionary(channels.map { ($0.index, $0.name) }, uniquingKeysWith: { first, _ in first })
       if !channels.isEmpty {
         logger.info("Loaded \(channels.count) channel secrets from database")
@@ -204,11 +206,22 @@ public actor RxLogService {
   /// Re-processes any recent noMatchingKey entries when secrets are provided.
   public func updateChannels(secrets: [UInt8: Data], names: [UInt8: String]) async {
     channelSecrets = secrets
+    rebuildChannelSecretsByHash()
     channelNames = names
 
     if !secrets.isEmpty {
       await reprocessNoMatchingKeyEntries()
     }
+  }
+
+  private func rebuildChannelSecretsByHash() {
+    var grouped: [UInt8: [(index: UInt8, secret: Data)]] = [:]
+    for index in channelSecrets.keys.sorted() {
+      guard let secret = channelSecrets[index] else { continue }
+      let hash = ChannelCrypto.channelHash(for: secret)
+      grouped[hash, default: []].append((index: index, secret: secret))
+    }
+    channelSecretsByHash = grouped
   }
 
   /// Re-process recent entries that failed decryption due to missing keys.
@@ -391,13 +404,14 @@ public actor RxLogService {
 
       // Need at least: 1 (channel hash) + 2 (MAC) + 16 (min ciphertext block)
       if rawPayload.count >= 1 + ChannelCrypto.macSize + 16 {
+        let wireChannelHash = rawPayload[rawPayload.startIndex]
         let encryptedPayload = Data(rawPayload.dropFirst(1))
 
-        for (index, secret) in channelSecrets {
-          let result = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
+        for candidate in channelSecretsByHash[wireChannelHash] ?? [] {
+          let result = ChannelCrypto.decrypt(payload: encryptedPayload, secret: candidate.secret)
           if case let .success(timestamp, _, text) = result {
-            channelIndex = index
-            channelName = channelNames[index] ?? "Channel \(index)"
+            channelIndex = candidate.index
+            channelName = channelNames[candidate.index] ?? "Channel \(candidate.index)"
             decryptStatus = .success
             senderTimestamp = timestamp
             decodedText = text
@@ -566,13 +580,14 @@ public actor RxLogService {
       }
     }
 
-    // Slow path: try all secrets (for .noMatchingKey entries or if fast path failed)
+    // Slow path: try secrets matching the wire channel hash (for .noMatchingKey entries or if fast path failed)
     // and record which channel's secret matched so the entry is attributed correctly.
-    for (index, secret) in channelSecrets {
-      let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
+    let wireChannelHash = entry.packetPayload[entry.packetPayload.startIndex]
+    for candidate in channelSecretsByHash[wireChannelHash] ?? [] {
+      let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: candidate.secret)
       if case let .success(timestamp, _, text) = decryptResult {
-        result.channelIndex = index
-        result.channelName = channelNames[index] ?? "Channel \(index)"
+        result.channelIndex = candidate.index
+        result.channelName = channelNames[candidate.index] ?? "Channel \(candidate.index)"
         result.senderTimestamp = timestamp
         result.decodedText = text
         break

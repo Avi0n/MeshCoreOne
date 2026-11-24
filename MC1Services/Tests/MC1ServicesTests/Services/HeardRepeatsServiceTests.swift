@@ -659,4 +659,173 @@ struct HeardRepeatsServiceTests {
     #expect(repeats.count == 1)
     #expect(repeats.first?.pathNodes == Data([0xBB]))
   }
+
+  @Test
+  func `processForRepeats skips DB lookups for unmatched packets and hits after note`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let spy = CountingHeardRepeatStore(wrapping: store)
+    let service = HeardRepeatsService(dataStore: spy)
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    await service.configure(radioID: radioID)
+
+    let unmatched = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: 1_704_067_500,
+      body: "unmatched"
+    )
+    #expect(await service.processForRepeats(unmatched) == nil)
+    let initialSentCalls = await spy.findSentChannelMessageCalls
+    let initialDedupCalls = await spy.fetchMessageByDedupKeyCalls
+    #expect(initialSentCalls == 0)
+    #expect(initialDedupCalls == 0)
+
+    let sentTimestamp: UInt32 = 1_704_067_501
+    let sentMessage = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "echo me",
+      timestamp: sentTimestamp
+    )
+    try await store.saveMessage(sentMessage)
+    await service.noteSentChannelMessage(channelIndex: channelIndex, timestamp: sentTimestamp)
+
+    let echo = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: sentTimestamp,
+      body: "echo me"
+    )
+    #expect(await service.processForRepeats(echo) == 1)
+    let afterEchoSentCalls = await spy.findSentChannelMessageCalls
+    let afterEchoDedupCalls = await spy.fetchMessageByDedupKeyCalls
+    #expect(afterEchoSentCalls == 1)
+    #expect(afterEchoDedupCalls == 0)
+
+    let incomingTimestamp: UInt32 = 1_704_067_502
+    let incoming = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "extra arrival",
+      senderName: Self.testNodeName,
+      wireTimestamp: incomingTimestamp,
+      pathNodes: Data([0xAA]),
+      pathLength: 1
+    )
+    try await store.saveMessage(incoming)
+    await service.noteIncomingChannelMessage(deduplicationKey: incoming.deduplicationKey)
+
+    let extra = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: incomingTimestamp,
+      body: "extra arrival",
+      pathNodes: [0xBB]
+    )
+    #expect(await service.processForRepeats(extra) == 1)
+    let afterExtraDedupCalls = await spy.fetchMessageByDedupKeyCalls
+    #expect(afterExtraDedupCalls == 1)
+  }
+}
+
+private actor CountingHeardRepeatStore: HeardRepeatPersisting {
+  private let inner: PersistenceStore
+  private(set) var findSentChannelMessageCalls = 0
+  private(set) var fetchMessageByDedupKeyCalls = 0
+
+  init(wrapping inner: PersistenceStore) {
+    self.inner = inner
+  }
+
+  func fetchRecentSentChannelMessageKeys(radioID: UUID, limit: Int) async throws -> [SentChannelMessageKey]? {
+    try await inner.fetchRecentSentChannelMessageKeys(radioID: radioID, limit: limit)
+  }
+
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID: UUID, limit: Int) async throws -> [String]? {
+    try await inner.fetchRecentIncomingChannelDeduplicationKeys(radioID: radioID, limit: limit)
+  }
+
+  func findSentChannelMessage(
+    radioID: UUID,
+    channelIndex: UInt8,
+    timestamp: UInt32,
+    text: String
+  ) async throws -> MessageDTO? {
+    findSentChannelMessageCalls += 1
+    return try await inner.findSentChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      timestamp: timestamp,
+      text: text
+    )
+  }
+
+  func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO? {
+    fetchMessageByDedupKeyCalls += 1
+    return try await inner.fetchMessage(deduplicationKey: deduplicationKey, radioID: radioID)
+  }
+
+  func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws {
+    try await inner.saveMessageRepeat(dto)
+  }
+
+  func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO] {
+    try await inner.fetchMessageRepeats(messageID: messageID)
+  }
+
+  func incrementMessageHeardRepeats(id: UUID) async throws -> Int {
+    try await inner.incrementMessageHeardRepeats(id: id)
+  }
+
+  func admitIncomingPath(
+    messageID: UUID,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    receivedAt: Date,
+    rxLogEntryID: UUID?
+  ) async throws -> IncomingPathAdmission {
+    try await inner.admitIncomingPath(
+      messageID: messageID,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      receivedAt: receivedAt,
+      rxLogEntryID: rxLogEntryID
+    )
+  }
+
+  func admitSentEcho(
+    messageID: UUID,
+    expectedTimestamp: UInt32,
+    receivedAt: Date,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    rxLogEntryID: UUID?
+  ) async throws -> Int? {
+    try await inner.admitSentEcho(
+      messageID: messageID,
+      expectedTimestamp: expectedTimestamp,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    )
+  }
+
+  func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) async throws -> Bool {
+    try await inner.adoptIncomingPathIfUnknown(id: id, pathNodes: pathNodes, pathLength: pathLength)
+  }
+
+  func incrementMessageSendCount(id: UUID) async throws -> Int {
+    try await inner.incrementMessageSendCount(id: id)
+  }
 }

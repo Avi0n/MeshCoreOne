@@ -806,6 +806,42 @@ public extension PersistenceStore {
 
   // MARK: - Heard Repeats
 
+  func fetchRecentSentChannelMessageKeys(radioID: UUID, limit: Int) async throws -> [SentChannelMessageKey]? {
+    let targetRadioID = radioID
+    let outgoingDirection = MessageDirection.outgoing.rawValue
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.channelIndex != nil
+        && message.directionRawValue == outgoingDirection
+    }
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = limit
+    let messages = try modelContext.fetch(descriptor)
+    return messages.compactMap { message in
+      message.channelIndex.map { SentChannelMessageKey(channelIndex: $0, timestamp: message.timestamp) }
+    }
+  }
+
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID: UUID, limit: Int) async throws -> [String]? {
+    let targetRadioID = radioID
+    let incomingDirection = MessageDirection.incoming.rawValue
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.channelIndex != nil
+        && message.directionRawValue == incomingDirection
+        && message.deduplicationKey != nil
+    }
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = limit
+    return try modelContext.fetch(descriptor).compactMap(\.deduplicationKey)
+  }
+
   /// Finds the outgoing channel message a heard repeat echoes back. The sender
   /// embeds a timestamp the channel payload authenticates and every mesh hop
   /// forwards byte-identical, so exact channel, timestamp, and text on the sending

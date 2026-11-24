@@ -57,6 +57,7 @@ public extension MessageService {
       textType: textType
     )
     try await dataStore.saveMessage(messageDTO)
+    await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: timestamp)
 
     do {
       try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
@@ -111,6 +112,7 @@ public extension MessageService {
       textType: textType
     )
     try await dataStore.saveMessage(messageDTO)
+    await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: timestamp)
 
     return messageDTO
   }
@@ -216,6 +218,7 @@ public extension MessageService {
       if !preserveTimestamp {
         try await dataStore.prepareChannelMessageResend(id: messageID, timestamp: wireTimestamp)
       }
+      await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: wireTimestamp)
       let isReaction = message.reactionTargetMessageID != nil
       let alreadyAccepted = isReaction && (
         acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)

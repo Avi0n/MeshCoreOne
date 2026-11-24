@@ -1,7 +1,23 @@
 import Foundation
 
+public struct SentChannelMessageKey: Hashable, Sendable {
+  public let channelIndex: UInt8
+  public let timestamp: UInt32
+
+  public init(channelIndex: UInt8, timestamp: UInt32) {
+    self.channelIndex = channelIndex
+    self.timestamp = timestamp
+  }
+}
+
 /// Store operations for correlating RX observations with a known message.
 public protocol HeardRepeatPersisting: Actor {
+  /// Recent sent channel keys for echo filtering, or `nil` to fail open to store lookups.
+  func fetchRecentSentChannelMessageKeys(radioID: UUID, limit: Int) async throws -> [SentChannelMessageKey]?
+
+  /// Recent incoming channel deduplication keys for arrival filtering, or `nil` to fail open.
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID: UUID, limit: Int) async throws -> [String]?
+
   /// Find a sent channel message by exact channel, sender timestamp, and text on the sending radio
   func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String) async throws -> MessageDTO?
 
@@ -53,4 +69,14 @@ public protocol HeardRepeatPersisting: Actor {
 
   /// Increment send count and return new count
   func incrementMessageSendCount(id: UUID) async throws -> Int
+}
+
+public extension HeardRepeatPersisting {
+  func fetchRecentSentChannelMessageKeys(radioID _: UUID, limit _: Int) async throws -> [SentChannelMessageKey]? {
+    nil
+  }
+
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID _: UUID, limit _: Int) async throws -> [String]? {
+    nil
+  }
 }

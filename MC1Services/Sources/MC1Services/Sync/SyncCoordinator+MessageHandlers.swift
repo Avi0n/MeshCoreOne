@@ -365,6 +365,9 @@ extension SyncCoordinator {
                 messageDTO, scope: scope, conversationID: channel?.textRulesID
               ),
               scope.isCurrent else { return }
+        await dependencies.heardRepeatsService.noteIncomingChannelMessage(
+          deduplicationKey: messageDTO.deduplicationKey
+        )
         let savedDTO = try await harvestAndRefreshChannelMessage(
           messageDTO: messageDTO,
           radioID: radioID,

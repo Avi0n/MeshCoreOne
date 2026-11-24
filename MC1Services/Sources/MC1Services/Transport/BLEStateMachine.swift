@@ -311,7 +311,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     initializeCentralManager()
   }
 
-  private let centralQueue = DispatchQueue(label: "com.pocketmesh.ble.central")
+  private let centralQueue = DispatchQueue(label: "com.pocketmesh.ble.central", qos: .utility)
 
   private func initializeCentralManager() {
     // Set stateMachine reference before creating CBCentralManager.

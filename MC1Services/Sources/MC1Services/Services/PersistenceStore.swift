@@ -40,7 +40,7 @@ private final class StoreExecutor: SerialModelExecutor, @unchecked Sendable {
   private let queue: DispatchSerialQueue
 
   init(container: ModelContainer) {
-    let queue = DispatchSerialQueue(label: "PersistenceStore")
+    let queue = DispatchSerialQueue(label: "PersistenceStore", autoreleaseFrequency: .workItem)
     modelContext = queue.sync { ModelContext(container) }
     self.queue = queue
   }

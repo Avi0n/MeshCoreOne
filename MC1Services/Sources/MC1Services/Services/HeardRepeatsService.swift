@@ -11,6 +11,17 @@ public actor HeardRepeatsService {
   /// Device ID for the current session
   private var radioID: UUID?
 
+  private static let sentKeySeedLimit = 200
+  private static let maxTrackedSentKeys = 500
+  private static let incomingKeySeedLimit = 500
+  private static let maxTrackedIncomingKeys = 1000
+
+  /// Nil means unseeded (fail-open to DB lookup).
+  private var knownSentKeys: Set<SentChannelMessageKey>?
+  private var knownSentOrder: [SentChannelMessageKey] = []
+  private var knownIncomingDedupKeys: Set<String>?
+  private var knownIncomingOrder: [String] = []
+
   #if DEBUG
     /// Runs before an incoming-path decision reads the current rows.
     var admissionHoldForTesting: (@Sendable () async -> Void)?
@@ -44,9 +55,76 @@ public actor HeardRepeatsService {
 
   /// Configure the service with the connected radio.
   /// Must be called once before processing any RX log entries.
-  public func configure(radioID: UUID) {
+  public func configure(radioID: UUID) async {
     self.radioID = radioID
+    knownSentKeys = nil
+    knownSentOrder.removeAll(keepingCapacity: true)
+    knownIncomingDedupKeys = nil
+    knownIncomingOrder.removeAll(keepingCapacity: true)
+
+    if let seededSent = try? await dataStore.fetchRecentSentChannelMessageKeys(
+      radioID: radioID,
+      limit: Self.sentKeySeedLimit
+    ) {
+      var set: Set<SentChannelMessageKey> = []
+      var order: [SentChannelMessageKey] = []
+      for key in seededSent.reversed() {
+        Self.insertBounded(key, into: &set, order: &order, limit: Self.maxTrackedSentKeys)
+      }
+      knownSentKeys = set
+      knownSentOrder = order
+    }
+
+    if let seededIncoming = try? await dataStore.fetchRecentIncomingChannelDeduplicationKeys(
+      radioID: radioID,
+      limit: Self.incomingKeySeedLimit
+    ) {
+      var set: Set<String> = []
+      var order: [String] = []
+      for key in seededIncoming.reversed() {
+        Self.insertBounded(key, into: &set, order: &order, limit: Self.maxTrackedIncomingKeys)
+      }
+      knownIncomingDedupKeys = set
+      knownIncomingOrder = order
+    }
+
     logger.info("Configured with radioID: \(radioID)")
+  }
+
+  public func noteSentChannelMessage(channelIndex: UInt8, timestamp: UInt32) {
+    guard var set = knownSentKeys else { return }
+    Self.insertBounded(
+      SentChannelMessageKey(channelIndex: channelIndex, timestamp: timestamp),
+      into: &set,
+      order: &knownSentOrder,
+      limit: Self.maxTrackedSentKeys
+    )
+    knownSentKeys = set
+  }
+
+  public func noteIncomingChannelMessage(deduplicationKey: String?) {
+    guard let deduplicationKey, var set = knownIncomingDedupKeys else { return }
+    Self.insertBounded(
+      deduplicationKey,
+      into: &set,
+      order: &knownIncomingOrder,
+      limit: Self.maxTrackedIncomingKeys
+    )
+    knownIncomingDedupKeys = set
+  }
+
+  private static func insertBounded<T: Hashable>(
+    _ item: T,
+    into set: inout Set<T>,
+    order: inout [T],
+    limit: Int
+  ) {
+    guard set.insert(item).inserted else { return }
+    order.append(item)
+    if order.count > limit {
+      let evicted = order.removeFirst()
+      set.remove(evicted)
+    }
   }
 
   /// Process an RX log entry to check if it's a repeat of a sent message.
@@ -70,12 +148,14 @@ public actor HeardRepeatsService {
     }
 
     do {
-      if let message = try await dataStore.findSentChannelMessage(
-        radioID: radioID,
-        channelIndex: channelIndex,
-        timestamp: senderTimestamp,
-        text: messageText
-      ) {
+      let sentKey = SentChannelMessageKey(channelIndex: channelIndex, timestamp: senderTimestamp)
+      if knownSentKeys == nil || knownSentKeys?.contains(sentKey) == true,
+         let message = try await dataStore.findSentChannelMessage(
+           radioID: radioID,
+           channelIndex: channelIndex,
+           timestamp: senderTimestamp,
+           text: messageText
+         ) {
         return try await recordSentEcho(
           message: message,
           entry: entry
@@ -89,10 +169,11 @@ public actor HeardRepeatsService {
         timestamp: senderTimestamp,
         content: messageText
       )
-      guard let message = try await dataStore.fetchMessage(
-        deduplicationKey: key,
-        radioID: radioID
-      ) else {
+      guard knownIncomingDedupKeys == nil || knownIncomingDedupKeys?.contains(key) == true,
+            let message = try await dataStore.fetchMessage(
+              deduplicationKey: key,
+              radioID: radioID
+            ) else {
         return nil
       }
       return await recordDistinctPathIfNeeded(
@@ -171,6 +252,7 @@ public actor HeardRepeatsService {
     decodedCandidates: [RxLogEntryDTO]
   ) async {
     guard !message.isOutgoing, message.channelIndex != nil else { return }
+    noteIncomingChannelMessage(deduplicationKey: message.deduplicationKey)
     let matching = ChannelRXCorrelation.matching(
       decodedCandidates,
       deduplicationKey: message.deduplicationKey

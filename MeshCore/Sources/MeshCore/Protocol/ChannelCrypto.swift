@@ -28,6 +28,18 @@ public enum ChannelCrypto {
   /// Total header size before message text: timestamp (4) + txt_type (1) = 5 bytes.
   public static let plaintextHeaderSize = timestampSize + txtTypeSize
 
+  /// 1-byte wire channel hash matching firmware `BaseChatMesh::setChannel`:
+  /// hashes the first 16 bytes when a 32-byte secret is zero-padded, else all bytes.
+  public static func channelHash(for secret: Data) -> UInt8 {
+    let keyData: Data = if secret.count == 32, secret.dropFirst(keySize).allSatisfy({ $0 == 0 }) {
+      Data(secret.prefix(keySize))
+    } else {
+      secret
+    }
+    let digest = SHA256.hash(data: keyData)
+    return digest.withUnsafeBytes { $0[0] }
+  }
+
   /// Result of attempting to decrypt a channel message.
   public enum DecryptResult: Sendable {
     /// Successfully decrypted the message.

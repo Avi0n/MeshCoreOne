@@ -356,4 +356,17 @@ struct ChannelCryptoTests {
       Issue.record("Expected success for 32-byte secret")
     }
   }
+
+  @Test
+  func `channelHash matches SHA256 first byte for 16-byte, zero-padded 32-byte, and full 32-byte keys`() {
+    let expected16 = Data(SHA256.hash(data: testSecret))[0]
+    #expect(ChannelCrypto.channelHash(for: testSecret) == expected16)
+
+    let zeroPadded32 = testSecret + Data(repeating: 0, count: 16)
+    #expect(ChannelCrypto.channelHash(for: zeroPadded32) == expected16)
+
+    let full32 = testSecret + Data(repeating: 0xAB, count: 16)
+    let expected32 = Data(SHA256.hash(data: full32))[0]
+    #expect(ChannelCrypto.channelHash(for: full32) == expected32)
+  }
 }

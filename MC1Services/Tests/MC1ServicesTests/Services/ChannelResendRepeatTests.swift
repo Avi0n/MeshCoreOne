@@ -123,8 +123,14 @@ struct ChannelResendRepeatTests {
     await transport.simulateReceive(selfInfoPacket())
     try await startTask.value
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
-    let service = MessageService(session: session, dataStore: store, contactService: nil, config: config)
     let repeats = HeardRepeatsService(dataStore: store)
+    let service = MessageService(
+      session: session,
+      dataStore: store,
+      contactService: nil,
+      config: config,
+      heardRepeatsService: repeats
+    )
     let message = MessageDTO.testChannelMessage(
       timestamp: Self.originalTimestamp,
       createdAt: Date(timeIntervalSince1970: TimeInterval(Self.originalTimestamp)),

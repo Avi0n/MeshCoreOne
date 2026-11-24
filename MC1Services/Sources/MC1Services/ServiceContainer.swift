@@ -214,7 +214,8 @@ public final class ServiceContainer {
       config: messageConfig,
       ackEvents: ackEvents,
       dmSendBudget: { DMSendBudget.current() },
-      plainTextSendGate: plainTextSendGate
+      plainTextSendGate: plainTextSendGate,
+      heardRepeatsService: heardRepeatsService
     )
     channelService = ChannelService(
       session: session,
