@@ -79,7 +79,7 @@ struct MeshStatusLiveActivity: Widget {
 /// Battery under the radio name, and the packet rate once unread takes the top row.
 private struct ExpandedDetailRow: View {
   let context: ActivityViewContext<MeshStatusAttributes>
-  let rate: Int
+  let rate: Int?
 
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: LiveActivityLayout.identitySpacing) {
@@ -152,34 +152,34 @@ private struct AdaptiveConnectionMark: View {
 }
 
 private struct CompactLabeledRate: View {
-  let rate: Int
+  let rate: Int?
 
   var body: some View {
-    Text("↓\(rate)/m")
+    Text(rate.map { "↓\($0)/m" } ?? "—")
       .monospacedDigit()
       .liveActivityInPlaceUpdate(rate: rate)
-      .accessibilityLabel(Text("\(rate) packets per minute"))
+      .accessibilityLabel(rate.map { Text("\($0) packets per minute") } ?? Text("Packet rate paused while locked"))
   }
 }
 
 private struct CompactDigitRate: View {
-  let rate: Int
+  let rate: Int?
 
   var body: some View {
-    Text("\(rate)")
+    Text(rate.map(String.init) ?? "—")
       .font(.system(size: CompactIslandMetrics.limitedRatePointSize, weight: .semibold))
       .monospacedDigit()
       .lineLimit(1)
       .minimumScaleFactor(CompactIslandMetrics.limitedRateMinimumScale)
       .liveActivityInPlaceUpdate(rate: rate)
-      .accessibilityLabel(Text("\(rate) packets per minute"))
+      .accessibilityLabel(rate.map { Text("\($0) packets per minute") } ?? Text("Packet rate paused while locked"))
   }
 }
 
 @available(iOS 27, *)
 private struct AdaptiveCompactRate: View {
   @Environment(\.isDynamicIslandLimitedInWidth) private var isDynamicIslandLimitedInWidth
-  let rate: Int
+  let rate: Int?
 
   var body: some View {
     if isDynamicIslandLimitedInWidth {

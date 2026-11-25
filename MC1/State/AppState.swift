@@ -687,6 +687,7 @@ final class AppState {
   /// listener, which otherwise leaks across a before-first-unlock `AppState` swap.
   /// Connection teardown stays on `ConnectionManager`.
   func shutdown() {
+    liveActivityManager.stopObservingDeviceLockState()
     watchlistRefreshCoordinator.shutdown()
     chatPrewarmRefresher?.cancelAll()
     cancelFreshPairingOperation()
@@ -720,6 +721,7 @@ final class AppState {
     // (which fires during activate) finds currentActivity populated and can update it.
     await liveActivityManager.recoverExistingActivity()
     liveActivityManager.startObservingEnablement()
+    liveActivityManager.startObservingDeviceLockState()
     await connectionManager.activate()
     // Check if disconnected pill should show (for fresh launch after termination)
     connectionUI.updateDisconnectedPillState(

@@ -4,6 +4,7 @@ import Foundation
 import MeshCore
 import SwiftUI
 import Testing
+import UIKit
 
 @Suite("LiveActivityManager packet rate")
 @MainActor
@@ -158,7 +159,90 @@ struct LiveActivityManagerTests {
     #expect(!manager.isDecayTimerActiveForTesting)
   }
 
-  private func sampleState(packetsPerMinute: Int) -> MeshStatusAttributes.ContentState {
+  @Test
+  func `content state decodes legacy integer rate and round-trips nil locked rate`() throws {
+    let legacyJSON = Data("""
+    {"isConnected":true,"packetsPerMinute":5,"unreadCount":2}
+    """.utf8)
+    let legacy = try JSONDecoder().decode(MeshStatusAttributes.ContentState.self, from: legacyJSON)
+    #expect(legacy.packetsPerMinute == 5)
+
+    let paused = sampleState(packetsPerMinute: nil)
+    let encoded = try JSONEncoder().encode(paused)
+    let decoded = try JSONDecoder().decode(MeshStatusAttributes.ContentState.self, from: encoded)
+    #expect(decoded == paused)
+    #expect(decoded.packetsPerMinute == nil)
+  }
+
+  @Test
+  func `locked nil rate never republishes while lock and unlock transitions do`() {
+    let paused = sampleState(packetsPerMinute: nil)
+    let active = sampleState(packetsPerMinute: 5)
+    #expect(!LiveActivityManager.shouldPublishUpdate(
+      current: paused,
+      proposed: paused,
+      currentStaleDate: nil,
+      now: now,
+      refreshLeadTime: 30
+    ))
+    #expect(!LiveActivityManager.shouldPublishUpdate(
+      current: paused,
+      proposed: paused,
+      currentStaleDate: now.addingTimeInterval(5),
+      now: now,
+      refreshLeadTime: 30
+    ))
+    #expect(LiveActivityManager.shouldPublishUpdate(
+      current: active,
+      proposed: paused,
+      currentStaleDate: now.addingTimeInterval(50),
+      now: now,
+      refreshLeadTime: 30
+    ))
+    #expect(LiveActivityManager.shouldPublishUpdate(
+      current: paused,
+      proposed: sampleState(packetsPerMinute: 0),
+      currentStaleDate: nil,
+      now: now,
+      refreshLeadTime: 30
+    ))
+  }
+
+  @Test
+  func `device lock notifications pause rate updates while still tracking rx timestamps`() async throws {
+    let center = NotificationCenter()
+    let manager = LiveActivityManager()
+    manager.startObservingDeviceLockState(notificationCenter: center, initiallyLocked: false)
+    defer { manager.stopObservingDeviceLockState() }
+
+    #expect(!manager.isDeviceLocked)
+    center.post(name: UIApplication.protectedDataWillBecomeUnavailableNotification, object: nil)
+    try await waitUntil { manager.isDeviceLocked }
+
+    await manager.handlePacketReceived()
+    #expect(manager.recentPacketsPerMinuteForTesting == 1)
+
+    center.post(name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
+    try await waitUntil { !manager.isDeviceLocked }
+    #expect(manager.recentPacketsPerMinuteForTesting == 1)
+  }
+
+  private func waitUntil(
+    timeout: Duration = .seconds(1),
+    condition: () -> Bool
+  ) async throws {
+    let deadline = ContinuousClock.now + timeout
+    while !condition() {
+      if ContinuousClock.now >= deadline {
+        Issue.record("Timed out waiting for lock state transition")
+        return
+      }
+      await Task.yield()
+      try await Task.sleep(for: .milliseconds(10))
+    }
+  }
+
+  private func sampleState(packetsPerMinute: Int?) -> MeshStatusAttributes.ContentState {
     MeshStatusAttributes.ContentState(
       isConnected: true,
       batteryPercent: nil,

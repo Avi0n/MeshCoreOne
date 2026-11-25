@@ -94,7 +94,7 @@ enum PacketRateStyle {
 }
 
 struct PacketRateLabel: View {
-  let rate: Int
+  let rate: Int?
   let style: PacketRateStyle
 
   var body: some View {
@@ -103,7 +103,7 @@ struct PacketRateLabel: View {
         Image(systemName: "arrow.down")
           .font(style.unitFont)
           .accessibilityHidden(true)
-        Text("\(rate)")
+        Text(rate.map(String.init) ?? "—")
           .font(style.numberFont)
           .monospacedDigit()
           .liveActivityInPlaceUpdate(rate: rate)
@@ -117,7 +117,7 @@ struct PacketRateLabel: View {
     .foregroundStyle(style == .secondary ? .secondary : .primary)
     .animation(nil, value: rate)
     .accessibilityElement(children: .combine)
-    .accessibilityLabel(Text("\(rate) packets per minute"))
+    .accessibilityLabel(rate.map { Text("\($0) packets per minute") } ?? Text("Packet rate paused while locked"))
   }
 }
 
@@ -193,7 +193,7 @@ extension MeshStatusAttributes.ContentState {
 
 extension View {
   /// Holds the rate glyphs in place. Live Activity text transitions animate them on each update.
-  func liveActivityInPlaceUpdate(rate: Int) -> some View {
+  func liveActivityInPlaceUpdate(rate: Int?) -> some View {
     contentTransition(.identity)
       .animation(nil, value: rate)
       .transition(.identity)
@@ -201,8 +201,9 @@ extension View {
 }
 
 extension ActivityViewContext where Attributes == MeshStatusAttributes {
-  /// Stale content shows 0 so the last rate does not stay on screen.
-  var displayedPacketRate: Int {
-    isStale ? 0 : state.packetsPerMinute
+  /// `nil` keeps the rate paused while locked; stale active rates fall back to 0.
+  var displayedPacketRate: Int? {
+    guard let rate = state.packetsPerMinute else { return nil }
+    return isStale ? 0 : rate
   }
 }

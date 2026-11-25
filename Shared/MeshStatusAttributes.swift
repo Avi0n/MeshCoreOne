@@ -12,7 +12,8 @@ struct MeshStatusAttributes: ActivityAttributes {
   struct ContentState: Codable, Hashable {
     var isConnected: Bool
     var batteryPercent: Int?
-    var packetsPerMinute: Int
+    /// `nil` pauses the packet rate display while the device is locked.
+    var packetsPerMinute: Int?
     var unreadCount: Int
     var disconnectedDate: Date?
 
