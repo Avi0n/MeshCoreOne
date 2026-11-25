@@ -143,7 +143,7 @@ public extension PersistenceStore {
 
   func scheduleDeferredCommit() {
     guard deferredCommitTask == nil else { return }
-    deferredCommitTask = Task {
+    deferredCommitTask = Task(priority: .utility) {
       let provider = currentAppStateProvider()
       let useBackgroundDebounce = if let provider {
         await !provider.isInForeground

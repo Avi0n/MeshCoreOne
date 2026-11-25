@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Displays a relative timestamp using Apple's localized relative date formatting
 struct RelativeTimestampText: View {
+  @Environment(\.scenePhase) private var scenePhase
   let date: Date
   var referenceDate: Date?
 
@@ -30,7 +31,7 @@ struct RelativeTimestampText: View {
     if let referenceDate {
       timestampText(relativeTo: referenceDate)
     } else {
-      TimelineView(.everyMinute) { context in
+      TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
         timestampText(relativeTo: context.date)
       }
     }

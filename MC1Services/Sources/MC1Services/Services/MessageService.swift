@@ -193,7 +193,7 @@ public actor MessageService {
     await captureAcknowledgementEvents()
     guard let events = bufferedAckEvents else { return }
     bufferedAckEvents = nil
-    eventListenerTask = Task { [weak self] in
+    eventListenerTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
 
       for await event in events {

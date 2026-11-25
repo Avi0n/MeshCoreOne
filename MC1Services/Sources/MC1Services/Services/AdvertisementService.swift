@@ -209,7 +209,7 @@ public actor AdvertisementService {
     eventMonitorTask?.cancel()
     currentRadioID = radioID
 
-    eventMonitorTask = Task { [weak self] in
+    eventMonitorTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
       let filter = EventFilter { event in
         switch event {
@@ -624,7 +624,7 @@ public actor AdvertisementService {
     guard backgroundNewAdvertPersistTask == nil, !pendingNewAdverts.isEmpty else { return }
     let delay = backgroundNewAdvertCoalesceInterval
     let tolerance: Duration? = delay >= .seconds(1) ? .seconds(1) : nil
-    backgroundNewAdvertPersistTask = Task { [weak self] in
+    backgroundNewAdvertPersistTask = Task(priority: .utility) { [weak self] in
       do {
         try await Task.sleep(for: delay, tolerance: tolerance)
       } catch {
@@ -680,7 +680,7 @@ public actor AdvertisementService {
     guard !pendingNewAdverts.isEmpty, let radioID = currentRadioID else { return nil }
     activeNewAdvertFlushMode = mergeNewAdvertFlushMode(activeNewAdvertFlushMode, with: mode)
 
-    let task = Task {
+    let task = Task(priority: mode == .background ? .utility : nil) {
       defer {
         newAdvertFlushTask = nil
         if activeNewAdvertFlushMode != .teardown {

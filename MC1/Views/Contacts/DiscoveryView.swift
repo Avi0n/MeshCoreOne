@@ -6,6 +6,7 @@ import SwiftUI
 struct DiscoveryView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
+  @Environment(\.scenePhase) private var scenePhase
   @State private var ownedState: DiscoveryState
   private let suppliedState: DiscoveryState?
   private let rendererRevision: Int
@@ -51,7 +52,7 @@ struct DiscoveryView: View {
       if !viewModel.hasLoadedOnce {
         loadingBody
       } else {
-        TimelineView(.everyMinute) { context in
+        TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
           loadedBody(referenceDate: context.date)
         }
       }

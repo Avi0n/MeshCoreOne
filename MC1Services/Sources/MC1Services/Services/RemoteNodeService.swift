@@ -138,7 +138,7 @@ public actor RemoteNodeService {
     guard !isRetired else { return }
     eventMonitorTask?.cancel()
 
-    eventMonitorTask = Task { [weak self] in
+    eventMonitorTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
       let filter = EventFilter { event in
         switch event {

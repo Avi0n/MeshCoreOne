@@ -304,7 +304,7 @@ actor MessagePollingService {
   private func startEventMonitoring() {
     guard !isSuspendedForRadioErase else { return }
     eventMonitorTask?.cancel()
-    let subscription = Task { [session] in
+    let subscription = Task(priority: .utility) { [session] in
       let channelData = EventFilter.eventType { event in
         if case .channelDataReceived = event { return true }
         return false
@@ -312,7 +312,7 @@ actor MessagePollingService {
       return await session.eventsTracked(filter: EventFilter.anyContactMessage.or(.anyChannelMessage).or(channelData))
     }
     eventSubscription = subscription
-    eventMonitorTask = Task { [weak self, session] in
+    eventMonitorTask = Task(priority: .utility) { [weak self, session] in
       let (id, events) = await subscription.value
       for await event in events {
         guard !Task.isCancelled, let self else { break }

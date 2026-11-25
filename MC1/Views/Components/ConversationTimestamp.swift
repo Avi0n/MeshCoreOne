@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ConversationTimestamp: View {
+  @Environment(\.scenePhase) private var scenePhase
   let date: Date
   var font: Font = .caption
   var referenceDate: Date?
@@ -11,7 +12,7 @@ struct ConversationTimestamp: View {
         .font(font)
         .foregroundStyle(.secondary)
     } else {
-      TimelineView(.everyMinute) { context in
+      TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
         Text(formattedDate(relativeTo: context.date))
           .font(font)
           .foregroundStyle(.secondary)

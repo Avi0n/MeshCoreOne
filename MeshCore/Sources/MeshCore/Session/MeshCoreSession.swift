@@ -249,7 +249,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     updateConnectionState(.connected)
 
     // Start receiving data with weak self to prevent retain cycle
-    receiveTask = Task { [weak self] in
+    receiveTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
       await receiveLoop()
     }
@@ -399,7 +399,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     // Subscribe before spawning the loop so a messagesWaiting event
     // dispatched right after this method returns cannot be missed.
     let events = await dispatcher.subscribe(filter: EventFilter.messagesWaiting.matches)
-    autoMessageFetchTask = Task { [weak self] in
+    autoMessageFetchTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
       await autoMessageFetchLoop(events: events)
     }
@@ -457,7 +457,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     autoMessageDrainRequested = true
 
     guard autoMessageDrainTask == nil else { return }
-    autoMessageDrainTask = Task { [weak self] in
+    autoMessageDrainTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
       await runAutoMessageDrainLoop()
     }
@@ -485,7 +485,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     autoContactRefreshRequested = true
 
     guard autoContactRefreshTask == nil else { return }
-    autoContactRefreshTask = Task { [weak self] in
+    autoContactRefreshTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
       await runAutoContactRefreshLoop()
     }

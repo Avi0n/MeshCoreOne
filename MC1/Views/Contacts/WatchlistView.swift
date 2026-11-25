@@ -107,6 +107,7 @@ private enum WatchlistRowLayout {
 }
 
 private struct WatchlistRow: View {
+  @Environment(\.scenePhase) private var scenePhase
   let contact: ContactDTO
   let reading: WatchlistRefreshCoordinator.BatteryReading?
   let isActive: Bool
@@ -126,7 +127,7 @@ private struct WatchlistRow: View {
           battery
         }
       }
-      TimelineView(.everyMinute) { context in
+      TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
         VStack(alignment: .leading, spacing: WatchlistRowLayout.rowSpacing) {
           Text(WatchlistReading.detailLine(contact, now: context.date))
             .font(.subheadline)

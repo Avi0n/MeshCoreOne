@@ -9,6 +9,7 @@ struct ConversationListContent: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  @Environment(\.scenePhase) private var scenePhase
 
   private let viewModel: ChatViewModel
   private let pinnedConversations: [Conversation]
@@ -56,7 +57,7 @@ struct ConversationListContent: View {
       if !hasLoadedOnce {
         loadingBody
       } else {
-        TimelineView(.everyMinute) { context in
+        TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
           loadedBody(referenceDate: context.date)
         }
       }
