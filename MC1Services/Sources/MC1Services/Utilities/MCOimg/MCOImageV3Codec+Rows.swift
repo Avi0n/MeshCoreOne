@@ -12,7 +12,7 @@ extension MCOImageV3Codec.Decoder {
   }
 
   func predicted(_ pixels: [Int], row: Int, x: Int, rowLength: Int, predictor: Int, virtual: Bool) -> Int {
-    if row == 0 && virtual { return 0 }
+    if row == 0, virtual { return 0 }
     let previousX = predictor == 1 ? (x + rowLength - 1) % rowLength : predictor == 2 ? (x + 1) % rowLength : x
     return pixels[(row - 1) * rowLength + previousX]
   }

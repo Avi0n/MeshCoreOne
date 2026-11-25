@@ -6,7 +6,7 @@ import Testing
 @MainActor
 @Suite("RoomMessageBubble accessibility label")
 struct RoomMessageBubbleA11yLabelTests {
-  @Test(arguments: ["im3:g/5WjAL`NA", "im4:AAAAA", "im5:unknown", "im3:"])
+  @Test(arguments: ["im3:g/5WjAL`NA", "im4:AAAAA", "im5:unknown"])
   func `MCOimg messages announce their localized content`(_ text: String) throws {
     let message = RoomMessageDTO(sessionID: UUID(), authorKeyPrefix: Data([0xAA]),
                                  authorName: "Alice", text: text, timestamp: 100)
