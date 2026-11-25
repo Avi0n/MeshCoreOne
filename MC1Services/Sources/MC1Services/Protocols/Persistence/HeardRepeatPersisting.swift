@@ -89,6 +89,16 @@ public protocol HeardRepeatPersisting: Actor {
 
   /// Increment send count and return new count
   func incrementMessageSendCount(id: UUID) async throws -> Int
+
+  /// The newest outgoing DM still awaiting delivery (pending, sending, sent or
+  /// retrying) to a contact whose public key starts with `recipientHash`.
+  /// Used to attribute a heard TEXT_MSG echo to the DM that produced it.
+  func findActiveOutgoingDM(radioID: UUID, recipientHash: UInt8) async throws -> MessageDTO?
+}
+
+extension HeardRepeatPersisting {
+  /// Stores without DM echo support (test doubles) match nothing.
+  func findActiveOutgoingDM(radioID: UUID, recipientHash: UInt8) async throws -> MessageDTO? { nil }
 }
 
 public extension HeardRepeatPersisting {

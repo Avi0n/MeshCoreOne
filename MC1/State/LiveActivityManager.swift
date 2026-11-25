@@ -155,6 +155,7 @@ final class LiveActivityManager {
     var packetsPerMinute: Int??
     var unreadCount: Int?
     var disconnectedDate: Date??
+    var failedSends: FailedSendSummary??
   }
 
   // MARK: - Lifecycle
@@ -476,6 +477,14 @@ final class LiveActivityManager {
     await flushPendingUpdate()
   }
 
+  /// Publishes unseen failed DMs. Flushed at once, like unread, so a failure is not held by the throttle.
+  func handleFailedSendsChanged(_ summary: FailedSendSummary?) async {
+    let generation = lifecycleGeneration
+    await scheduleUpdate(failedSends: .some(summary))
+    guard lifecycleGeneration == generation else { return }
+    await flushPendingUpdate()
+  }
+
   func setEnabled(_ enabled: Bool) async {
     isEnabled = enabled
     if !enabled {
@@ -786,7 +795,8 @@ final class LiveActivityManager {
     battery: Int?? = nil,
     packetsPerMinute: Int?? = nil,
     unreadCount: Int? = nil,
-    disconnectedDate: Date?? = nil
+    disconnectedDate: Date?? = nil,
+    failedSends: FailedSendSummary?? = nil
   ) async {
     guard currentActivity != nil else { return }
 
@@ -803,6 +813,7 @@ final class LiveActivityManager {
     }
     if let unreadCount { pending.unreadCount = unreadCount }
     if let disconnectedDate { pending.disconnectedDate = disconnectedDate }
+    if let failedSends { pending.failedSends = failedSends }
     pendingUpdate = pending
 
     let cadence = activeCadence
@@ -868,7 +879,8 @@ final class LiveActivityManager {
       battery: pending.battery,
       packetsPerMinute: pending.packetsPerMinute,
       unreadCount: pending.unreadCount,
-      disconnectedDate: pending.disconnectedDate
+      disconnectedDate: pending.disconnectedDate,
+      failedSends: pending.failedSends
     )
   }
 
@@ -884,7 +896,8 @@ final class LiveActivityManager {
     battery: Int?? = nil,
     packetsPerMinute: Int?? = nil,
     unreadCount: Int? = nil,
-    disconnectedDate: Date?? = nil
+    disconnectedDate: Date?? = nil,
+    failedSends: FailedSendSummary?? = nil
   ) async {
     guard let activity = currentActivity else { return }
     let current = activity.content.state
@@ -899,7 +912,8 @@ final class LiveActivityManager {
       batteryPercent: battery ?? current.batteryPercent,
       packetsPerMinute: resolvedPacketsPerMinute,
       unreadCount: unreadCount ?? current.unreadCount,
-      disconnectedDate: disconnectedDate ?? current.disconnectedDate
+      disconnectedDate: disconnectedDate ?? current.disconnectedDate,
+      failedSends: failedSends ?? current.failedSends
     )
     let cadence = activeCadence
     let now = Date.now

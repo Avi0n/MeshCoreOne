@@ -76,6 +76,9 @@ struct BubbleFooterRow: View {
         usesHeardTimesAccessibility: !footer.showStatusRow
       )))
     }
+    if footer.status == .failed, !footer.isChannelMessage, footer.showStatusRow, footer.heardRepeats > 0 {
+      badges.append(AnyView(BubbleNoAckFooter()))
+    }
     if footer.sendCount > 1, footer.showStatusRow {
       badges.append(AnyView(BubbleSendCountFooter(count: footer.sendCount, color: timeColor)))
     }
@@ -253,6 +256,18 @@ private struct BubbleRepeatFooter: View {
     .footerChip(color: color)
     .accessibilityElement(children: .combine)
     .accessibilityLabel(accessibilityLabel)
+  }
+}
+
+/// A failed DM that a repeater was heard forwarding: it reached the mesh but was never
+/// acknowledged. The repeat badge beside it carries the count.
+private struct BubbleNoAckFooter: View {
+  var body: some View {
+    // Sits on a red failed bubble, so red/orange would vanish.
+    Text(L10n.Chats.Chats.Message.Status.noAck)
+      .font(.caption2)
+      .foregroundStyle(.yellow)
+      .footerChip(color: .yellow)
   }
 }
 

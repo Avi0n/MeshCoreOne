@@ -947,6 +947,43 @@ public extension PersistenceStore {
     return MessageDTO(from: message)
   }
 
+  /// Newest outgoing DM awaiting delivery to a contact whose key starts with `recipientHash`.
+  /// Contact hashes are one byte, so collisions are possible; the newest active message wins.
+  func findActiveOutgoingDM(radioID: UUID, recipientHash: UInt8) throws -> MessageDTO? {
+    let contactIDs = Set(try fetchContacts(radioID: radioID)
+      .filter { $0.publicKey.first == recipientHash }
+      .map(\.id))
+    guard !contactIDs.isEmpty else { return nil }
+
+    let targetRadioID = radioID
+    let outgoingDirection = MessageDirection.outgoing.rawValue
+    let activeStatuses: Set<Int> = [
+      MessageStatus.pending.rawValue,
+      MessageStatus.sending.rawValue,
+      MessageStatus.sent.rawValue,
+      MessageStatus.retrying.rawValue,
+    ]
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID &&
+        message.directionRawValue == outgoingDirection &&
+        message.contactID != nil
+    }
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = 200
+
+    let candidates = try modelContext.fetch(descriptor)
+    for message in candidates {
+      guard activeStatuses.contains(message.statusRawValue),
+            let contactID = message.contactID,
+            contactIDs.contains(contactID) else { continue }
+      return MessageDTO(from: message)
+    }
+    return nil
+  }
+
   /// Saves a new MessageRepeat entry and links it to the parent message.
   func saveMessageRepeat(_ dto: MessageRepeatDTO) throws {
     // Fetch the parent message for relationship

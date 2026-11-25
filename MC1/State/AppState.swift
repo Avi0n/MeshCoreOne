@@ -284,6 +284,12 @@ final class AppState {
       guard !Task.isCancelled, services === capturedServices,
             currentRadioID == radioID, unreadRefreshGeneration == generation else { return }
       await conversationUnreadOperations.publish(liveActivityManager, total)
+      let failed = try? await capturedServices.dataStore.fetchUnseenFailedDMSummary(radioID: radioID)
+      guard !Task.isCancelled, services === capturedServices,
+            currentRadioID == radioID, unreadRefreshGeneration == generation else { return }
+      await liveActivityManager.handleFailedSendsChanged(
+        failed.flatMap { $0.count > 0 ? FailedSendSummary(count: $0.count, repeatsHeard: $0.newestRepeatsHeard) : nil }
+      )
     }
   }
 

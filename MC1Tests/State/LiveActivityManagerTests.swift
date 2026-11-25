@@ -242,6 +242,32 @@ struct LiveActivityManagerTests {
     }
   }
 
+  @Test
+  func `an unseen failed send takes the top row only while connected`() {
+    var state = sampleState(packetsPerMinute: 4)
+    #expect(!state.showsFailedSend)
+
+    state.failedSends = FailedSendSummary(count: 1, repeatsHeard: 3)
+    #expect(state.showsFailedSend)
+
+    state.isConnected = false
+    #expect(!state.showsFailedSend)
+  }
+
+  @Test
+  func `a changed failed-send summary is published`() {
+    let current = sampleState(packetsPerMinute: 4)
+    var proposed = current
+    proposed.failedSends = FailedSendSummary(count: 1, repeatsHeard: 0)
+    #expect(LiveActivityManager.shouldPublishUpdate(
+      current: current,
+      proposed: proposed,
+      currentStaleDate: now.addingTimeInterval(50),
+      now: now,
+      refreshLeadTime: 30
+    ))
+  }
+
   private func sampleState(packetsPerMinute: Int?) -> MeshStatusAttributes.ContentState {
     MeshStatusAttributes.ContentState(
       isConnected: true,
