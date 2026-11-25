@@ -9,37 +9,28 @@ struct RxLogEntryHeaderSection: View {
   let entry: RxLogEntryDTO
   let framing: RxLogPathFraming
   let labels: RxLogHopLabels
-  /// Reports the row's content width, which the path preview row shares.
-  let onWidthChange: (CGFloat) -> Void
 
   var body: some View {
-    Section {
-      VStack(alignment: .leading, spacing: Self.rowSpacing) {
-        Label {
-          Text(title)
-        } icon: {
-          Image(systemName: entry.payloadType.systemImage)
-        }
-        .font(.subheadline.weight(.semibold))
+    VStack(alignment: .leading, spacing: Self.rowSpacing) {
+      Label {
+        Text(title)
+      } icon: {
+        Image(systemName: entry.payloadType.systemImage)
+      }
+      .font(.subheadline.weight(.semibold))
+      .foregroundStyle(.secondary)
+
+      if let messageBody = entry.messageBody {
+        Text(messageBody)
+          .font(.body)
+          .textSelection(.enabled)
+      }
+
+      Text(metadata)
+        .font(.caption)
         .foregroundStyle(.secondary)
-
-        if let messageBody = entry.messageBody {
-          Text(messageBody)
-            .font(.body)
-            .textSelection(.enabled)
-        }
-
-        Text(metadata)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .onGeometryChange(for: CGFloat.self) { proxy in
-        proxy.size.width
-      } action: { width in
-        onWidthChange(width)
-      }
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 
   private var title: String {
@@ -71,6 +62,6 @@ struct RxLogEntryHeaderSection: View {
   }
 
   private var isDirectTextMessage: Bool {
-    !entry.isFlood && entry.payloadType == .textMessage
+    framing == .remaining && entry.payloadType == .textMessage
   }
 }

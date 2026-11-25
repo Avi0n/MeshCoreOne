@@ -310,34 +310,6 @@ struct MessagePathViewModelTests {
   }
 
   @Test
-  func `locatedSender prefers key prefix over channel name when prefix matches`() {
-    let viewModel = MessagePathViewModel()
-    let prefixed = createContact(
-      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
-      name: "Alpha",
-      latitude: Self.locatedLatitude,
-      longitude: Self.locatedLongitude
-    )
-    let named = createContact(
-      prefix: [0xBB, 0x02, 0x00, 0x00, 0x00, 0x00],
-      name: "RemoteNode",
-      latitude: 37.8,
-      longitude: -122.5
-    )
-    viewModel.contacts = [prefixed, named]
-
-    let result = viewModel.locatedSender(
-      for: sender(
-        senderKeyPrefix: prefixed.publicKeyPrefix,
-        senderNodeName: "RemoteNode",
-        channelIndex: 0
-      )
-    )
-
-    #expect(result?.id == prefixed.id)
-  }
-
-  @Test
   func `locatedSender matches channel sender name case-insensitively`() {
     let viewModel = MessagePathViewModel()
     let contact = createContact(

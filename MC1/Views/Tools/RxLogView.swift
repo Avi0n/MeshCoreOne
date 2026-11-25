@@ -3,13 +3,9 @@ import SwiftUI
 
 struct RxLogView: View {
   @Environment(\.appState) private var appState
-  @Environment(\.appTheme) private var theme
 
   @State private var viewModel = RxLogViewModel()
   @State private var showClearConfirmation = false
-
-  /// Points past the resting top before the list counts as scrolled away.
-  private static let scrolledAwayThreshold: CGFloat = 8
 
   private var isWorkspaceActive: Bool {
     appState.navigation.isToolWorkspaceActive(.rxLog)
@@ -28,119 +24,39 @@ struct RxLogView: View {
 
   var body: some View {
     @Bindable var viewModel = viewModel
-    let visible = viewModel.visibleEntries
-    screen(visible: visible)
-      .navigationTitle(L10n.Tools.Tools.rxLog)
-      .searchable(text: searchText, prompt: L10n.Tools.Tools.RxLog.searchPrompt)
-      .toolbar { toolbarContent }
-      .sheet(item: $viewModel.selectedEntry) { entry in
-        RxLogEntryDetailView(entry: entry, viewModel: viewModel, labels: hopLabels)
-      }
-      .task(id: appState.servicesVersion) {
-        guard isWorkspaceActive else { return }
-        viewModel.configure(
-          rxLogService: { [appState] in appState.services?.rxLogService },
-          dataStore: { [appState] in appState.services?.dataStore },
-          radioID: { [appState] in appState.currentRadioID }
-        )
-        await viewModel.subscribe()
-        await viewModel.loadNodeNames()
-      }
-      .onChange(of: appState.contactsVersion) {
-        Task { await viewModel.loadNodeNames() }
-      }
-      .onChange(of: isWorkspaceActive) { _, isActive in
-        if isActive {
-          Task { await viewModel.subscribe() }
-        } else {
-          viewModel.unsubscribe()
-        }
-      }
-  }
-
-  @ViewBuilder
-  private func screen(visible: [RxLogEntryDTO]) -> some View {
-    if appState.services?.rxLogService == nil {
-      disconnectedState
-    } else if viewModel.entries.isEmpty {
-      emptyState
-    } else if visible.isEmpty {
-      filteredEmptyState
-    } else {
-      entryList(visible)
+    RxLogEntriesContent(
+      viewModel: viewModel,
+      hopLabels: hopLabels,
+      isConnected: isConnected
+    )
+    .navigationTitle(L10n.Tools.Tools.rxLog)
+    .searchable(text: searchText, prompt: L10n.Tools.Tools.RxLog.searchPrompt)
+    .toolbar { toolbarContent }
+    .sheet(item: $viewModel.selectedEntry) { entry in
+      RxLogEntryDetailView(
+        entry: entry,
+        arrivalEntries: viewModel.selectedEntryArrivals,
+        labels: hopLabels
+      )
     }
-  }
-
-  private var emptyState: some View {
-    ContentUnavailableView {
-      Label(L10n.Tools.Tools.RxLog.listening, systemImage: "antenna.radiowaves.left.and.right")
-    } description: {
-      Text(L10n.Tools.Tools.RxLog.listeningDescription)
+    .task(id: appState.servicesVersion) {
+      guard isWorkspaceActive else { return }
+      viewModel.configure(
+        rxLogService: { [appState] in appState.services?.rxLogService },
+        dataStore: { [appState] in appState.services?.dataStore },
+        radioID: { [appState] in appState.currentRadioID }
+      )
+      await viewModel.subscribe()
+      await viewModel.loadNodeNames()
     }
-  }
-
-  private var disconnectedState: some View {
-    ContentUnavailableView {
-      Label(L10n.Tools.Tools.RxLog.notConnected, systemImage: "antenna.radiowaves.left.and.right.slash")
-    } description: {
-      Text(L10n.Tools.Tools.RxLog.notConnectedDescription)
+    .onChange(of: appState.contactsVersion) {
+      Task { await viewModel.loadNodeNames() }
     }
-  }
-
-  private var filteredEmptyState: some View {
-    Group {
-      if viewModel.searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-        ContentUnavailableView {
-          Label(L10n.Tools.Tools.RxLog.noMatchingPackets, systemImage: "line.3.horizontal.decrease.circle")
-        } description: {
-          Text(L10n.Tools.Tools.RxLog.noMatchingPacketsDescription)
-        } actions: {
-          Button(L10n.Tools.Tools.RxLog.clearFilters) {
-            viewModel.clearFilters()
-          }
-        }
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      if isActive {
+        Task { await viewModel.subscribe() }
       } else {
-        ContentUnavailableView.search(text: viewModel.searchText)
-      }
-    }
-  }
-
-  private func entryList(_ visible: [RxLogEntryDTO]) -> some View {
-    ScrollViewReader { proxy in
-      List {
-        Section {
-          ForEach(visible, id: \.id) { entry in
-            RxLogRowView(
-              entry: entry,
-              groupCount: viewModel.filter.groupsArrivals
-                ? viewModel.groupCounts[entry.packetHash, default: 1]
-                : 1,
-              labels: hopLabels,
-              onSelect: { viewModel.selectedEntry = entry },
-              onHideType: { viewModel.filter.setHidden(true, for: entry.payloadType) }
-            )
-            .id(entry.id)
-          }
-        }
-        .themedRowBackground(theme)
-      }
-      .listStyle(.insetGrouped)
-      .themedCanvas(theme)
-      .onScrollGeometryChange(for: Bool.self) { geometry in
-        geometry.contentOffset.y + geometry.contentInsets.top > Self.scrolledAwayThreshold
-      } action: { _, scrolledAway in
-        viewModel.setScrolledAway(scrolledAway)
-      }
-      .safeAreaInset(edge: .top, spacing: 8) {
-        RxLogStatusBar(
-          viewModel: viewModel,
-          shownCount: visible.count,
-          isConnected: isConnected,
-          onJumpToTop: {
-            guard let id = viewModel.visibleEntries.first?.id else { return }
-            proxy.scrollTo(id, anchor: .top)
-          }
-        )
+        viewModel.unsubscribe()
       }
     }
   }
@@ -244,6 +160,105 @@ struct RxLogView: View {
       get: { !viewModel.filter.isHidden(type) },
       set: { isShown in viewModel.filter.setHidden(!isShown, for: type) }
     )
+  }
+}
+
+/// Isolated from `RxLogView` so live `entries` updates do not re-run the detail sheet closure.
+private struct RxLogEntriesContent: View {
+  /// Points past the resting top before the list counts as scrolled away.
+  private static let scrolledAwayThreshold: CGFloat = 8
+
+  @Environment(\.appTheme) private var theme
+
+  let viewModel: RxLogViewModel
+  let hopLabels: RxLogHopLabels
+  let isConnected: Bool
+
+  var body: some View {
+    let visible = viewModel.visibleEntries
+    if !isConnected {
+      disconnectedState
+    } else if viewModel.entries.isEmpty {
+      emptyState
+    } else if visible.isEmpty {
+      filteredEmptyState
+    } else {
+      entryList(visible)
+    }
+  }
+
+  private var emptyState: some View {
+    ContentUnavailableView {
+      Label(L10n.Tools.Tools.RxLog.listening, systemImage: "antenna.radiowaves.left.and.right")
+    } description: {
+      Text(L10n.Tools.Tools.RxLog.listeningDescription)
+    }
+  }
+
+  private var disconnectedState: some View {
+    ContentUnavailableView {
+      Label(L10n.Tools.Tools.RxLog.notConnected, systemImage: "antenna.radiowaves.left.and.right.slash")
+    } description: {
+      Text(L10n.Tools.Tools.RxLog.notConnectedDescription)
+    }
+  }
+
+  private var filteredEmptyState: some View {
+    Group {
+      if viewModel.searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+        ContentUnavailableView {
+          Label(L10n.Tools.Tools.RxLog.noMatchingPackets, systemImage: "line.3.horizontal.decrease.circle")
+        } description: {
+          Text(L10n.Tools.Tools.RxLog.noMatchingPacketsDescription)
+        } actions: {
+          Button(L10n.Tools.Tools.RxLog.clearFilters) {
+            viewModel.clearFilters()
+          }
+        }
+      } else {
+        ContentUnavailableView.search(text: viewModel.searchText)
+      }
+    }
+  }
+
+  private func entryList(_ visible: [RxLogEntryDTO]) -> some View {
+    ScrollViewReader { proxy in
+      List {
+        Section {
+          ForEach(visible, id: \.id) { entry in
+            RxLogRowView(
+              entry: entry,
+              groupCount: viewModel.filter.groupsArrivals
+                ? viewModel.groupCounts[entry.packetHash, default: 1]
+                : 1,
+              labels: hopLabels,
+              onSelect: { viewModel.selectedEntry = entry },
+              onHideType: { viewModel.filter.setHidden(true, for: entry.payloadType) }
+            )
+            .id(entry.id)
+          }
+        }
+        .themedRowBackground(theme)
+      }
+      .listStyle(.insetGrouped)
+      .themedCanvas(theme)
+      .onScrollGeometryChange(for: Bool.self) { geometry in
+        geometry.contentOffset.y + geometry.contentInsets.top > Self.scrolledAwayThreshold
+      } action: { _, scrolledAway in
+        viewModel.setScrolledAway(scrolledAway)
+      }
+      .safeAreaInset(edge: .top, spacing: 8) {
+        RxLogStatusBar(
+          viewModel: viewModel,
+          shownCount: visible.count,
+          isConnected: isConnected,
+          onJumpToTop: {
+            guard let id = viewModel.visibleEntries.first?.id else { return }
+            proxy.scrollTo(id, anchor: .top)
+          }
+        )
+      }
+    }
   }
 }
 

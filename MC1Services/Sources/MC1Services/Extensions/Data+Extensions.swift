@@ -28,7 +28,7 @@ public extension Data {
   }
 
   /// `pathHopChunks(hashSize:)` paired with each chunk's uppercase display hex.
-  internal func pathHops(hashSize: Int) -> [(data: Data, hex: String)] {
+  func pathHops(hashSize: Int) -> [(data: Data, hex: String)] {
     pathHopChunks(hashSize: hashSize).map { ($0, $0.uppercaseHexString()) }
   }
 

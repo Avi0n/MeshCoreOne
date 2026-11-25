@@ -19,28 +19,14 @@ struct MessagePathMapPreviews: ViewModifier {
     content
       // Keyed without the arrival list: hearing another arrival must not cancel this render.
       .task(id: renderID(arrivalIDs: [])) {
-        guard let selected = resolvedSelectedID else { return }
-        await pathViewModel.renderSelectedPreview(
-          arrivalID: selected,
-          sender: sender,
-          arrivals: arrivals,
-          connectedDevice: appState.connectedDevice,
-          userLocation: appState.bestAvailableLocation,
-          isDark: mapBasemapIsDark,
-          isOffline: isOffline,
-          previewWidth: previewWidth
-        )
+        guard let selected = selectedArrival else { return }
+        await pathViewModel.renderSelectedPreview(for: selected, context: previewContext)
       }
       .task(id: renderID(arrivalIDs: arrivals.map(\.id))) {
         await pathViewModel.prefetchPreviews(
-          sender: sender,
-          arrivals: arrivals,
-          skipping: resolvedSelectedID,
-          connectedDevice: appState.connectedDevice,
-          userLocation: appState.bestAvailableLocation,
-          isDark: mapBasemapIsDark,
-          isOffline: isOffline,
-          previewWidth: previewWidth
+          for: arrivals,
+          skipping: selectedArrival?.id,
+          context: previewContext
         )
       }
       .sheet(isPresented: $showFullMap) {
@@ -53,26 +39,29 @@ struct MessagePathMapPreviews: ViewModifier {
       }
   }
 
-  private var resolvedSelectedID: UUID? {
-    MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
+  private var selectedArrival: MessagePathArrival? {
+    MessagePathArrivals.selectedArrival(preferred: selectedID, in: arrivals)
   }
 
-  private var mapBasemapIsDark: Bool {
-    resolvedMapIsDark(preference: mapColorSchemePreference, colorScheme: colorScheme)
-  }
-
-  private var isOffline: Bool {
-    !appState.offlineMapService.isNetworkAvailable
+  private var previewContext: MessagePathPreviewSnapshot.Context {
+    MessagePathPreviewSnapshot.Context(
+      sender: sender,
+      connectedDevice: appState.connectedDevice,
+      userLocation: appState.bestAvailableLocation,
+      isDark: resolvedMapIsDark(preference: mapColorSchemePreference, colorScheme: colorScheme),
+      isOffline: !appState.offlineMapService.isNetworkAvailable,
+      previewWidth: previewWidth
+    )
   }
 
   private func renderID(arrivalIDs: [UUID]) -> RenderID {
     RenderID(
-      selectedID: resolvedSelectedID,
+      selectedID: selectedArrival?.id,
       arrivalIDs: arrivalIDs,
       isLoading: pathViewModel.isLoading,
-      isDark: mapBasemapIsDark,
-      isOffline: isOffline,
-      widthBucket: MessagePathPreviewSnapshot.bucketedWidth(previewWidth)
+      isDark: previewContext.isDark,
+      isOffline: previewContext.isOffline,
+      widthBucket: previewContext.widthBucket
     )
   }
 

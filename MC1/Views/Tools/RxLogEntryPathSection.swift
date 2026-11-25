@@ -1,9 +1,7 @@
 import MC1Services
 import SwiftUI
 
-/// Equatable so a live packet with another hash skips this body and its hop
-/// resolution. Keep `==` in sync with the value inputs.
-struct RxLogEntryPathSection: View, Equatable {
+struct RxLogEntryPathSection: View {
   @Environment(\.appState) private var appState
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -16,36 +14,35 @@ struct RxLogEntryPathSection: View, Equatable {
   let previewWidth: CGFloat
   let onShowFullMap: () -> Void
 
-  nonisolated static func == (lhs: Self, rhs: Self) -> Bool {
-    MainActor.assumeIsolated {
-      lhs.framing == rhs.framing
-        && lhs.sender == rhs.sender
-        && lhs.arrivals == rhs.arrivals
-        && lhs.traceTargets == rhs.traceTargets
-        && lhs.selectedID == rhs.selectedID
-        && lhs.previewWidth == rhs.previewWidth
-        && lhs.pathViewModel === rhs.pathViewModel
-    }
-  }
-
   var body: some View {
     switch framing {
     case .traversed:
       pathSection {
-        MessagePathArrivalDetail(
+        capsules(showsHopCount: true)
+        MessagePathPreviewRow(
           sender: sender,
-          arrivals: arrivals,
-          selectedID: $selectedID,
+          arrival: selectedArrival,
           pathViewModel: pathViewModel,
           previewWidth: previewWidth,
           onShowFullMap: onShowFullMap
         )
+        .listRowSeparator(.hidden)
+        if let selectedArrival {
+          MessagePathContent(
+            sender: sender,
+            arrival: selectedArrival,
+            viewModel: pathViewModel,
+            receiverName: receiverName,
+            userLocation: appState.bestAvailableLocation,
+            showsCopyBar: false
+          )
+        }
       }
     case .remaining:
       remainingSections
     case .trace:
       pathSection {
-        capsules
+        capsules(showsHopCount: false)
         hopRows(traceTargets)
         receiverRow
       }
@@ -55,7 +52,7 @@ struct RxLogEntryPathSection: View, Equatable {
   @ViewBuilder
   private var remainingSections: some View {
     pathSection {
-      capsules
+      capsules(showsHopCount: false)
       receiverRow
     }
     if !remainingHashes.isEmpty {
@@ -65,6 +62,10 @@ struct RxLogEntryPathSection: View, Equatable {
         Text(L10n.Tools.Tools.RxLog.stillToRelay)
       }
     }
+  }
+
+  private var receiverName: String {
+    appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you
   }
 
   private var remainingHashes: [Data] {
@@ -80,17 +81,17 @@ struct RxLogEntryPathSection: View, Equatable {
   }
 
   private var selectedArrival: MessagePathArrival? {
-    let selected = MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
-    return arrivals.first { $0.id == selected } ?? arrivals.first
+    MessagePathArrivals.selectedArrival(preferred: selectedID, in: arrivals)
   }
 
   @ViewBuilder
-  private var capsules: some View {
+  private func capsules(showsHopCount: Bool) -> some View {
     if arrivals.count > 1 {
       MessagePathArrivalCapsules(
         arrivals: arrivals,
         selectedID: $selectedID,
-        reduceMotion: reduceMotion
+        reduceMotion: reduceMotion,
+        showsHopCount: showsHopCount
       )
       .listRowSeparator(.hidden)
     }
@@ -99,7 +100,7 @@ struct RxLogEntryPathSection: View, Equatable {
   private var receiverRow: some View {
     PathHopRowView(
       hopType: .receiver,
-      nodeName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
+      nodeName: receiverName,
       nodeID: nil,
       snr: selectedArrival?.snr,
       rssi: selectedArrival?.rssi
@@ -112,19 +113,11 @@ struct RxLogEntryPathSection: View, Equatable {
       ProgressView()
         .frame(maxWidth: .infinity, alignment: .center)
     } else {
-      ForEach(Array(hashes.enumerated()), id: \.offset) { index, hash in
-        let resolution = pathViewModel.repeaterResolution(
-          for: hash,
-          userLocation: appState.bestAvailableLocation
-        )
-        PathHopRowView(
-          hopType: .intermediate(index + 1),
-          nodeName: resolution.displayName,
-          nodeID: hash.uppercaseHexString(),
-          snr: nil,
-          matchKind: resolution.matchKind
-        )
-      }
+      PathRepeaterHopRows(
+        hashes: hashes,
+        viewModel: pathViewModel,
+        userLocation: appState.bestAvailableLocation
+      )
     }
   }
 }

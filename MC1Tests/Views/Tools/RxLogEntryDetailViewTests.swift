@@ -101,7 +101,6 @@ struct RxLogEntryDetailViewTests {
     appState.connectionManager.setTestState(connectedDevice: .some(DeviceDTO(from: device)))
     let root = RxLogEntryDetailView(
       entry: entry,
-      viewModel: RxLogViewModel(),
       labels: RxLogHopLabels(localPublicKeyPrefix: nil, nodeNames: [:])
     )
     .environment(\.appState, appState)

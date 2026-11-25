@@ -19,6 +19,7 @@ struct MessagePathArrivalCapsules: View {
   @Binding var selectedID: UUID?
   let reduceMotion: Bool
   var chrome: Chrome = .plain
+  var showsHopCount: Bool = true
   @Environment(\.appTheme) private var theme
   @Namespace private var glassNamespace
 
@@ -125,7 +126,7 @@ struct MessagePathArrivalCapsules: View {
   }
 
   private func title(for arrival: MessagePathArrival) -> String {
-    let hopText: String? = if let hopCount = arrival.hopCount {
+    let hopText: String? = if showsHopCount, let hopCount = arrival.hopCount {
       hopCount == 1
         ? L10n.Chats.Chats.Repeats.Hop.singular
         : L10n.Chats.Chats.Repeats.Hop.plural(hopCount)
@@ -133,7 +134,10 @@ struct MessagePathArrivalCapsules: View {
       nil
     }
     guard let snr = arrival.snr else {
-      return hopText ?? L10n.Chats.Chats.Path.Unavailable.title
+      if let hopText { return hopText }
+      return showsHopCount
+        ? L10n.Chats.Chats.Path.Unavailable.title
+        : arrival.receivedAt.formatted(date: .omitted, time: .standard)
     }
     let snrText = snr.formatted(.number.precision(.fractionLength(1)))
       + " "

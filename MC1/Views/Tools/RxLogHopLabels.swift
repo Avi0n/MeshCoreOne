@@ -3,12 +3,12 @@ import MC1Services
 
 /// Turns RX Log hop hashes into display labels: "You" for the local radio, a
 /// contact name when the prefix is unique, otherwise uppercase hex.
-struct RxLogHopLabels {
+struct RxLogHopLabels: Equatable {
   let localPublicKeyPrefix: Data?
   let nodeNames: [Data: String]
 
   func isLocal(_ hash: Data) -> Bool {
-    guard let localPublicKeyPrefix else { return false }
+    guard !hash.isEmpty, let localPublicKeyPrefix else { return false }
     return localPublicKeyPrefix.prefix(hash.count) == hash
   }
 

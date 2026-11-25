@@ -2,13 +2,14 @@ import CoreLocation
 import MC1Services
 import SwiftUI
 
-/// Hop list for one arrival: sender, hops, receiver, and copyable path hex.
+/// Hop list for one arrival: sender, hops, receiver, and optional copyable path hex.
 struct MessagePathContent: View {
   let sender: MessagePathSender
   let arrival: MessagePathArrival
   let viewModel: MessagePathViewModel
   let receiverName: String
   let userLocation: CLLocation?
+  var showsCopyBar: Bool = true
 
   @State private var copyHapticTrigger = 0
 
@@ -35,19 +36,11 @@ struct MessagePathContent: View {
         matchKind: senderResolution.matchKind
       )
 
-      ForEach(Array(pathHops.enumerated()), id: \.offset) { index, hop in
-        let repeaterResolution = viewModel.repeaterResolution(
-          for: hop.data,
-          userLocation: userLocation
-        )
-        PathHopRowView(
-          hopType: .intermediate(index + 1),
-          nodeName: repeaterResolution.displayName,
-          nodeID: hop.hex,
-          snr: nil,
-          matchKind: repeaterResolution.matchKind
-        )
-      }
+      PathRepeaterHopRows(
+        hashes: pathHops.map(\.data),
+        viewModel: viewModel,
+        userLocation: userLocation
+      )
 
       PathHopRowView(
         hopType: .receiver,
@@ -57,7 +50,7 @@ struct MessagePathContent: View {
         rssi: arrival.rssi
       )
 
-      if !pathHops.isEmpty {
+      if showsCopyBar, !pathHops.isEmpty {
         HStack {
           Button(L10n.Chats.Chats.Path.copyButton, systemImage: "doc.on.doc") {
             copyHapticTrigger += 1

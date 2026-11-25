@@ -288,6 +288,15 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     return Data(packetPayload[0..<dmPrefixSize])
   }
 
+  /// Advertiser public key, or nil for other packet types and for a truncated advert.
+  /// The firmware logs the frame before parsing finishes, so a short payload has no key.
+  public var advertPublicKey: Data? {
+    guard payloadType == .advert, packetPayload.count >= ProtocolLimits.publicKeySize else {
+      return nil
+    }
+    return Data(packetPayload.prefix(ProtocolLimits.publicKeySize))
+  }
+
   /// Whether this is a flood-type route.
   public var isFlood: Bool {
     routeType == .flood || routeType == .tcFlood

@@ -7,11 +7,10 @@ import Testing
 @Suite("MessagePathArrival assemble")
 struct MessagePathArrivalTests {
   @Test
-  func `incoming with 0 extras is one first arrival`() {
+  func `incoming with 0 extras is one arrival`() {
     let message = incomingMessage(pathNodes: Data([0xAA]), heardRepeats: 0)
     let arrivals = MessagePathArrivals.assemble(message: message, repeats: [])
     #expect(arrivals.count == 1)
-    #expect(arrivals[0].isFirst)
     #expect(arrivals[0].id == message.id)
     #expect(arrivals[0].pathNodes == Data([0xAA]))
     #expect(MessagePathArrivals.arrivalCount(for: message) == 1)
@@ -39,11 +38,9 @@ struct MessagePathArrivalTests {
     )
     let arrivals = MessagePathArrivals.assemble(message: message, repeats: [extraB, extraC])
     #expect(arrivals.count == 3)
-    #expect(arrivals[0].isFirst)
     #expect(arrivals[0].id == message.id)
     #expect(arrivals[1].pathNodes == Data([0xCC]))
     #expect(arrivals[2].pathNodes == Data([0xBB]))
-    #expect(arrivals[1].isFirst == false)
     #expect(MessagePathArrivals.arrivalCount(for: message) == 3)
   }
 
@@ -57,14 +54,13 @@ struct MessagePathArrivalTests {
     )
     let arrivals = MessagePathArrivals.assemble(message: message, repeats: [extra])
     #expect(arrivals.count == 2)
-    #expect(arrivals[0].isFirst)
     #expect(arrivals[0].pathNodes == Data())
     #expect(arrivals[0].isZeroHop)
     #expect(arrivals[0].isPathUnavailable == false)
   }
 
   @Test
-  func `outgoing with 2 repeats has no first arrival`() {
+  func `outgoing with 2 repeats assembles both repeats`() {
     let message = outgoingMessage(heardRepeats: 2)
     let repeats = [
       makeRepeat(messageID: message.id, pathNodes: Data([0x11])),
@@ -72,7 +68,6 @@ struct MessagePathArrivalTests {
     ]
     let arrivals = MessagePathArrivals.assemble(message: message, repeats: repeats)
     #expect(arrivals.count == 2)
-    #expect(arrivals.allSatisfy { !$0.isFirst })
     #expect(MessagePathArrivals.arrivalCount(for: message) == 2)
   }
 
@@ -142,15 +137,16 @@ struct MessagePathArrivalTests {
   }
 
   @Test
-  func `RX Log arrivals sort oldest first and mark only the earliest`() {
+  func `RX Log arrivals sort oldest first`() {
     let base = Date(timeIntervalSince1970: 1_700_000_000)
     let tapped = rxEntry(receivedAt: base.addingTimeInterval(4), pathNodes: [0xBB])
     let earliest = rxEntry(receivedAt: base, pathNodes: [0xAA])
     let arrivals = MessagePathArrivals.assemble(entry: tapped, arrivals: [tapped, earliest])
 
     #expect(arrivals.map(\.id) == [earliest.id, tapped.id])
-    #expect(arrivals.map(\.isFirst) == [true, false])
     #expect(arrivals[1].pathNodes == Data([0xBB]))
+    #expect(MessagePathArrivals.selectedArrival(preferred: tapped.id, in: arrivals)?.id == tapped.id)
+    #expect(MessagePathArrivals.selectedArrival(preferred: UUID(), in: arrivals)?.id == earliest.id)
   }
 
   @Test

@@ -16,8 +16,7 @@ struct MessagePathSenderTests {
     viewModel.contacts = [contact]
     let sender = MessagePathSender(entry: advert(key: contact.publicKey), localPublicKey: Self.localKey)
 
-    #expect(sender.keyPrefix == contact.publicKeyPrefix)
-    #expect(sender.isLocalDevice == false)
+    #expect(sender == .contact(keyPrefix: contact.publicKeyPrefix))
     #expect(viewModel.locatedSender(for: sender)?.id == contact.id)
   }
 
@@ -30,23 +29,50 @@ struct MessagePathSenderTests {
       latitude: 51.5,
       longitude: -0.12
     ))
-    let sender = MessagePathSender(entry: advert(key: Self.localKey), localPublicKey: Self.localKey)
+    let entry = advert(key: Self.localKey)
+    let sender = MessagePathSender(entry: entry, localPublicKey: Self.localKey)
     let viewModel = MessagePathViewModel()
     let resolution = viewModel.senderResolution(for: sender, localDeviceName: "Radio")
     let canvas = MessagePathMapView.canvasModel(
       sender: sender,
-      arrivals: MessagePathArrivals.assemble(entry: advert(key: Self.localKey), arrivals: []),
-      selectedID: nil,
+      arrival: MessagePathArrivals.assemble(entry: entry, arrivals: []).first,
       pathViewModel: viewModel,
       connectedDevice: device,
       userLocation: nil
     )
     let pinA = canvas.points.first { $0.pinStyle == .pointA }
 
-    #expect(sender.isLocalDevice)
+    #expect(sender == .localDevice)
     #expect(resolution.displayName == "Radio")
     #expect(pinA?.id == device.id)
     #expect(pinA?.coordinate.latitude == 51.5)
+  }
+
+  @Test
+  func `own advert with unlocated device omits pin A even when a contact shares the prefix`() {
+    let device = DeviceDTO(from: Device(
+      radioID: UUID(),
+      publicKey: Self.localKey,
+      nodeName: "Radio",
+      latitude: 0,
+      longitude: 0
+    ))
+    let prefix = Array(Self.localKey.prefix(ProtocolLimits.publicKeyPrefixSize))
+    let contact = makeContact(prefix: prefix, name: "Twin", latitude: 47.6, longitude: -122.3)
+    let viewModel = MessagePathViewModel()
+    viewModel.contacts = [contact]
+    let entry = advert(key: Self.localKey)
+    let sender = MessagePathSender(entry: entry, localPublicKey: Self.localKey)
+    let canvas = MessagePathMapView.canvasModel(
+      sender: sender,
+      arrival: MessagePathArrivals.assemble(entry: entry, arrivals: []).first,
+      pathViewModel: viewModel,
+      connectedDevice: device,
+      userLocation: nil
+    )
+
+    #expect(sender == .localDevice)
+    #expect(canvas.points.first { $0.pinStyle == .pointA } == nil)
   }
 
   @Test
@@ -55,8 +81,7 @@ struct MessagePathSenderTests {
     otherKey[ProtocolLimits.publicKeySize - 1] ^= 0xFF
     let sender = MessagePathSender(entry: advert(key: otherKey), localPublicKey: Self.localKey)
 
-    #expect(sender.keyPrefix == Self.localKey.prefix(ProtocolLimits.publicKeyPrefixSize))
-    #expect(sender.isLocalDevice == false)
+    #expect(sender == .contact(keyPrefix: Data(Self.localKey.prefix(ProtocolLimits.publicKeyPrefixSize))))
   }
 
   @Test
@@ -68,7 +93,7 @@ struct MessagePathSenderTests {
     let sender = MessagePathSender(entry: entry, localPublicKey: Self.localKey)
     let resolution = viewModel.senderResolution(for: sender, localDeviceName: "Radio")
 
-    #expect(sender.keyPrefix == nil)
+    #expect(sender == .unknown)
     #expect(resolution.matchKind == .unresolved)
     #expect(viewModel.locatedSender(for: sender) == nil)
   }

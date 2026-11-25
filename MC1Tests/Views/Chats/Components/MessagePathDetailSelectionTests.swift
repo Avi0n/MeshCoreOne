@@ -68,16 +68,14 @@ struct MessagePathDetailSelectionTests {
     let location = CLLocation(latitude: 37.5, longitude: -122.3)
     let first = MessagePathMapView.canvasModel(
       sender: MessagePathSender(message: message),
-      arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
-      selectedID: nil,
+      arrival: MessagePathArrivals.assemble(message: message, repeats: []).first,
       pathViewModel: MessagePathViewModel(),
       connectedDevice: nil,
       userLocation: location
     )
     let second = MessagePathMapView.canvasModel(
       sender: MessagePathSender(message: message),
-      arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
-      selectedID: nil,
+      arrival: MessagePathArrivals.assemble(message: message, repeats: []).first,
       pathViewModel: MessagePathViewModel(),
       connectedDevice: nil,
       userLocation: location
@@ -152,8 +150,7 @@ struct MessagePathDetailSelectionTests {
     )
     let canvas = MessagePathMapView.canvasModel(
       sender: MessagePathSender(message: message),
-      arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
-      selectedID: nil,
+      arrival: MessagePathArrivals.assemble(message: message, repeats: []).first,
       pathViewModel: MessagePathViewModel(),
       connectedDevice: device,
       userLocation: nil
@@ -253,8 +250,7 @@ struct MessagePathDetailSelectionTests {
     pathViewModel.repeaters = [hop]
     let canvas = MessagePathMapView.canvasModel(
       sender: MessagePathSender(message: message),
-      arrivals: MessagePathArrivals.assemble(message: message, repeats: [echo]),
-      selectedID: nil,
+      arrival: MessagePathArrivals.assemble(message: message, repeats: [echo]).first,
       pathViewModel: pathViewModel,
       connectedDevice: device,
       userLocation: CLLocation(latitude: 51.0, longitude: -0.2)
@@ -585,8 +581,7 @@ struct MessagePathDetailSelectionTests {
   ) -> MessagePathMapView.CanvasModel {
     MessagePathMapView.canvasModel(
       sender: MessagePathSender(message: fixture.message),
-      arrivals: fixture.arrivals,
-      selectedID: selectedID,
+      arrival: MessagePathArrivals.selectedArrival(preferred: selectedID, in: fixture.arrivals),
       pathViewModel: fixture.pathViewModel,
       connectedDevice: nil,
       userLocation: fixture.userLocation
@@ -634,8 +629,7 @@ struct MessagePathDetailSelectionTests {
     pathViewModel.discoveredRepeaters = discoveredRepeaters
     return MessagePathMapView.canvasModel(
       sender: MessagePathSender(message: message),
-      arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
-      selectedID: nil,
+      arrival: MessagePathArrivals.assemble(message: message, repeats: []).first,
       pathViewModel: pathViewModel,
       connectedDevice: nil,
       userLocation: userLocation
@@ -707,8 +701,7 @@ struct MessagePathDetailSelectionTests {
         pathLength: 1,
         snr: nil,
         rssi: nil,
-        receivedAt: Date(timeIntervalSince1970: TimeInterval(index)),
-        isFirst: index == 0
+        receivedAt: Date(timeIntervalSince1970: TimeInterval(index))
       )
     }
   }

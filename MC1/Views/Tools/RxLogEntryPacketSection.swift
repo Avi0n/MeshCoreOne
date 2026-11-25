@@ -72,7 +72,7 @@ struct RxLogEntryPacketSection: View {
     guard !entry.rawPayload.isEmpty else { return "" }
     return stride(from: 0, to: entry.rawPayload.count, by: Self.hexBytesPerLine).map { offset in
       let end = min(offset + Self.hexBytesPerLine, entry.rawPayload.count)
-      let bytes = entry.rawPayload[offset..<end].map { String(format: "%02X", $0) }.joined(separator: " ")
+      let bytes = Data(entry.rawPayload[offset..<end]).uppercaseHexString(separator: " ")
       return String(format: "%04X", offset) + "  " + bytes
     }
     .joined(separator: "\n")

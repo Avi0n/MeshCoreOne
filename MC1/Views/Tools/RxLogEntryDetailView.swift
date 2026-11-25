@@ -6,7 +6,7 @@ struct RxLogEntryDetailView: View {
   private static let rawPayloadByteSeparator = " "
 
   let entry: RxLogEntryDTO
-  let viewModel: RxLogViewModel
+  let arrivalEntries: [RxLogEntryDTO]
   let labels: RxLogHopLabels
 
   @Environment(\.dismiss) private var dismiss
@@ -16,27 +16,30 @@ struct RxLogEntryDetailView: View {
   @State private var selectedID: UUID?
   @State private var showFullMap = false
   @State private var rowWidth: CGFloat = 0
-  /// This packet's log entries, refreshed only when their IDs change so other
-  /// packets arriving in the live log leave the path section alone.
-  @State private var arrivalEntries: [RxLogEntryDTO] = []
   @State private var copyCount = 0
 
-  init(entry: RxLogEntryDTO, viewModel: RxLogViewModel, labels: RxLogHopLabels) {
+  init(entry: RxLogEntryDTO, arrivalEntries: [RxLogEntryDTO] = [], labels: RxLogHopLabels) {
     self.entry = entry
-    self.viewModel = viewModel
+    self.arrivalEntries = arrivalEntries
     self.labels = labels
-    _selectedID = State(initialValue: entry.id)
+    selectedID = entry.id
   }
 
   var body: some View {
     NavigationStack {
       List {
-        RxLogEntryHeaderSection(
-          entry: displayedEntry,
-          framing: framing,
-          labels: labels,
-          onWidthChange: { rowWidth = $0 }
-        )
+        Section {
+          RxLogEntryHeaderSection(
+            entry: displayedEntry,
+            framing: framing,
+            labels: labels
+          )
+          .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.width
+          } action: { width in
+            rowWidth = width
+          }
+        }
         RxLogEntryPathSection(
           framing: framing,
           sender: sender,
@@ -47,7 +50,6 @@ struct RxLogEntryDetailView: View {
           previewWidth: rowWidth,
           onShowFullMap: { showFullMap = true }
         )
-        .equatable()
         RxLogEntryPacketSection(entry: displayedEntry)
       }
       .messagePathMapPreviews(
@@ -74,9 +76,6 @@ struct RxLogEntryDetailView: View {
     .sensoryFeedback(.success, trigger: copyCount)
     .presentationDetents([.large])
     .presentationDragIndicator(.visible)
-    .onChange(of: viewModel.arrivals(of: entry).map(\.id), initial: true) {
-      arrivalEntries = viewModel.arrivals(of: entry)
-    }
     .task {
       await pathViewModel.loadContacts(dataStore: appState.offlineDataStore, radioID: entry.radioID)
     }
@@ -118,8 +117,7 @@ struct RxLogEntryDetailView: View {
         }
       }
       Button(L10n.Tools.Tools.RxLog.copyRawPayload) {
-        copy(displayedEntry.rawPayload.map { String(format: "%02X", $0) }
-          .joined(separator: Self.rawPayloadByteSeparator))
+        copy(displayedEntry.rawPayload.uppercaseHexString(separator: Self.rawPayloadByteSeparator))
       }
     }
   }

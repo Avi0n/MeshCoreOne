@@ -8,6 +8,7 @@ struct MessagePathDetailBlock: View {
   private static let outgoingDisclosureSymbol = "arrow.triangle.branch"
   private static let incomingDisclosureSymbol = "point.topleft.down.to.point.bottomright.curvepath"
 
+  @Environment(\.appState) private var appState
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   let message: MessageDTO
@@ -45,12 +46,6 @@ struct MessagePathDetailBlock: View {
       pathViewModel: pathViewModel,
       previewWidth: previewWidth
     )
-    .onAppear {
-      selectedID = MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
-    }
-    .onChange(of: arrivals.map(\.id)) { _, _ in
-      selectedID = MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
-    }
   }
 
   private var selectedBinding: Binding<UUID?> {
@@ -58,6 +53,10 @@ struct MessagePathDetailBlock: View {
       get: { MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals) },
       set: { selectedID = $0 }
     )
+  }
+
+  private var selectedArrival: MessagePathArrival? {
+    MessagePathArrivals.selectedArrival(preferred: selectedID, in: arrivals)
   }
 
   private var previewWidth: CGFloat {
@@ -125,14 +124,32 @@ struct MessagePathDetailBlock: View {
     }
   }
 
+  @ViewBuilder
   private var pathDetail: some View {
-    MessagePathArrivalDetail(
+    if arrivals.count > 1 {
+      MessagePathArrivalCapsules(
+        arrivals: arrivals,
+        selectedID: selectedBinding,
+        reduceMotion: reduceMotion
+      )
+    }
+
+    MessagePathPreviewRow(
       sender: sender,
-      arrivals: arrivals,
-      selectedID: selectedBinding,
+      arrival: selectedArrival,
       pathViewModel: pathViewModel,
       previewWidth: previewWidth,
       onShowFullMap: { showFullMap = true }
     )
+
+    if let selectedArrival {
+      MessagePathContent(
+        sender: sender,
+        arrival: selectedArrival,
+        viewModel: pathViewModel,
+        receiverName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
+        userLocation: appState.bestAvailableLocation
+      )
+    }
   }
 }

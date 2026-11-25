@@ -1,5 +1,7 @@
 import CoreGraphics
+import CoreLocation
 import Foundation
+import MC1Services
 
 /// Prefetch cache key and snapshot size from the width the preview is drawn at.
 enum MessagePathPreviewSnapshot {
@@ -10,6 +12,32 @@ enum MessagePathPreviewSnapshot {
     let isDark: Bool
     let isOffline: Bool
     let widthBucket: Int
+  }
+
+  struct Context {
+    let sender: MessagePathSender
+    let connectedDevice: DeviceDTO?
+    let userLocation: CLLocation?
+    let isDark: Bool
+    let isOffline: Bool
+    let previewWidth: CGFloat
+
+    var widthBucket: Int {
+      MessagePathPreviewSnapshot.bucketedWidth(max(0, previewWidth))
+    }
+
+    var size: CGSize {
+      MessagePathPreviewSnapshot.previewSize(previewWidth: previewWidth)
+    }
+
+    func key(for arrivalID: UUID) -> Key {
+      MessagePathPreviewSnapshot.key(
+        arrivalID: arrivalID,
+        isDark: isDark,
+        isOffline: isOffline,
+        previewWidth: previewWidth
+      )
+    }
   }
 
   static func bucketedWidth(_ width: CGFloat) -> Int {

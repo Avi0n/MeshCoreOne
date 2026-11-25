@@ -62,8 +62,7 @@ struct MessagePathMapView: View {
   private var canvas: CanvasModel {
     Self.canvasModel(
       sender: sender,
-      arrivals: arrivals,
-      selectedID: selectedID,
+      arrival: MessagePathArrivals.selectedArrival(preferred: selectedID, in: arrivals),
       pathViewModel: pathViewModel,
       connectedDevice: appState.connectedDevice,
       userLocation: appState.bestAvailableLocation
@@ -297,14 +296,11 @@ struct MessagePathMapView: View {
 
   static func canvasModel(
     sender: MessagePathSender,
-    arrivals: [MessagePathArrival],
-    selectedID: UUID?,
+    arrival: MessagePathArrival?,
     pathViewModel: MessagePathViewModel,
     connectedDevice: DeviceDTO?,
     userLocation: CLLocation?
   ) -> CanvasModel {
-    let selected = MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
-    let locatedSender = pathViewModel.locatedSender(for: sender)
     let receiverLocation: CLLocation? = if let device = connectedDevice, device.hasLocation {
       CLLocation(latitude: device.latitude, longitude: device.longitude)
     } else {
@@ -314,33 +310,42 @@ struct MessagePathMapView: View {
     var points: [MapPoint] = []
     var seenKeys = Set<Data>()
     let start: CLLocationCoordinate2D?
-    if sender.isLocalDevice, let device = connectedDevice, device.hasLocation {
-      let coord = CLLocationCoordinate2D(latitude: device.latitude, longitude: device.longitude)
-      start = coord
-      points.append(MapPoint(
-        id: device.id,
-        coordinate: coord,
-        pinStyle: .pointA,
-        label: device.nodeName,
-        isClusterable: false,
-        hopIndex: nil,
-        badgeText: nil
-      ))
-      seenKeys.insert(device.publicKey)
-    } else if let locatedSender {
-      let coord = CLLocationCoordinate2D(latitude: locatedSender.latitude, longitude: locatedSender.longitude)
-      start = coord
-      points.append(MapPoint(
-        id: locatedSender.id,
-        coordinate: coord,
-        pinStyle: .pointA,
-        label: locatedSender.displayName,
-        isClusterable: false,
-        hopIndex: nil,
-        badgeText: nil
-      ))
-      seenKeys.insert(locatedSender.publicKey)
-    } else {
+    switch sender {
+    case .localDevice:
+      if let device = connectedDevice, device.hasLocation {
+        let coord = CLLocationCoordinate2D(latitude: device.latitude, longitude: device.longitude)
+        start = coord
+        points.append(MapPoint(
+          id: device.id,
+          coordinate: coord,
+          pinStyle: .pointA,
+          label: device.nodeName,
+          isClusterable: false,
+          hopIndex: nil,
+          badgeText: nil
+        ))
+        seenKeys.insert(device.publicKey)
+      } else {
+        start = nil
+      }
+    case .contact, .channelName:
+      if let locatedSender = pathViewModel.locatedSender(for: sender) {
+        let coord = CLLocationCoordinate2D(latitude: locatedSender.latitude, longitude: locatedSender.longitude)
+        start = coord
+        points.append(MapPoint(
+          id: locatedSender.id,
+          coordinate: coord,
+          pinStyle: .pointA,
+          label: locatedSender.displayName,
+          isClusterable: false,
+          hopIndex: nil,
+          badgeText: nil
+        ))
+        seenKeys.insert(locatedSender.publicKey)
+      } else {
+        start = nil
+      }
+    case .unknown:
       start = nil
     }
 
@@ -349,20 +354,20 @@ struct MessagePathMapView: View {
     var selectedHopCount: Int?
     var isDistanceIncomplete = false
 
-    if let selectedArrival = arrivals.first(where: { $0.id == selected }) {
+    if let arrival {
       let path = locatedPath(
-        arrival: selectedArrival,
+        arrival: arrival,
         start: start,
         pathViewModel: pathViewModel,
         receiverLocation: receiverLocation,
         userLocation: userLocation
       )
       selectedCoordinates = path.coordinates
-      selectedHopCount = selectedArrival.hopCount
+      selectedHopCount = arrival.hopCount
       isDistanceIncomplete = path.isDistanceIncomplete
       if path.coordinates.count >= 2 {
         lines.append(MapLine(
-          id: "message-path-\(selectedArrival.id)",
+          id: "message-path-\(arrival.id)",
           coordinates: path.coordinates,
           style: .messagePath,
           opacity: 1.0

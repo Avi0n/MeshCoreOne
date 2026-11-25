@@ -20,7 +20,13 @@ final class RxLogViewModel {
   }
 
   /// Snapshot of the packet shown in the sheet, so pruning cannot remove it.
-  var selectedEntry: RxLogEntryDTO?
+  var selectedEntry: RxLogEntryDTO? {
+    didSet { syncSelectedEntryArrivals() }
+  }
+
+  /// Arrivals sharing `selectedEntry.packetHash`, updated only when that packet's
+  /// arrivals change so unrelated live packets do not invalidate the detail sheet.
+  private(set) var selectedEntryArrivals: [RxLogEntryDTO] = []
 
   var filter: RxLogFilter {
     didSet {
@@ -113,10 +119,16 @@ final class RxLogViewModel {
     pendingEntries.count(where: isVisible)
   }
 
-  /// Every arrival of the entry's packet, newest first. Empty when it arrived once.
-  func arrivals(of entry: RxLogEntryDTO) -> [RxLogEntryDTO] {
-    guard groupCounts[entry.packetHash, default: 0] > 1 else { return [] }
-    return entries.filter { $0.packetHash == entry.packetHash }
+  private func syncSelectedEntryArrivals() {
+    let next: [RxLogEntryDTO] = if let selected = selectedEntry,
+                                   groupCounts[selected.packetHash, default: 0] > 0 {
+      entries.filter { $0.packetHash == selected.packetHash }
+    } else {
+      []
+    }
+    if selectedEntryArrivals != next {
+      selectedEntryArrivals = next
+    }
   }
 
   private func isVisible(_ entry: RxLogEntryDTO) -> Bool {
@@ -274,6 +286,7 @@ final class RxLogViewModel {
     entries.insert(entry, at: 0)
     groupCounts[entry.packetHash, default: 0] += 1
 
+    var removedMatchingSelected = false
     // Prune oldest (now at end) if over cap
     if entries.count > Self.maxEntries {
       let removed = entries.removeLast()
@@ -281,6 +294,12 @@ final class RxLogViewModel {
       if groupCounts[removed.packetHash] == 0 {
         groupCounts.removeValue(forKey: removed.packetHash)
       }
+      removedMatchingSelected = removed.packetHash == selectedEntry?.packetHash
+    }
+
+    if let selectedHash = selectedEntry?.packetHash,
+       entry.packetHash == selectedHash || removedMatchingSelected {
+      syncSelectedEntryArrivals()
     }
   }
 
@@ -294,6 +313,7 @@ final class RxLogViewModel {
   private func rebuildGroupCounts() {
     groupCounts = Dictionary(grouping: entries, by: \.packetHash)
       .mapValues(\.count)
+    syncSelectedEntryArrivals()
   }
 
   // MARK: - Node Name Resolution

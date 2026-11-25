@@ -9,7 +9,6 @@ struct MessagePathArrival: Identifiable, Equatable, Hashable, Sendable {
   let snr: Double?
   let rssi: Int?
   let receivedAt: Date
-  let isFirst: Bool
 
   /// Hop count from a path-length byte `decodePathLen` accepts. A rejected byte, including 0xFF, has none.
   var hopCount: Int? {
@@ -31,13 +30,7 @@ struct MessagePathArrival: Identifiable, Equatable, Hashable, Sendable {
   }
 
   var pathHops: [(data: Data, hex: String)] {
-    let size = hashSize
-    guard size > 0 else { return [] }
-    return stride(from: 0, to: pathNodes.count, by: size).map { offset in
-      let end = min(offset + size, pathNodes.count)
-      let chunk = pathNodes.subdata(in: offset..<end)
-      return (chunk, chunk.uppercaseHexString())
-    }
+    pathNodes.pathHops(hashSize: hashSize)
   }
 
   var pathString: String {
@@ -54,7 +47,7 @@ enum MessagePathArrivals {
     if message.isOutgoing {
       return repeats
         .sorted { $0.receivedAt < $1.receivedAt }
-        .map { arrival(from: $0, isFirst: false) }
+        .map(arrival(from:))
     }
 
     let canonical = MessagePathArrival(
@@ -63,12 +56,11 @@ enum MessagePathArrivals {
       pathLength: message.pathLength,
       snr: message.snr,
       rssi: nil,
-      receivedAt: message.createdAt,
-      isFirst: true
+      receivedAt: message.createdAt
     )
     let extras = repeats
       .sorted { $0.receivedAt < $1.receivedAt }
-      .map { arrival(from: $0, isFirst: false) }
+      .map(arrival(from:))
     return [canonical] + extras
   }
 
@@ -78,16 +70,14 @@ enum MessagePathArrivals {
     let all = entries.contains { $0.id == entry.id } ? entries : entries + [entry]
     return all
       .sorted { $0.receivedAt < $1.receivedAt }
-      .enumerated()
-      .map { index, rxEntry in
+      .map { rxEntry in
         MessagePathArrival(
           id: rxEntry.id,
           pathNodes: rxEntry.pathNodes,
           pathLength: rxEntry.pathLength,
           snr: rxEntry.snr,
           rssi: rxEntry.rssi,
-          receivedAt: rxEntry.receivedAt,
-          isFirst: index == 0
+          receivedAt: rxEntry.receivedAt
         )
       }
   }
@@ -97,23 +87,26 @@ enum MessagePathArrivals {
   }
 
   /// Uses `preferred` when it is still in `arrivals`; otherwise the first so a
-  /// vanished extra still lands on a capsule.
-  static func resolvedSelection(preferred: UUID?, arrivals: [MessagePathArrival]) -> UUID? {
-    if let preferred, arrivals.contains(where: { $0.id == preferred }) {
-      return preferred
+  /// vanished extra still lands on an arrival.
+  static func selectedArrival(preferred: UUID?, in arrivals: [MessagePathArrival]) -> MessagePathArrival? {
+    if let preferred, let match = arrivals.first(where: { $0.id == preferred }) {
+      return match
     }
-    return arrivals.first?.id
+    return arrivals.first
   }
 
-  private static func arrival(from repeatDTO: MessageRepeatDTO, isFirst: Bool) -> MessagePathArrival {
+  static func resolvedSelection(preferred: UUID?, arrivals: [MessagePathArrival]) -> UUID? {
+    selectedArrival(preferred: preferred, in: arrivals)?.id
+  }
+
+  private static func arrival(from repeatDTO: MessageRepeatDTO) -> MessagePathArrival {
     MessagePathArrival(
       id: repeatDTO.id,
       pathNodes: repeatDTO.pathNodes,
       pathLength: repeatDTO.pathLength,
       snr: repeatDTO.snr,
       rssi: repeatDTO.rssi,
-      receivedAt: repeatDTO.receivedAt,
-      isFirst: isFirst
+      receivedAt: repeatDTO.receivedAt
     )
   }
 }

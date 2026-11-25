@@ -23,12 +23,9 @@ enum RxLogPathFraming: Equatable {
     }
   }
 
-  /// Path text for the toolbar copy action. Nil for traversed paths, which the hop
-  /// list copies itself, and when there is nothing to copy.
   func clipboardPath(for entry: RxLogEntryDTO) -> String? {
     let hops: [Data] = switch self {
-    case .traversed: []
-    case .remaining: entry.pathHopHashes
+    case .traversed, .remaining: entry.pathHopHashes
     case .trace: entry.traceTargetHashes ?? []
     }
     guard !hops.isEmpty else { return nil }

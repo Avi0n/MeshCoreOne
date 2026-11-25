@@ -654,22 +654,83 @@ struct RxLogViewModelTests {
   }
 
   @Test
-  func `arrivals lists every reception of a repeated packet`() async throws {
+  func `selectedEntryArrivals tracks the selected packet and ignores unrelated arrivals`() async throws {
     let (viewModel, service) = try await listeningViewModel()
     defer { Task { await service.stopEventMonitoring() } }
     let shared = Data([0xB0])
     let first = makeDTO(packetPayload: shared)
     let second = makeDTO(packetPayload: shared)
-    let third = makeDTO(packetPayload: shared)
     let other = makeDTO(packetPayload: Data([0xB1]))
-    viewModel.loadExistingEntriesForTesting = { [first, second, third, other] }
+    viewModel.loadExistingEntriesForTesting = { [first, second, other] }
     await viewModel.subscribe()
 
-    #expect(viewModel.arrivals(of: first).map(\.id) == [first.id, second.id, third.id])
-    #expect(viewModel.arrivals(of: other).isEmpty)
+    viewModel.selectedEntry = first
+    #expect(viewModel.selectedEntryArrivals.map(\.id) == [first.id, second.id])
 
-    viewModel.filter.groupsArrivals = true
-    #expect(viewModel.visibleEntries.count == 2)
+    let unrelated = makeDTO(packetPayload: Data([0xB2]))
+    await service.process(
+      ParsedRxLogData(
+        snr: nil,
+        rssi: nil,
+        rawPayload: unrelated.rawPayload,
+        routeType: .flood,
+        payloadType: .unknown,
+        payloadVersion: 0,
+        payloadTypeBits: 0,
+        transportCode: nil,
+        pathLength: 0,
+        pathNodes: [],
+        packetPayload: unrelated.packetPayload
+      )
+    )
+    try await waitUntil("Unrelated packet did not enter log") {
+      viewModel.entries.count == 4
+    }
+    #expect(viewModel.selectedEntryArrivals.map(\.id) == [first.id, second.id])
+
+    await service.process(
+      ParsedRxLogData(
+        snr: nil,
+        rssi: nil,
+        rawPayload: shared,
+        routeType: .flood,
+        payloadType: .unknown,
+        payloadVersion: 0,
+        payloadTypeBits: 0,
+        transportCode: nil,
+        pathLength: 0,
+        pathNodes: [],
+        packetPayload: shared
+      )
+    )
+    try await waitUntil("Matching arrival did not update selectedEntryArrivals") {
+      viewModel.selectedEntryArrivals.count == 3
+    }
+
+    viewModel.unsubscribe()
+  }
+
+  @Test
+  func `pruning the tapped entry keeps surviving sibling arrivals in selectedEntryArrivals`() async throws {
+    let (viewModel, service) = try await listeningViewModel()
+    defer { Task { await service.stopEventMonitoring() } }
+    let shared = Data([0xC0])
+    let tapped = makeDTO(packetPayload: shared)
+    let sibling = makeDTO(packetPayload: shared)
+    let filler = (0..<(RxLogViewModel.maxEntries - 2)).map { index in
+      makeDTO(packetPayload: Data([UInt8(index & 0xFF), UInt8((index >> 8) & 0xFF), 0x01]))
+    }
+    viewModel.loadExistingEntriesForTesting = { [sibling] + filler + [tapped] }
+    await viewModel.subscribe()
+
+    viewModel.selectedEntry = tapped
+    #expect(Set(viewModel.selectedEntryArrivals.map(\.id)) == Set([sibling.id, tapped.id]))
+
+    await service.process(parsedPacket(raw: 0xEE))
+    try await waitUntil("Tapped entry was not pruned") {
+      !viewModel.entries.contains { $0.id == tapped.id }
+    }
+    #expect(viewModel.selectedEntryArrivals.map(\.id) == [sibling.id])
     viewModel.unsubscribe()
   }
 

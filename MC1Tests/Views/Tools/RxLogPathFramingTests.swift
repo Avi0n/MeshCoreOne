@@ -42,6 +42,17 @@ struct RxLogPathFramingTests {
     #expect(RxLogPathFraming.trace.clipboardPath(for: entry) == "AA,BB")
   }
 
+  @Test
+  func `traversed copies its path hops`() {
+    let withHops = makeDTO(
+      routeType: .flood,
+      payloadType: .groupText,
+      pathLength: 2,
+      pathNodes: [0xAA, 0xBB]
+    )
+    #expect(RxLogPathFraming.traversed.clipboardPath(for: withHops) == "AA,BB")
+  }
+
   private func makeDTO(
     routeType: RouteType,
     payloadType: PayloadType,

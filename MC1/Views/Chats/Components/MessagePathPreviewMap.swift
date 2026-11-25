@@ -50,6 +50,8 @@ struct MessagePathPreviewMap: View {
         .scaledToFill()
     } else if didFail {
       fallback
+    } else {
+      Color(.secondarySystemBackground)
     }
   }
 
