@@ -5,7 +5,8 @@ public extension PendingSendDTO {
   func directMessageEnvelope() -> DirectMessageEnvelope? {
     guard kind == .dm, ackDeadline == nil, let contactID else { return nil }
     return DirectMessageEnvelope(
-      messageID: messageID, contactID: contactID, isResend: isResend, isSingleAttempt: isSingleAttempt
+      messageID: messageID, contactID: contactID, isResend: isResend, isSingleAttempt: isSingleAttempt,
+      maxBackoffRounds: maxBackoffRounds
     )
   }
 
@@ -50,7 +51,8 @@ public extension PendingSendDTO {
       ackCodes: ackCodes,
       ackSentAt: ackSentAt,
       ackDeadline: ackDeadline,
-      isSingleAttempt: envelope.isSingleAttempt
+      isSingleAttempt: envelope.isSingleAttempt,
+      maxBackoffRounds: envelope.maxBackoffRounds
     )
   }
 

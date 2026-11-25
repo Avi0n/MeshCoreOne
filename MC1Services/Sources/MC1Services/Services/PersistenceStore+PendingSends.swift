@@ -42,6 +42,9 @@ public extension PersistenceStore {
       existing.ackCodes = dto.ackCodes
       existing.ackSentAt = dto.ackSentAt
       existing.ackDeadline = dto.ackDeadline
+      existing.maxBackoffRounds = dto.maxBackoffRounds
+      existing.backoffRound = dto.backoffRound
+      existing.notBefore = dto.notBefore
     } else {
       modelContext.insert(PendingSend(dto: dto))
     }
@@ -395,6 +398,46 @@ public extension PersistenceStore {
       throw error
     }
     return MessageDTO(from: message)
+  }
+
+  /// Gives an expired ACK-owned DM its next backoff round in one save. The row becomes unsent work
+  /// again with a fresh attempt count, so the drain picks a new timestamp. `nextWireAttempt` stays,
+  /// so a late ACK for the earlier timestamp still matches while the row waits.
+  func scheduleBackoffRetry(
+    pendingSendID: UUID,
+    expectedDeadline: Date?,
+    policy: DMBackoffPolicy,
+    now: Date
+  ) async throws -> DMBackoffPlan? {
+    guard let expectedDeadline, let row = try pendingSendRow(id: pendingSendID),
+          row.kind == .dm, row.ackDeadline == expectedDeadline,
+          row.backoffRound < row.maxBackoffRounds else { return nil }
+    let messageID = row.messageID
+    let messagePredicate = #Predicate<Message> { $0.id == messageID }
+    guard let message = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).first,
+          message.channelIndex == nil, message.reactionTargetMessageID == nil,
+          message.status != .delivered, message.status != .failed else { return nil }
+
+    let round = row.backoffRound + 1
+    let notBefore = now.addingTimeInterval(policy.delay(forRound: round))
+    row.ackCodes = nil
+    row.ackSentAt = nil
+    row.ackDeadline = nil
+    row.attemptCount = Self.initialAttemptCount
+    row.isResend = false
+    row.isSingleAttempt = true
+    row.backoffRound = round
+    row.notBefore = notBefore
+    message.status = .retrying
+    message.retryAttempt = round - 1
+    message.maxRetryAttempts = row.maxBackoffRounds
+    do {
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return DMBackoffPlan(round: round, maxRounds: row.maxBackoffRounds, notBefore: notBefore)
   }
 
   private func pendingSendRow(id: UUID) throws -> PendingSend? {

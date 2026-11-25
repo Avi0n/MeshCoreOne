@@ -239,6 +239,16 @@ public protocol MessagePersisting: Actor {
     ackCode: UInt32,
     roundTripTime: UInt32?
   ) async throws -> MessageDTO?
+
+  /// Turns an expired ACK-owned DM into queued work that waits for the next backoff round.
+  /// Returns nil, and writes nothing, when the DM did not opt in, has used its rounds,
+  /// is already resolved, or the row no longer holds `expectedDeadline`.
+  func scheduleBackoffRetry(
+    pendingSendID: UUID,
+    expectedDeadline: Date?,
+    policy: DMBackoffPolicy,
+    now: Date
+  ) async throws -> DMBackoffPlan?
 }
 
 // MARK: - Default Parameter Values
@@ -279,6 +289,15 @@ extension MessagePersisting {
     ackCode: UInt32,
     roundTripTime: UInt32?
   ) async throws -> MessageDTO? {
+    nil
+  }
+
+  func scheduleBackoffRetry(
+    pendingSendID: UUID,
+    expectedDeadline: Date?,
+    policy: DMBackoffPolicy,
+    now: Date
+  ) async throws -> DMBackoffPlan? {
     nil
   }
 }
