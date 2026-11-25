@@ -1857,7 +1857,7 @@
 // MARK: - Live Activity
 
 /* Label for the Live Status toggle in App Settings */
-"liveActivity.title" = "Live Activity";
+"liveActivity.title" = "Live activiteit";
 
 /* Title for the Live Activity tip shown after first connection */
 "liveActivity.tip.title" = "Radiostatus in één oogopslag";

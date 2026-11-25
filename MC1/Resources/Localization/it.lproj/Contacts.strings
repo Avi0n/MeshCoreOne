@@ -374,7 +374,7 @@
 "contacts.detail.avatar.crop.moveRight" = "Sposta a destra";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
-"contacts.detail.nickname" = "Nickname";
+"contacts.detail.nickname" = "Soprannome";
 
 /* Location: ContactDetailView.swift - Purpose: No nickname placeholder */
 "contacts.detail.nicknameNone" = "Nessuno";
