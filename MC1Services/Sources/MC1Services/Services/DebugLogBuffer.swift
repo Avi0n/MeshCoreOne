@@ -56,7 +56,7 @@ public actor DebugLogBuffer {
       return nil
     }
     guard let buffer else { return }
-    Task { await buffer.append(entry) }
+    Task(priority: .utility) { await buffer.append(entry) }
   }
 
   /// Turns collection on unless `disableCollection` is in progress, which leaves the key false.
@@ -202,7 +202,7 @@ public actor DebugLogBuffer {
     guard !isFlushScheduled else { return }
     isFlushScheduled = true
 
-    flushTask = Task {
+    flushTask = Task(priority: .utility) {
       try? await Task.sleep(for: flushInterval, tolerance: Self.flushTolerance)
       guard !Task.isCancelled else { return }
       isFlushScheduled = false
@@ -214,20 +214,30 @@ public actor DebugLogBuffer {
     flushTask?.cancel()
     flushTask = nil
     isFlushScheduled = false
-    Task { await flushBuffer() }
+    guard let entries = drainBufferForPersist() else { return }
+    Task(priority: .utility) { await persistBatch(entries) }
   }
 
   private func flushBuffer() async {
-    guard !buffer.isEmpty else { return }
+    guard let entries = drainBufferForPersist() else { return }
+    await persistBatch(entries)
+  }
+
+  private func drainBufferForPersist() -> [DebugLogEntryDTO]? {
+    guard !buffer.isEmpty else { return nil }
     guard Self.isCollectionEnabled else {
       buffer = []
-      return
+      return nil
     }
-    beginPersist()
-    defer { endPersist() }
-
     let entries = buffer
     buffer = []
+    beginPersist()
+    return entries
+  }
+
+  private func persistBatch(_ entries: [DebugLogEntryDTO]) async {
+    defer { endPersist() }
+    guard Self.isCollectionEnabled else { return }
 
     do {
       try await dataStore.saveDebugLogEntries(entries)
