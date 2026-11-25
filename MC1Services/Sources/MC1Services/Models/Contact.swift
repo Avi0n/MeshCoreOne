@@ -258,7 +258,7 @@ public extension Contact {
 
   /// The 6-byte public key prefix for message addressing
   var publicKeyPrefix: Data {
-    publicKey.prefix(6)
+    publicKey.prefix(ProtocolLimits.publicKeyPrefixSize)
   }
 
   /// Whether this contact uses flood routing
@@ -530,7 +530,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   }
 
   public var publicKeyPrefix: Data {
-    publicKey.prefix(6)
+    publicKey.prefix(ProtocolLimits.publicKeyPrefixSize)
   }
 
   public var isFloodRouted: Bool {

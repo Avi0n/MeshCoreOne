@@ -22,7 +22,7 @@ struct MessagePathMapView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-  let message: MessageDTO
+  let sender: MessagePathSender
   let arrivals: [MessagePathArrival]
   @Binding var selectedID: UUID?
   let pathViewModel: MessagePathViewModel
@@ -61,7 +61,7 @@ struct MessagePathMapView: View {
 
   private var canvas: CanvasModel {
     Self.canvasModel(
-      message: message,
+      sender: sender,
       arrivals: arrivals,
       selectedID: selectedID,
       pathViewModel: pathViewModel,
@@ -296,7 +296,7 @@ struct MessagePathMapView: View {
   }
 
   static func canvasModel(
-    message: MessageDTO,
+    sender: MessagePathSender,
     arrivals: [MessagePathArrival],
     selectedID: UUID?,
     pathViewModel: MessagePathViewModel,
@@ -304,7 +304,7 @@ struct MessagePathMapView: View {
     userLocation: CLLocation?
   ) -> CanvasModel {
     let selected = MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
-    let sender = pathViewModel.locatedSender(for: message)
+    let locatedSender = pathViewModel.locatedSender(for: sender)
     let receiverLocation: CLLocation? = if let device = connectedDevice, device.hasLocation {
       CLLocation(latitude: device.latitude, longitude: device.longitude)
     } else {
@@ -314,7 +314,7 @@ struct MessagePathMapView: View {
     var points: [MapPoint] = []
     var seenKeys = Set<Data>()
     let start: CLLocationCoordinate2D?
-    if message.isOutgoing, let device = connectedDevice, device.hasLocation {
+    if sender.isLocalDevice, let device = connectedDevice, device.hasLocation {
       let coord = CLLocationCoordinate2D(latitude: device.latitude, longitude: device.longitude)
       start = coord
       points.append(MapPoint(
@@ -327,19 +327,19 @@ struct MessagePathMapView: View {
         badgeText: nil
       ))
       seenKeys.insert(device.publicKey)
-    } else if let sender {
-      let coord = CLLocationCoordinate2D(latitude: sender.latitude, longitude: sender.longitude)
+    } else if let locatedSender {
+      let coord = CLLocationCoordinate2D(latitude: locatedSender.latitude, longitude: locatedSender.longitude)
       start = coord
       points.append(MapPoint(
-        id: sender.id,
+        id: locatedSender.id,
         coordinate: coord,
         pinStyle: .pointA,
-        label: sender.displayName,
+        label: locatedSender.displayName,
         isClusterable: false,
         hopIndex: nil,
         badgeText: nil
       ))
-      seenKeys.insert(sender.publicKey)
+      seenKeys.insert(locatedSender.publicKey)
     } else {
       start = nil
     }

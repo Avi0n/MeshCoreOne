@@ -95,11 +95,11 @@ struct RxLogViewModelTests {
   }
 
   @Test
-  func `senderPrefix returns nil for flood route`() {
+  func `senderPrefix extracts the same offsets on a flood route`() {
     let payload = Data([0xDD, 0xAA, 0xFF, 0xFF])
     let dto = makeDTO(routeType: .flood, payloadType: .textMessage, pathLength: 0x01, packetPayload: payload)
-    #expect(dto.senderPrefix == nil)
-    #expect(dto.recipientPrefix == nil)
+    #expect(dto.senderPrefix == Data([0xAA]))
+    #expect(dto.recipientPrefix == Data([0xDD]))
   }
 
   @Test

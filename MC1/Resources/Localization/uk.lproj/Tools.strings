@@ -79,6 +79,9 @@
 /* Location: RxLogView.swift - Direct route label */
 "tools.rxLog.direct" = "Прямий";
 
+/* Location: RxLogEntryDetailView.swift - Flood route label */
+"tools.rxLog.flood" = "Флуд";
+
 /* Location: RxLogView.swift - Path detail for single hop */
 "tools.rxLog.hopSingular" = "перехід";
 
@@ -97,47 +100,23 @@
 /* Location: RxLogView.swift - Copy button */
 "tools.rxLog.copy" = "Копіювати";
 
-/* Location: RxLogView.swift - RSSI label */
-"tools.rxLog.rssiLabel" = "RSSI:";
-
-/* Location: RxLogView.swift - SNR label */
-"tools.rxLog.snrLabel" = "SNR:";
-
-/* Location: RxLogView.swift - Type label */
-"tools.rxLog.typeLabel" = "Тип:";
-
 /* Location: RxLogView.swift - Size label */
-"tools.rxLog.sizeLabel" = "Розмір:";
-
-/* Location: RxLogView.swift - Path label */
-"tools.rxLog.pathLabel" = "Шлях:";
+"tools.rxLog.sizeLabel" = "Розмір";
 
 /* Location: RxLogView.swift - Hash label */
-"tools.rxLog.hashLabel" = "Хеш:";
-
-/* Location: RxLogView.swift - From label */
-"tools.rxLog.fromLabel" = "Від:";
-
-/* Location: RxLogView.swift - To label */
-"tools.rxLog.toLabel" = "Кому:";
+"tools.rxLog.hashLabel" = "Хеш";
 
 /* Location: RxLogView.swift - Channel hash label */
-"tools.rxLog.channelHashLabel" = "Хеш каналу:";
-
-/* Location: RxLogView.swift - Channel name label */
-"tools.rxLog.channelNameLabel" = "Назва каналу:";
+"tools.rxLog.channelHashLabel" = "Хеш каналу";
 
 /* Location: RxLogView.swift - Region label */
-"tools.rxLog.regionLabel" = "Регіон:";
+"tools.rxLog.regionLabel" = "Регіон";
 
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "Невідомо";
 
 /* Location: RxLogView.swift - Unscoped region value */
 "tools.rxLog.regionUnscoped" = "Без області";
-
-/* Location: RxLogView.swift - Text label */
-"tools.rxLog.textLabel" = "Текст:";
 
 /* Location: RxLogView.swift - Bytes suffix for size display */
 "tools.rxLog.bytes" = "байт";
@@ -185,28 +164,19 @@
 "tools.rxLog.packetDetails" = "Деталі пакета";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.signalSection" = "Сигнал";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.packetSection" = "Пакет";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.pathSection" = "Шлях";
 
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.messageSection" = "Повідомлення";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section for every reception of one packet */
-"tools.rxLog.arrivalsSection" = "Надходження";
-
-/* Location: RxLogEntryDetailView.swift - Received time label */
-"tools.rxLog.receivedLabel" = "Отримано:";
+/* Location: RxLogEntryPathSection.swift - Section header for repeaters that have not yet relayed a direct packet */
+"tools.rxLog.stillToRelay" = "Ще до ретрансляції";
 
 /* Location: RxLogEntryDetailView.swift - Route label */
-"tools.rxLog.routeLabel" = "Тип маршруту:";
+"tools.rxLog.routeLabel" = "Тип маршруту";
 
 /* Location: RxLogEntryDetailView.swift - Payload version label */
-"tools.rxLog.versionLabel" = "Версія:";
+"tools.rxLog.versionLabel" = "Версія";
 
 // MARK: - RX Log Filters
 
@@ -248,9 +218,6 @@
 
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "Ви";
-
-/* Location: RxLogRowView - Route label for TRACE target hashes */
-"tools.rxLog.traceRouteLabel" = "Маршрут:";
 
 // MARK: - Noise Floor View
 

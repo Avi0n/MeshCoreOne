@@ -272,17 +272,17 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     }
   }
 
-  /// Sender public key prefix for direct text messages.
+  /// Sender public key prefix for text messages on any route.
   public var senderPrefix: Data? {
-    guard !isFlood, payloadType == .textMessage else { return nil }
+    guard payloadType == .textMessage else { return nil }
     let dmPrefixSize = 1
     guard packetPayload.count >= dmPrefixSize * 2 else { return nil }
     return Data(packetPayload[dmPrefixSize..<dmPrefixSize * 2])
   }
 
-  /// Recipient public key prefix for direct text messages.
+  /// Recipient public key prefix for text messages on any route.
   public var recipientPrefix: Data? {
-    guard !isFlood, payloadType == .textMessage else { return nil }
+    guard payloadType == .textMessage else { return nil }
     let dmPrefixSize = 1
     guard packetPayload.count >= dmPrefixSize * 2 else { return nil }
     return Data(packetPayload[0..<dmPrefixSize])

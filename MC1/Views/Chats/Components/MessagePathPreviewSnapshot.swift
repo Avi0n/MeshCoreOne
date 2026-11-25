@@ -1,10 +1,9 @@
 import CoreGraphics
 import Foundation
 
-/// Prefetch cache key and snapshot size from the Path Details container width.
+/// Prefetch cache key and snapshot size from the width the preview is drawn at.
 enum MessagePathPreviewSnapshot {
   static let widthBucketPoints: CGFloat = 8
-  static let expandedHorizontalPadding: CGFloat = 16
 
   struct Key: Hashable {
     let arrivalID: UUID
@@ -17,10 +16,9 @@ enum MessagePathPreviewSnapshot {
     Int((width / widthBucketPoints).rounded() * widthBucketPoints)
   }
 
-  static func previewSize(containerWidth: CGFloat) -> CGSize {
-    let inner = max(0, containerWidth - 2 * expandedHorizontalPadding)
-    return CGSize(
-      width: CGFloat(bucketedWidth(inner)),
+  static func previewSize(previewWidth: CGFloat) -> CGSize {
+    CGSize(
+      width: CGFloat(bucketedWidth(max(0, previewWidth))),
       height: MessagePathPreviewMap.previewHeight
     )
   }
@@ -29,14 +27,13 @@ enum MessagePathPreviewSnapshot {
     arrivalID: UUID,
     isDark: Bool,
     isOffline: Bool,
-    containerWidth: CGFloat
+    previewWidth: CGFloat
   ) -> Key {
-    let inner = max(0, containerWidth - 2 * expandedHorizontalPadding)
-    return Key(
+    Key(
       arrivalID: arrivalID,
       isDark: isDark,
       isOffline: isOffline,
-      widthBucket: bucketedWidth(inner)
+      widthBucket: bucketedWidth(max(0, previewWidth))
     )
   }
 }

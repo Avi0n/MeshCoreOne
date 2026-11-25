@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1
 @testable import MC1Services
+@testable import MeshCore
 import Testing
 
 @Suite("MessagePathArrival assemble")
@@ -138,6 +139,45 @@ struct MessagePathArrivalTests {
     #expect(arrival.isZeroHop)
     #expect(arrival.isPathUnavailable == false)
     #expect(arrival.pathHops.isEmpty)
+  }
+
+  @Test
+  func `RX Log arrivals sort oldest first and mark only the earliest`() {
+    let base = Date(timeIntervalSince1970: 1_700_000_000)
+    let tapped = rxEntry(receivedAt: base.addingTimeInterval(4), pathNodes: [0xBB])
+    let earliest = rxEntry(receivedAt: base, pathNodes: [0xAA])
+    let arrivals = MessagePathArrivals.assemble(entry: tapped, arrivals: [tapped, earliest])
+
+    #expect(arrivals.map(\.id) == [earliest.id, tapped.id])
+    #expect(arrivals.map(\.isFirst) == [true, false])
+    #expect(arrivals[1].pathNodes == Data([0xBB]))
+  }
+
+  @Test
+  func `RX Log keeps the tapped entry after the log prunes it`() {
+    let base = Date(timeIntervalSince1970: 1_700_000_000)
+    let tapped = rxEntry(receivedAt: base, pathNodes: [0xAA])
+    let later = rxEntry(receivedAt: base.addingTimeInterval(2), pathNodes: [0xBB])
+    let arrivals = MessagePathArrivals.assemble(entry: tapped, arrivals: [later])
+
+    #expect(arrivals.map(\.id) == [tapped.id, later.id])
+  }
+
+  private func rxEntry(receivedAt: Date, pathNodes: [UInt8]) -> RxLogEntryDTO {
+    let parsed = ParsedRxLogData(
+      snr: 4.5,
+      rssi: -90,
+      rawPayload: Data(),
+      routeType: .flood,
+      payloadType: .groupText,
+      payloadVersion: 0,
+      payloadTypeBits: PayloadType.groupText.rawValue & 0x0F,
+      transportCode: nil,
+      pathLength: UInt8(pathNodes.count),
+      pathNodes: pathNodes,
+      packetPayload: Data()
+    )
+    return RxLogEntryDTO(radioID: UUID(), receivedAt: receivedAt, from: parsed)
   }
 
   private func incomingMessage(

@@ -67,7 +67,7 @@ struct MessagePathDetailSelectionTests {
     )
     let location = CLLocation(latitude: 37.5, longitude: -122.3)
     let first = MessagePathMapView.canvasModel(
-      message: message,
+      sender: MessagePathSender(message: message),
       arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
       selectedID: nil,
       pathViewModel: MessagePathViewModel(),
@@ -75,7 +75,7 @@ struct MessagePathDetailSelectionTests {
       userLocation: location
     )
     let second = MessagePathMapView.canvasModel(
-      message: message,
+      sender: MessagePathSender(message: message),
       arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
       selectedID: nil,
       pathViewModel: MessagePathViewModel(),
@@ -151,7 +151,7 @@ struct MessagePathDetailSelectionTests {
       maxRetryAttempts: 0
     )
     let canvas = MessagePathMapView.canvasModel(
-      message: message,
+      sender: MessagePathSender(message: message),
       arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
       selectedID: nil,
       pathViewModel: MessagePathViewModel(),
@@ -252,7 +252,7 @@ struct MessagePathDetailSelectionTests {
     pathViewModel.contacts = [hop]
     pathViewModel.repeaters = [hop]
     let canvas = MessagePathMapView.canvasModel(
-      message: message,
+      sender: MessagePathSender(message: message),
       arrivals: MessagePathArrivals.assemble(message: message, repeats: [echo]),
       selectedID: nil,
       pathViewModel: pathViewModel,
@@ -584,7 +584,7 @@ struct MessagePathDetailSelectionTests {
     selectedID: UUID?
   ) -> MessagePathMapView.CanvasModel {
     MessagePathMapView.canvasModel(
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
       selectedID: selectedID,
       pathViewModel: fixture.pathViewModel,
@@ -633,7 +633,7 @@ struct MessagePathDetailSelectionTests {
     pathViewModel.repeaters = repeaters
     pathViewModel.discoveredRepeaters = discoveredRepeaters
     return MessagePathMapView.canvasModel(
-      message: message,
+      sender: MessagePathSender(message: message),
       arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
       selectedID: nil,
       pathViewModel: pathViewModel,

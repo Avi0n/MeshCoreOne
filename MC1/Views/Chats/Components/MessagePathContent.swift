@@ -4,7 +4,7 @@ import SwiftUI
 
 /// Hop list for one arrival: sender, hops, receiver, and copyable path hex.
 struct MessagePathContent: View {
-  let message: MessageDTO
+  let sender: MessagePathSender
   let arrival: MessagePathArrival
   let viewModel: MessagePathViewModel
   let receiverName: String
@@ -24,13 +24,13 @@ struct MessagePathContent: View {
         description: Text(L10n.Chats.Chats.Path.Unavailable.description)
       )
     } else {
-      let senderResolution = viewModel.senderResolution(for: message, localDeviceName: receiverName)
+      let senderResolution = viewModel.senderResolution(for: sender, localDeviceName: receiverName)
       let pathHops = arrival.pathHops
 
       PathHopRowView(
         hopType: .sender,
         nodeName: senderResolution.displayName,
-        nodeID: viewModel.senderNodeID(for: message),
+        nodeID: viewModel.senderNodeID(for: sender),
         snr: nil,
         matchKind: senderResolution.matchKind
       )

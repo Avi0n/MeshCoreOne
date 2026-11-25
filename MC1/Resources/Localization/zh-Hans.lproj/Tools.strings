@@ -79,6 +79,9 @@
 /* Location: RxLogView.swift - Direct route label */
 "tools.rxLog.direct" = "直连";
 
+/* Location: RxLogEntryDetailView.swift - Flood route label */
+"tools.rxLog.flood" = "泛洪";
+
 /* Location: RxLogView.swift - Path detail for single hop */
 "tools.rxLog.hopSingular" = "跳";
 
@@ -97,47 +100,23 @@
 /* Location: RxLogView.swift - Copy button */
 "tools.rxLog.copy" = "复制";
 
-/* Location: RxLogView.swift - RSSI label */
-"tools.rxLog.rssiLabel" = "RSSI：";
-
-/* Location: RxLogView.swift - SNR label */
-"tools.rxLog.snrLabel" = "信噪比：";
-
-/* Location: RxLogView.swift - Type label */
-"tools.rxLog.typeLabel" = "类型：";
-
 /* Location: RxLogView.swift - Size label */
-"tools.rxLog.sizeLabel" = "大小：";
-
-/* Location: RxLogView.swift - Path label */
-"tools.rxLog.pathLabel" = "路径：";
+"tools.rxLog.sizeLabel" = "大小";
 
 /* Location: RxLogView.swift - Hash label */
-"tools.rxLog.hashLabel" = "哈希：";
-
-/* Location: RxLogView.swift - From label */
-"tools.rxLog.fromLabel" = "来自：";
-
-/* Location: RxLogView.swift - To label */
-"tools.rxLog.toLabel" = "到：";
+"tools.rxLog.hashLabel" = "哈希";
 
 /* Location: RxLogView.swift - Channel hash label */
-"tools.rxLog.channelHashLabel" = "频道哈希：";
-
-/* Location: RxLogView.swift - Channel name label */
-"tools.rxLog.channelNameLabel" = "频道名称：";
+"tools.rxLog.channelHashLabel" = "频道哈希";
 
 /* Location: RxLogView.swift - Region label */
-"tools.rxLog.regionLabel" = "区域：";
+"tools.rxLog.regionLabel" = "区域";
 
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "未知";
 
 /* Location: RxLogView.swift - Unscoped region value */
 "tools.rxLog.regionUnscoped" = "无范围";
-
-/* Location: RxLogView.swift - Text label */
-"tools.rxLog.textLabel" = "文本：";
 
 /* Location: RxLogView.swift - Bytes suffix for size display */
 "tools.rxLog.bytes" = "字节";
@@ -185,28 +164,19 @@
 "tools.rxLog.packetDetails" = "数据包详情";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.signalSection" = "信号";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.packetSection" = "数据包";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.pathSection" = "路径";
 
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.messageSection" = "消息";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section for every reception of one packet */
-"tools.rxLog.arrivalsSection" = "到达";
-
-/* Location: RxLogEntryDetailView.swift - Received time label */
-"tools.rxLog.receivedLabel" = "接收：";
+/* Location: RxLogEntryPathSection.swift - Section header for repeaters that have not yet relayed a direct packet */
+"tools.rxLog.stillToRelay" = "仍待转发";
 
 /* Location: RxLogEntryDetailView.swift - Route label */
-"tools.rxLog.routeLabel" = "路由类型：";
+"tools.rxLog.routeLabel" = "路由类型";
 
 /* Location: RxLogEntryDetailView.swift - Payload version label */
-"tools.rxLog.versionLabel" = "版本：";
+"tools.rxLog.versionLabel" = "版本";
 
 // MARK: - RX Log Filters
 
@@ -248,9 +218,6 @@
 
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "你";
-
-/* Location: RxLogRowView - Route label for TRACE target hashes */
-"tools.rxLog.traceRouteLabel" = "路由：";
 
 // MARK: - Noise Floor View
 

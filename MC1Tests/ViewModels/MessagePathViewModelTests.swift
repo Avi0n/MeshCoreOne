@@ -38,6 +38,18 @@ struct MessagePathViewModelTests {
     )
   }
 
+  private func sender(
+    senderKeyPrefix: Data?,
+    senderNodeName: String? = nil,
+    channelIndex: UInt8? = nil
+  ) -> MessagePathSender {
+    MessagePathSender(message: createMessage(
+      senderKeyPrefix: senderKeyPrefix,
+      senderNodeName: senderNodeName,
+      channelIndex: channelIndex
+    ))
+  }
+
   private func createMessage(
     senderKeyPrefix: Data?,
     senderNodeName: String? = nil,
@@ -82,7 +94,7 @@ struct MessagePathViewModelTests {
 
     let message = createMessage(senderKeyPrefix: contactB.publicKeyPrefix)
 
-    #expect(viewModel.senderName(for: message, localDeviceName: "") == "Bravo")
+    #expect(viewModel.senderName(for: MessagePathSender(message: message), localDeviceName: "") == "Bravo")
   }
 
   @Test
@@ -93,7 +105,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [older, newer]
 
     let message = createMessage(senderKeyPrefix: Data([0xAA]))
-    let result = viewModel.senderResolution(for: message, localDeviceName: "")
+    let result = viewModel.senderResolution(for: MessagePathSender(message: message), localDeviceName: "")
 
     #expect(result.displayName == "Newer")
     #expect(result.matchKind == .fallback)
@@ -106,7 +118,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let message = createMessage(senderKeyPrefix: Data([0xAA]))
-    let result = viewModel.senderResolution(for: message, localDeviceName: "")
+    let result = viewModel.senderResolution(for: MessagePathSender(message: message), localDeviceName: "")
 
     #expect(result.displayName == "Alpha")
     #expect(result.matchKind == .exact)
@@ -119,7 +131,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let message = createMessage(senderKeyPrefix: contact.publicKeyPrefix)
-    let result = viewModel.senderResolution(for: message, localDeviceName: "")
+    let result = viewModel.senderResolution(for: MessagePathSender(message: message), localDeviceName: "")
 
     #expect(result.displayName == "Alpha")
     #expect(result.matchKind == .exact)
@@ -129,7 +141,7 @@ struct MessagePathViewModelTests {
   func `sender name returns channel sender node name for channel messages`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
-    #expect(viewModel.senderName(for: message, localDeviceName: "") == "RemoteNode")
+    #expect(viewModel.senderName(for: MessagePathSender(message: message), localDeviceName: "") == "RemoteNode")
   }
 
   @Test
@@ -140,7 +152,7 @@ struct MessagePathViewModelTests {
     ]
 
     let message = createMessage(senderKeyPrefix: Data([0x11, 0x22, 0x33, 0x44, 0x55, 0x66]))
-    #expect(viewModel.senderName(for: message, localDeviceName: "") == L10n.Chats.Chats.Path.Hop.unknown)
+    #expect(viewModel.senderName(for: MessagePathSender(message: message), localDeviceName: "") == L10n.Chats.Chats.Path.Hop.unknown)
   }
 
   @Test
@@ -152,7 +164,7 @@ struct MessagePathViewModelTests {
       channelIndex: 0,
       direction: .outgoing
     )
-    let result = viewModel.senderResolution(for: message, localDeviceName: "Radio")
+    let result = viewModel.senderResolution(for: MessagePathSender(message: message), localDeviceName: "Radio")
     #expect(result.displayName == "Radio")
     #expect(result.matchKind == .exact)
   }
@@ -161,7 +173,7 @@ struct MessagePathViewModelTests {
   func `sender resolution ignores local device name for incoming channel messages`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
-    let result = viewModel.senderResolution(for: message, localDeviceName: "Radio")
+    let result = viewModel.senderResolution(for: MessagePathSender(message: message), localDeviceName: "Radio")
     #expect(result.displayName == "RemoteNode")
     #expect(result.matchKind == .exact)
   }
@@ -172,28 +184,28 @@ struct MessagePathViewModelTests {
   func `senderNodeID returns hex of first prefix byte`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: Data([0xAB, 0xCD, 0xEF, 0x12]))
-    #expect(viewModel.senderNodeID(for: message) == "AB")
+    #expect(viewModel.senderNodeID(for: MessagePathSender(message: message)) == "AB")
   }
 
   @Test
   func `senderNodeID returns nil when no key prefix`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: nil)
-    #expect(viewModel.senderNodeID(for: message) == nil)
+    #expect(viewModel.senderNodeID(for: MessagePathSender(message: message)) == nil)
   }
 
   @Test
   func `senderNodeID returns nil for empty key prefix`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: Data())
-    #expect(viewModel.senderNodeID(for: message) == nil)
+    #expect(viewModel.senderNodeID(for: MessagePathSender(message: message)) == nil)
   }
 
   @Test
   func `senderNodeID formats leading zero correctly`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: Data([0x0A]))
-    #expect(viewModel.senderNodeID(for: message) == "0A")
+    #expect(viewModel.senderNodeID(for: MessagePathSender(message: message)) == "0A")
   }
 
   // MARK: - locatedSender
@@ -212,7 +224,7 @@ struct MessagePathViewModelTests {
     )
     viewModel.contacts = [contact]
 
-    let result = viewModel.locatedSender(for: createMessage(senderKeyPrefix: contact.publicKeyPrefix))
+    let result = viewModel.locatedSender(for: MessagePathSender(message: createMessage(senderKeyPrefix: contact.publicKeyPrefix)))
 
     #expect(result?.id == contact.id)
   }
@@ -223,7 +235,7 @@ struct MessagePathViewModelTests {
     let contact = createContact(prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00], name: "Alpha")
     viewModel.contacts = [contact]
 
-    let result = viewModel.locatedSender(for: createMessage(senderKeyPrefix: contact.publicKeyPrefix))
+    let result = viewModel.locatedSender(for: MessagePathSender(message: createMessage(senderKeyPrefix: contact.publicKeyPrefix)))
 
     #expect(result == nil)
   }
@@ -240,7 +252,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let result = viewModel.locatedSender(
-      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+      for: sender(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
     )
 
     #expect(result?.id == contact.id)
@@ -253,7 +265,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let result = viewModel.locatedSender(
-      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+      for: sender(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
     )
 
     #expect(result == nil)
@@ -272,7 +284,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [located, unlocated]
 
     let result = viewModel.locatedSender(
-      for: createMessage(senderKeyPrefix: nil, senderNodeName: "Alice", channelIndex: 0)
+      for: sender(senderKeyPrefix: nil, senderNodeName: "Alice", channelIndex: 0)
     )
 
     #expect(result == nil)
@@ -291,7 +303,7 @@ struct MessagePathViewModelTests {
     ]
 
     let result = viewModel.locatedSender(
-      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+      for: sender(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
     )
 
     #expect(result == nil)
@@ -315,7 +327,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [prefixed, named]
 
     let result = viewModel.locatedSender(
-      for: createMessage(
+      for: sender(
         senderKeyPrefix: prefixed.publicKeyPrefix,
         senderNodeName: "RemoteNode",
         channelIndex: 0
@@ -337,7 +349,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let result = viewModel.locatedSender(
-      for: createMessage(senderKeyPrefix: nil, senderNodeName: "remotenode", channelIndex: 0)
+      for: sender(senderKeyPrefix: nil, senderNodeName: "remotenode", channelIndex: 0)
     )
 
     #expect(result?.id == contact.id)
@@ -356,7 +368,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let result = viewModel.locatedSender(
-      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+      for: sender(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
     )
 
     #expect(result?.id == contact.id)

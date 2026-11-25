@@ -3,6 +3,8 @@ import Foundation
 /// Protocol size limits and constants
 public enum ProtocolLimits {
   public static let publicKeySize = 32
+  /// Public key prefix used to address contacts and match message senders.
+  public static let publicKeyPrefixSize = 6
   public static let advertTimestampSize = 4
   public static let privateKeySize = 64
   public static let maxPathSize = 64

@@ -79,6 +79,9 @@
 /* Location: RxLogView.swift - Direct route label */
 "tools.rxLog.direct" = "다이렉트";
 
+/* Location: RxLogEntryDetailView.swift - Flood route label */
+"tools.rxLog.flood" = "플러드";
+
 /* Location: RxLogView.swift - Path detail for single hop */
 "tools.rxLog.hopSingular" = "홉";
 
@@ -97,47 +100,23 @@
 /* Location: RxLogView.swift - Copy button */
 "tools.rxLog.copy" = "복사";
 
-/* Location: RxLogView.swift - RSSI label */
-"tools.rxLog.rssiLabel" = "RSSI:";
-
-/* Location: RxLogView.swift - SNR label */
-"tools.rxLog.snrLabel" = "SNR:";
-
-/* Location: RxLogView.swift - Type label */
-"tools.rxLog.typeLabel" = "유형:";
-
 /* Location: RxLogView.swift - Size label */
-"tools.rxLog.sizeLabel" = "크기:";
-
-/* Location: RxLogView.swift - Path label */
-"tools.rxLog.pathLabel" = "경로:";
+"tools.rxLog.sizeLabel" = "크기";
 
 /* Location: RxLogView.swift - Hash label */
-"tools.rxLog.hashLabel" = "해시:";
-
-/* Location: RxLogView.swift - From label */
-"tools.rxLog.fromLabel" = "보낸 사람:";
-
-/* Location: RxLogView.swift - To label */
-"tools.rxLog.toLabel" = "받는 사람:";
+"tools.rxLog.hashLabel" = "해시";
 
 /* Location: RxLogView.swift - Channel hash label */
-"tools.rxLog.channelHashLabel" = "채널 해시:";
-
-/* Location: RxLogView.swift - Channel name label */
-"tools.rxLog.channelNameLabel" = "채널 이름:";
+"tools.rxLog.channelHashLabel" = "채널 해시";
 
 /* Location: RxLogView.swift - Region label */
-"tools.rxLog.regionLabel" = "지역:";
+"tools.rxLog.regionLabel" = "지역";
 
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "알 수 없음";
 
 /* Location: RxLogView.swift - Unscoped region value */
 "tools.rxLog.regionUnscoped" = "범위 없음";
-
-/* Location: RxLogView.swift - Text label */
-"tools.rxLog.textLabel" = "텍스트:";
 
 /* Location: RxLogView.swift - Bytes suffix for size display */
 "tools.rxLog.bytes" = "바이트";
@@ -185,28 +164,19 @@
 "tools.rxLog.packetDetails" = "패킷 세부 정보";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.signalSection" = "신호";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.packetSection" = "패킷";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.pathSection" = "경로";
 
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.messageSection" = "메시지";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section for every reception of one packet */
-"tools.rxLog.arrivalsSection" = "수신 기록";
-
-/* Location: RxLogEntryDetailView.swift - Received time label */
-"tools.rxLog.receivedLabel" = "수신:";
+/* Location: RxLogEntryPathSection.swift - Section header for repeaters that have not yet relayed a direct packet */
+"tools.rxLog.stillToRelay" = "아직 중계 전";
 
 /* Location: RxLogEntryDetailView.swift - Route label */
-"tools.rxLog.routeLabel" = "경로 유형:";
+"tools.rxLog.routeLabel" = "경로 유형";
 
 /* Location: RxLogEntryDetailView.swift - Payload version label */
-"tools.rxLog.versionLabel" = "버전:";
+"tools.rxLog.versionLabel" = "버전";
 
 // MARK: - RX Log Filters
 
@@ -248,9 +218,6 @@
 
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "나";
-
-/* Location: RxLogRowView - Route label for TRACE target hashes */
-"tools.rxLog.traceRouteLabel" = "경로:";
 
 // MARK: - Noise Floor View
 

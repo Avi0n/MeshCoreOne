@@ -72,6 +72,26 @@ enum MessagePathArrivals {
     return [canonical] + extras
   }
 
+  /// RX Log entries sharing a packet hash, oldest first. The tapped entry is kept
+  /// even after the log prunes it.
+  static func assemble(entry: RxLogEntryDTO, arrivals entries: [RxLogEntryDTO]) -> [MessagePathArrival] {
+    let all = entries.contains { $0.id == entry.id } ? entries : entries + [entry]
+    return all
+      .sorted { $0.receivedAt < $1.receivedAt }
+      .enumerated()
+      .map { index, rxEntry in
+        MessagePathArrival(
+          id: rxEntry.id,
+          pathNodes: rxEntry.pathNodes,
+          pathLength: rxEntry.pathLength,
+          snr: rxEntry.snr,
+          rssi: rxEntry.rssi,
+          receivedAt: rxEntry.receivedAt,
+          isFirst: index == 0
+        )
+      }
+  }
+
   static func arrivalCount(for message: MessageDTO) -> Int {
     message.isOutgoing ? message.heardRepeats : 1 + message.heardRepeats
   }

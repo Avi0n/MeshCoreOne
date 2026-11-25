@@ -8,7 +8,7 @@ import UIKit
 @Suite("Outgoing repeat details", .serialized)
 @MainActor
 struct OutgoingRepeatDetailsTests {
-  fileprivate static let viewport = CGRect(x: 0, y: 0, width: 390, height: 844)
+  private static let viewport = CGRect(x: 0, y: 0, width: 390, height: 844)
   private static let localRadioName = "Local Radio"
 
   @Test(arguments: [true, false])
@@ -45,7 +45,7 @@ struct OutgoingRepeatDetailsTests {
     ] : []
     viewModel.repeaters = viewModel.contacts
     viewModel.isLoading = false
-    let host = try HostedWindow(root: details(message: message, repeats: repeats, viewModel: viewModel, appState: appState))
+    let host = try HostedWindow(frame: Self.viewport, root: details(message: message, repeats: repeats, viewModel: viewModel, appState: appState))
     defer {
       host.close()
       appState.shutdown()
@@ -93,7 +93,7 @@ struct OutgoingRepeatDetailsTests {
   @Test
   func `a sent message with repeats still loading shows a spinner`() async throws {
     let (appState, message, viewModel) = try makeOutgoingMessage()
-    let host = try HostedWindow(root: details(message: message, repeats: nil, viewModel: viewModel, appState: appState))
+    let host = try HostedWindow(frame: Self.viewport, root: details(message: message, repeats: nil, viewModel: viewModel, appState: appState))
     defer {
       host.close()
       appState.shutdown()
@@ -110,7 +110,7 @@ struct OutgoingRepeatDetailsTests {
   @Test
   func `a sent message with no stored repeats shows the empty state`() async throws {
     let (appState, message, viewModel) = try makeOutgoingMessage()
-    let host = try HostedWindow(root: details(message: message, repeats: [], viewModel: viewModel, appState: appState))
+    let host = try HostedWindow(frame: Self.viewport, root: details(message: message, repeats: [], viewModel: viewModel, appState: appState))
     defer {
       host.close()
       appState.shutdown()
@@ -149,7 +149,7 @@ struct OutgoingRepeatDetailsTests {
     viewModel.contacts = []
     viewModel.repeaters = []
     viewModel.isLoading = false
-    let host = try HostedWindow(root: details(message: message, repeats: repeats, viewModel: viewModel, appState: appState))
+    let host = try HostedWindow(frame: Self.viewport, root: details(message: message, repeats: repeats, viewModel: viewModel, appState: appState))
     defer {
       host.close()
       appState.shutdown()
@@ -197,7 +197,7 @@ struct OutgoingRepeatDetailsTests {
       makeRepeat(messageID: message.id, pathNodes: Data([0xA3]), snr: 4.2, rssi: -101, receivedAt: start.addingTimeInterval(3)),
       makeRepeat(messageID: message.id, pathNodes: Data([0xA3]), snr: 1.9, rssi: -108, receivedAt: start.addingTimeInterval(8))
     ]
-    let host = try HostedWindow(root: details(message: message, repeats: repeats, viewModel: viewModel, appState: appState))
+    let host = try HostedWindow(frame: Self.viewport, root: details(message: message, repeats: repeats, viewModel: viewModel, appState: appState))
     defer {
       host.close()
       appState.shutdown()
@@ -327,67 +327,8 @@ struct OutgoingRepeatDetailsTests {
     return windows.flatMap { accessibilityNodes(in: $0) }
   }
 
-  private func accessibilityNodes(in root: NSObject) -> [NSObject] {
-    var visited: Set<ObjectIdentifier> = []
-    var result: [NSObject] = []
-    func walk(_ object: NSObject) {
-      guard visited.insert(ObjectIdentifier(object)).inserted else { return }
-      if let view = object as? UIView, view.isHidden || view.accessibilityElementsHidden { return }
-      if object.isAccessibilityElement { result.append(object) }
-      if let children = object.accessibilityElements {
-        for case let child as NSObject in children where child !== object {
-          walk(child)
-        }
-      }
-      if let children = object.automationElements {
-        for case let child as NSObject in children where child !== object {
-          walk(child)
-        }
-      }
-      let count = object.accessibilityElementCount()
-      if count != NSNotFound, count > 0 {
-        for index in 0..<count {
-          if let child = object.accessibilityElement(at: index) as? NSObject, child !== object { walk(child) }
-        }
-      }
-      if let view = object as? UIView { view.subviews.forEach(walk) }
-    }
-    walk(root)
-    return result
-  }
-
   private func containsActivityIndicator(in view: UIView) -> Bool {
     if view is UIActivityIndicatorView || view is UIProgressView { return true }
     return view.subviews.contains { containsActivityIndicator(in: $0) }
-  }
-}
-
-@MainActor
-private struct HostedWindow {
-  let window: UIWindow
-  let controller: UIViewController
-  private let previousKeyWindow: UIWindow?
-
-  init(root: some View) throws {
-    let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
-    previousKeyWindow = scene.keyWindow
-    controller = UIHostingController(rootView: root)
-    window = UIWindow(windowScene: scene)
-    window.frame = OutgoingRepeatDetailsTests.viewport
-    window.rootViewController = controller
-    window.makeKeyAndVisible()
-  }
-
-  func layout() {
-    window.layoutIfNeeded()
-    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
-  }
-
-  func close() {
-    controller.dismiss(animated: false)
-    window.isHidden = true
-    window.rootViewController = nil
-    window.windowScene = nil
-    previousKeyWindow?.makeKey()
   }
 }

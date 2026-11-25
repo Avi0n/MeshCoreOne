@@ -79,6 +79,9 @@
 /* Location: RxLogView.swift - Direct route label */
 "tools.rxLog.direct" = "Direct";
 
+/* Location: RxLogEntryDetailView.swift - Flood route label */
+"tools.rxLog.flood" = "Flood";
+
 /* Location: RxLogView.swift - Path detail for single hop */
 "tools.rxLog.hopSingular" = "hop";
 
@@ -97,47 +100,23 @@
 /* Location: RxLogView.swift - Copy button */
 "tools.rxLog.copy" = "Copy";
 
-/* Location: RxLogView.swift - RSSI label */
-"tools.rxLog.rssiLabel" = "RSSI:";
-
-/* Location: RxLogView.swift - SNR label */
-"tools.rxLog.snrLabel" = "SNR:";
-
-/* Location: RxLogView.swift - Type label */
-"tools.rxLog.typeLabel" = "Type:";
-
 /* Location: RxLogView.swift - Size label */
-"tools.rxLog.sizeLabel" = "Size:";
-
-/* Location: RxLogView.swift - Path label */
-"tools.rxLog.pathLabel" = "Path:";
+"tools.rxLog.sizeLabel" = "Size";
 
 /* Location: RxLogView.swift - Hash label */
-"tools.rxLog.hashLabel" = "Hash:";
-
-/* Location: RxLogView.swift - From label */
-"tools.rxLog.fromLabel" = "From:";
-
-/* Location: RxLogView.swift - To label */
-"tools.rxLog.toLabel" = "To:";
+"tools.rxLog.hashLabel" = "Hash";
 
 /* Location: RxLogView.swift - Channel hash label */
-"tools.rxLog.channelHashLabel" = "Channel Hash:";
-
-/* Location: RxLogView.swift - Channel name label */
-"tools.rxLog.channelNameLabel" = "Channel Name:";
+"tools.rxLog.channelHashLabel" = "Channel Hash";
 
 /* Location: RxLogView.swift - Region label */
-"tools.rxLog.regionLabel" = "Region:";
+"tools.rxLog.regionLabel" = "Region";
 
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "Unknown";
 
 /* Location: RxLogView.swift - Unscoped region value */
 "tools.rxLog.regionUnscoped" = "Unscoped";
-
-/* Location: RxLogView.swift - Text label */
-"tools.rxLog.textLabel" = "Text:";
 
 /* Location: RxLogView.swift - Bytes suffix for size display */
 "tools.rxLog.bytes" = "bytes";
@@ -185,28 +164,19 @@
 "tools.rxLog.packetDetails" = "Packet Details";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.signalSection" = "Signal";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.packetSection" = "Packet";
 
 /* Location: RxLogEntryDetailView.swift - Packet detail section header */
 "tools.rxLog.pathSection" = "Path";
 
-/* Location: RxLogEntryDetailView.swift - Packet detail section header */
-"tools.rxLog.messageSection" = "Message";
-
-/* Location: RxLogEntryDetailView.swift - Packet detail section for every reception of one packet */
-"tools.rxLog.arrivalsSection" = "Arrivals";
-
-/* Location: RxLogEntryDetailView.swift - Received time label */
-"tools.rxLog.receivedLabel" = "Received:";
+/* Location: RxLogEntryPathSection.swift - Section header for repeaters that have not yet relayed a direct packet */
+"tools.rxLog.stillToRelay" = "Still to Relay";
 
 /* Location: RxLogEntryDetailView.swift - Route label */
-"tools.rxLog.routeLabel" = "Route Type:";
+"tools.rxLog.routeLabel" = "Route Type";
 
 /* Location: RxLogEntryDetailView.swift - Payload version label */
-"tools.rxLog.versionLabel" = "Version:";
+"tools.rxLog.versionLabel" = "Version";
 
 // MARK: - RX Log Filters
 
@@ -248,9 +218,6 @@
 
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "You";
-
-/* Location: RxLogRowView - Route label for TRACE target hashes */
-"tools.rxLog.traceRouteLabel" = "Route:";
 
 // MARK: - Noise Floor View
 

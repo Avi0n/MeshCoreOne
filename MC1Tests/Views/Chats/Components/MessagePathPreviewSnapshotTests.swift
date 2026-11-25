@@ -27,33 +27,33 @@ struct MessagePathViewModelPreviewTests {
     viewModel.repeaters = [fixture.hop]
 
     await viewModel.prefetchPreviews(
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
-      selectedID: nil,
+      skipping: nil,
       connectedDevice: nil,
       userLocation: fixture.userLocation,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     let key = MessagePathPreviewSnapshot.key(
       arrivalID: fixture.arrivals[0].id,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     #expect(viewModel.previewImage(for: key) != nil)
     #expect(fake.callCount == 1)
 
     await viewModel.prefetchPreviews(
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
-      selectedID: nil,
+      skipping: nil,
       connectedDevice: nil,
       userLocation: fixture.userLocation,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     #expect(fake.callCount == 1)
   }
@@ -69,20 +69,20 @@ struct MessagePathViewModelPreviewTests {
     viewModel.repeaters = [fixture.hop]
 
     await viewModel.prefetchPreviews(
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
-      selectedID: nil,
+      skipping: nil,
       connectedDevice: nil,
       userLocation: fixture.userLocation,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     let key = MessagePathPreviewSnapshot.key(
       arrivalID: fixture.arrivals[0].id,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     #expect(viewModel.previewFailed(for: key))
     #expect(viewModel.previewImage(for: key) == nil)
@@ -91,13 +91,13 @@ struct MessagePathViewModelPreviewTests {
     fake.image = Self.pixel()
     await viewModel.retryPreview(
       arrivalID: fixture.arrivals[0].id,
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
       connectedDevice: nil,
       userLocation: fixture.userLocation,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     #expect(fake.callCount == 2)
     #expect(viewModel.previewImage(for: key) != nil)
@@ -115,37 +115,135 @@ struct MessagePathViewModelPreviewTests {
     viewModel.repeaters = [fixture.hop]
 
     await viewModel.prefetchPreviews(
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
-      selectedID: nil,
+      skipping: nil,
       connectedDevice: nil,
       userLocation: fixture.userLocation,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     let key = MessagePathPreviewSnapshot.key(
       arrivalID: fixture.arrivals[0].id,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     #expect(viewModel.previewImage(for: key) != nil)
     let callsAfterStore = fake.callCount
 
     viewModel.isLoading = true
     await viewModel.prefetchPreviews(
-      message: fixture.message,
+      sender: MessagePathSender(message: fixture.message),
       arrivals: fixture.arrivals,
-      selectedID: nil,
+      skipping: nil,
       connectedDevice: nil,
       userLocation: fixture.userLocation,
       isDark: false,
       isOffline: false,
-      containerWidth: 390
+      previewWidth: 358
     )
     #expect(fake.callCount == callsAfterStore)
     #expect(viewModel.previewImage(for: key) != nil)
+  }
+
+  @Test
+  func `selected render completes while a prefetch that skips it runs`() async throws {
+    let gate = SuspendingPathPreviewRenderer(image: Self.pixel())
+    let viewModel = MessagePathViewModel(renderPreview: gate.asRenderer)
+    viewModel.isLoading = false
+    let fixture = Self.locatedFixture()
+    viewModel.contacts = [fixture.hop]
+    viewModel.repeaters = [fixture.hop]
+    let selected = fixture.arrivals[0]
+    let heardLater = MessagePathArrival(
+      id: UUID(),
+      pathNodes: selected.pathNodes,
+      pathLength: selected.pathLength,
+      snr: nil,
+      rssi: nil,
+      receivedAt: selected.receivedAt.addingTimeInterval(1),
+      isFirst: false
+    )
+    let sender = MessagePathSender(message: fixture.message)
+
+    let selectedRender = Task {
+      await viewModel.renderSelectedPreview(
+        arrivalID: selected.id,
+        sender: sender,
+        arrivals: [selected],
+        connectedDevice: nil,
+        userLocation: fixture.userLocation,
+        isDark: false,
+        isOffline: false,
+        previewWidth: 358
+      )
+    }
+    try await waitUntil("selected render started") { gate.callCount == 1 }
+
+    let prefetch = Task {
+      await viewModel.prefetchPreviews(
+        sender: sender,
+        arrivals: [selected, heardLater],
+        skipping: selected.id,
+        connectedDevice: nil,
+        userLocation: fixture.userLocation,
+        isDark: false,
+        isOffline: false,
+        previewWidth: 358
+      )
+    }
+    try await waitUntil("prefetch render started") { gate.callCount == 2 }
+    gate.resumeAll()
+    await selectedRender.value
+    await prefetch.value
+
+    let selectedKey = MessagePathPreviewSnapshot.key(
+      arrivalID: selected.id,
+      isDark: false,
+      isOffline: false,
+      previewWidth: 358
+    )
+    #expect(viewModel.previewImage(for: selectedKey) != nil)
+    #expect(gate.callCount == 2)
+  }
+
+  @Test
+  func `cancelled render neither stores nor marks the key failed`() async throws {
+    let gate = SuspendingPathPreviewRenderer(image: Self.pixel())
+    let viewModel = MessagePathViewModel(renderPreview: gate.asRenderer)
+    viewModel.isLoading = false
+    let fixture = Self.locatedFixture()
+    viewModel.contacts = [fixture.hop]
+    viewModel.repeaters = [fixture.hop]
+    let arrival = fixture.arrivals[0]
+
+    let render = Task {
+      await viewModel.renderSelectedPreview(
+        arrivalID: arrival.id,
+        sender: MessagePathSender(message: fixture.message),
+        arrivals: fixture.arrivals,
+        connectedDevice: nil,
+        userLocation: fixture.userLocation,
+        isDark: false,
+        isOffline: false,
+        previewWidth: 358
+      )
+    }
+    try await waitUntil("render started") { gate.callCount == 1 }
+    render.cancel()
+    gate.resumeAll()
+    await render.value
+
+    let key = MessagePathPreviewSnapshot.key(
+      arrivalID: arrival.id,
+      isDark: false,
+      isOffline: false,
+      previewWidth: 358
+    )
+    #expect(viewModel.previewImage(for: key) == nil)
+    #expect(viewModel.previewFailed(for: key) == false)
   }
 
   private struct LocatedFixture {
@@ -229,5 +327,32 @@ private final class FakePathPreviewRenderer {
       self.callCount += 1
       return self.image
     }
+  }
+}
+
+/// Holds each render until `resumeAll()`; a cancelled render returns nil like the real renderer.
+@MainActor
+private final class SuspendingPathPreviewRenderer {
+  private let image: UIImage
+  private var waiting: [CheckedContinuation<Void, Never>] = []
+  private(set) var callCount = 0
+
+  init(image: UIImage) {
+    self.image = image
+  }
+
+  var asRenderer: MessagePathViewModel.PathPreviewRenderer {
+    { [weak self] _, _, _, _, _, _ in
+      guard let self else { return nil }
+      callCount += 1
+      await withCheckedContinuation { waiting.append($0) }
+      return Task.isCancelled ? nil : image
+    }
+  }
+
+  func resumeAll() {
+    let pending = waiting
+    waiting.removeAll()
+    pending.forEach { $0.resume() }
   }
 }

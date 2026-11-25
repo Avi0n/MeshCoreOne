@@ -35,8 +35,6 @@ struct RxLogView: View {
       .toolbar { toolbarContent }
       .sheet(item: $viewModel.selectedEntry) { entry in
         RxLogEntryDetailView(entry: entry, viewModel: viewModel, labels: hopLabels)
-          .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
       }
       .task(id: appState.servicesVersion) {
         guard isWorkspaceActive else { return }

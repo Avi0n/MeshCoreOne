@@ -25,13 +25,11 @@ final class MessagePathViewModel {
 
   private var previewImages: [MessagePathPreviewSnapshot.Key: UIImage] = [:]
   private var failedPreviewKeys: Set<MessagePathPreviewSnapshot.Key> = []
-  /// Bumped when prefetch or retry starts so an in-flight render cannot store a stale bitmap.
-  private var previewGeneration = 0
-  private let renderPreview: PathPreviewRenderer
+  private let renderer: PathPreviewRenderer
   private let logger = Logger(subsystem: "com.mc1", category: "MessagePathViewModel")
 
   init(renderPreview: PathPreviewRenderer? = nil) {
-    self.renderPreview = renderPreview ?? { points, line, region, size, isDark, isOffline in
+    renderer = renderPreview ?? { points, line, region, size, isDark, isOffline in
       await MapSnapshotRenderer().render(
         points: points,
         line: line,
@@ -69,16 +67,16 @@ final class MessagePathViewModel {
     isLoading = false
   }
 
-  func senderResolution(for message: MessageDTO, localDeviceName: String) -> NodeNameResolution {
-    if message.isOutgoing {
+  func senderResolution(for sender: MessagePathSender, localDeviceName: String) -> NodeNameResolution {
+    if sender.isLocalDevice {
       return NodeNameResolution(displayName: localDeviceName, matchKind: .exact)
     }
 
-    if message.isChannelMessage, let nodeName = message.senderNodeName {
+    if let nodeName = sender.channelSenderName {
       return NodeNameResolution(displayName: nodeName, matchKind: .exact)
     }
 
-    if let keyPrefix = message.senderKeyPrefix,
+    if let keyPrefix = sender.keyPrefix,
        let result = NeighborNameResolver.resolve(
          for: keyPrefix,
          contacts: contacts,
@@ -94,36 +92,35 @@ final class MessagePathViewModel {
     )
   }
 
-  func senderName(for message: MessageDTO, localDeviceName: String) -> String {
-    senderResolution(for: message, localDeviceName: localDeviceName).displayName
+  func senderName(for sender: MessagePathSender, localDeviceName: String) -> String {
+    senderResolution(for: sender, localDeviceName: localDeviceName).displayName
   }
 
-  func senderNodeID(for message: MessageDTO) -> String? {
-    guard let keyPrefix = message.senderKeyPrefix,
+  func senderNodeID(for sender: MessagePathSender) -> String? {
+    guard let keyPrefix = sender.keyPrefix,
           let firstByte = keyPrefix.first else { return nil }
     return String(format: "%02X", firstByte)
   }
 
-  /// Pin A contact from a non-empty `senderKeyPrefix`, or a unique `senderNodeName` on a channel row.
-  func locatedSender(for message: MessageDTO) -> ContactDTO? {
-    if let keyPrefix = message.senderKeyPrefix, !keyPrefix.isEmpty {
-      guard let sender = contacts.first(where: { $0.publicKeyPrefix == keyPrefix }),
-            sender.hasLocation else {
+  /// Pin A contact from a non-empty `keyPrefix`, or a unique channel sender name.
+  func locatedSender(for sender: MessagePathSender) -> ContactDTO? {
+    if let keyPrefix = sender.keyPrefix, !keyPrefix.isEmpty {
+      guard let contact = contacts.first(where: { $0.publicKeyPrefix == keyPrefix }),
+            contact.hasLocation else {
         return nil
       }
-      return sender
+      return contact
     }
 
-    guard message.isChannelMessage,
-          let senderName = message.senderNodeName, !senderName.isEmpty else {
+    guard let senderName = sender.channelSenderName, !senderName.isEmpty else {
       return nil
     }
 
     let matches = SenderContactMatcher.filter(contacts: contacts, senderName: senderName)
-    guard matches.count == 1, let sender = matches.first, sender.hasLocation else {
+    guard matches.count == 1, let contact = matches.first, contact.hasLocation else {
       return nil
     }
-    return sender
+    return contact
   }
 
   func repeaterResolution(for hashBytes: Data, userLocation: CLLocation?) -> NodeNameResolution {
@@ -150,39 +147,54 @@ final class MessagePathViewModel {
     failedPreviewKeys.contains(key)
   }
 
-  func prefetchPreviews(
-    message: MessageDTO,
+  /// Renders the selected arrival on its own task, so a growing arrival list cannot cancel it.
+  func renderSelectedPreview(
+    arrivalID: UUID,
+    sender: MessagePathSender,
     arrivals: [MessagePathArrival],
-    selectedID: UUID?,
     connectedDevice: DeviceDTO?,
     userLocation: CLLocation?,
     isDark: Bool,
     isOffline: Bool,
-    containerWidth: CGFloat
+    previewWidth: CGFloat
   ) async {
-    let size = MessagePathPreviewSnapshot.previewSize(containerWidth: containerWidth)
-    guard size.width >= 1, !isLoading else { return }
+    guard !isLoading else { return }
+    await renderPreview(
+      arrivalID: arrivalID,
+      sender: sender,
+      arrivals: arrivals,
+      connectedDevice: connectedDevice,
+      userLocation: userLocation,
+      isDark: isDark,
+      isOffline: isOffline,
+      previewWidth: previewWidth,
+      force: false
+    )
+  }
 
-    previewGeneration += 1
-    let generation = previewGeneration
-    let ordered = Self.prefetchOrder(selectedID: selectedID, arrivals: arrivals)
-    for arrival in ordered {
-      guard generation == previewGeneration else { return }
-      let key = MessagePathPreviewSnapshot.key(
+  /// Renders every arrival except `skippedID`, in order, until cancelled.
+  func prefetchPreviews(
+    sender: MessagePathSender,
+    arrivals: [MessagePathArrival],
+    skipping skippedID: UUID?,
+    connectedDevice: DeviceDTO?,
+    userLocation: CLLocation?,
+    isDark: Bool,
+    isOffline: Bool,
+    previewWidth: CGFloat
+  ) async {
+    guard !isLoading else { return }
+    for arrival in arrivals where arrival.id != skippedID {
+      guard !Task.isCancelled else { return }
+      await renderPreview(
         arrivalID: arrival.id,
-        isDark: isDark,
-        isOffline: isOffline,
-        containerWidth: containerWidth
-      )
-      await renderPreviewIfNeeded(
-        arrival: arrival,
-        message: message,
+        sender: sender,
         arrivals: arrivals,
         connectedDevice: connectedDevice,
         userLocation: userLocation,
-        key: key,
-        size: size,
-        generation: generation,
+        isDark: isDark,
+        isOffline: isOffline,
+        previewWidth: previewWidth,
         force: false
       )
     }
@@ -190,81 +202,75 @@ final class MessagePathViewModel {
 
   func retryPreview(
     arrivalID: UUID,
-    message: MessageDTO,
+    sender: MessagePathSender,
     arrivals: [MessagePathArrival],
     connectedDevice: DeviceDTO?,
     userLocation: CLLocation?,
     isDark: Bool,
     isOffline: Bool,
-    containerWidth: CGFloat
+    previewWidth: CGFloat
   ) async {
     let key = MessagePathPreviewSnapshot.key(
       arrivalID: arrivalID,
       isDark: isDark,
       isOffline: isOffline,
-      containerWidth: containerWidth
+      previewWidth: previewWidth
     )
     failedPreviewKeys.remove(key)
-    let size = MessagePathPreviewSnapshot.previewSize(containerWidth: containerWidth)
-    guard size.width >= 1, let arrival = arrivals.first(where: { $0.id == arrivalID }) else { return }
-    previewGeneration += 1
-    let generation = previewGeneration
-    await renderPreviewIfNeeded(
-      arrival: arrival,
-      message: message,
+    await renderPreview(
+      arrivalID: arrivalID,
+      sender: sender,
       arrivals: arrivals,
       connectedDevice: connectedDevice,
       userLocation: userLocation,
-      key: key,
-      size: size,
-      generation: generation,
+      isDark: isDark,
+      isOffline: isOffline,
+      previewWidth: previewWidth,
       force: true
     )
   }
 
-  private static func prefetchOrder(
-    selectedID: UUID?,
-    arrivals: [MessagePathArrival]
-  ) -> [MessagePathArrival] {
-    let selected = MessagePathArrivals.resolvedSelection(preferred: selectedID, arrivals: arrivals)
-    guard let selected else { return arrivals }
-    let first = arrivals.filter { $0.id == selected }
-    let rest = arrivals.filter { $0.id != selected }
-    return first + rest
-  }
-
-  private func renderPreviewIfNeeded(
-    arrival: MessagePathArrival,
-    message: MessageDTO,
+  private func renderPreview(
+    arrivalID: UUID,
+    sender: MessagePathSender,
     arrivals: [MessagePathArrival],
     connectedDevice: DeviceDTO?,
     userLocation: CLLocation?,
-    key: MessagePathPreviewSnapshot.Key,
-    size: CGSize,
-    generation: Int,
+    isDark: Bool,
+    isOffline: Bool,
+    previewWidth: CGFloat,
     force: Bool
   ) async {
+    let size = MessagePathPreviewSnapshot.previewSize(previewWidth: previewWidth)
+    guard size.width >= 1, arrivals.contains(where: { $0.id == arrivalID }) else { return }
+    let key = MessagePathPreviewSnapshot.key(
+      arrivalID: arrivalID,
+      isDark: isDark,
+      isOffline: isOffline,
+      previewWidth: previewWidth
+    )
     if !force, previewImages[key] != nil { return }
 
     let canvas = MessagePathMapView.canvasModel(
-      message: message,
+      sender: sender,
       arrivals: arrivals,
-      selectedID: arrival.id,
+      selectedID: arrivalID,
       pathViewModel: self,
       connectedDevice: connectedDevice,
       userLocation: userLocation
     )
     guard canvas.showsPathMap else { return }
 
-    let image = await renderPreview(
+    let image = await renderer(
       canvas.points,
       canvas.lines.first,
       canvas.cameraRegion,
       size,
-      key.isDark,
-      key.isOffline
+      isDark,
+      isOffline
     )
-    guard generation == previewGeneration else { return }
+    // A cancelled render returns nil; that is not a failure for this key.
+    guard !Task.isCancelled else { return }
     if let image {
       previewImages[key] = image
       lastPreviewImage = image
