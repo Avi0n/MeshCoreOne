@@ -95,9 +95,7 @@ struct ReactionServiceTests {
     await service.indexMessage(
       id: messageID,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello world",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello world", timestamp: timestamp)
     )
 
     let reactionText = service.buildReactionText(
@@ -139,9 +137,7 @@ struct ReactionServiceTests {
     _ = await service.indexMessage(
       id: id1,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Same message",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "Node", text: "Same message", timestamp: timestamp)
     )
 
     // Small delay to ensure different indexedAt times
@@ -150,9 +146,7 @@ struct ReactionServiceTests {
     _ = await service.indexMessage(
       id: id2,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Same message",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "Node", text: "Same message", timestamp: timestamp)
     )
 
     // Build reaction for the message
@@ -202,9 +196,7 @@ struct ReactionServiceTests {
     let matches = await service.indexMessage(
       id: messageID,
       channelIndex: 0,
-      senderName: "AlphaNode",
-      text: "Hello world",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "AlphaNode", text: "Hello world", timestamp: timestamp)
     )
 
     #expect(matches.count == 1)
@@ -242,9 +234,7 @@ struct ReactionServiceTests {
     let matches = await service.indexMessage(
       id: messageID,
       channelIndex: 0,
-      senderName: "AlphaNode",
-      text: "Hello world",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "AlphaNode", text: "Hello world", timestamp: timestamp)
     )
 
     #expect(matches.count == 3)
@@ -280,9 +270,7 @@ struct ReactionServiceTests {
     let matches = await service.indexMessage(
       id: messageID,
       channelIndex: 0,
-      senderName: "AlphaNode",
-      text: "Different text",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "AlphaNode", text: "Different text", timestamp: timestamp)
     )
 
     // Should NOT match because hash is different
@@ -320,9 +308,7 @@ struct ReactionServiceTests {
     let matches = await service.indexMessage(
       id: messageID,
       channelIndex: 0,
-      senderName: "AlphaNode",
-      text: "Hello world",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "AlphaNode", text: "Hello world", timestamp: timestamp)
     )
 
     #expect(matches.isEmpty)
@@ -356,9 +342,7 @@ struct ReactionServiceTests {
     let matchesChannel1 = await service.indexMessage(
       id: messageID,
       channelIndex: 1,
-      senderName: "AlphaNode",
-      text: "Hello world",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "AlphaNode", text: "Hello world", timestamp: timestamp)
     )
 
     #expect(matchesChannel1.isEmpty)
@@ -367,9 +351,7 @@ struct ReactionServiceTests {
     let matchesChannel0 = await service.indexMessage(
       id: messageID,
       channelIndex: 0,
-      senderName: "AlphaNode",
-      text: "Hello world",
-      timestamp: timestamp
+      target: ChannelReactionTarget(senderName: "AlphaNode", text: "Hello world", timestamp: timestamp)
     )
 
     #expect(matchesChannel0.count == 1)

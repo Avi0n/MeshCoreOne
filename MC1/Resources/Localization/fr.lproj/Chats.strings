@@ -1059,6 +1059,126 @@
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
 "chats.tip.deviceMenu.message" = "Gérez votre connexion, envoyez des annonces et vérifiez la batterie. La radio reste connectée même après une fermeture forcée. Appuyez sur Déconnecter pour couper le lien.";
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Peinture pixel";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Format d'image non pris en charge";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Image endommagée";
+
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "Dessin pixel";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Effacer le dessin";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Envoyer";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "Blanc";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "Gris";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "Noir";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "Rouge";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "Jaune";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "Vert";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "Bleu";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "Violet";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Canevas de pixels";
+
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Dessin trop volumineux";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Le dessin fait %d octets ; cette conversation en autorise %d. Simplifiez le dessin et réessayez.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "Le dessin fait %d octets, nom du nœud compris ; ce canal autorise %d. Simplifiez le dessin et réessayez.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "Encodage impossible";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Impossible d'encoder le dessin.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Encodage du dessin";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Envoi du dessin";
+
+/* Title of the confirmation shown when cancelling a pixel drawing that is not blank */
+"chats.mcoimg.discardTitle" = "Abandonner le dessin ?";
+
+/* Destructive button that throws the pixel drawing away */
+"chats.mcoimg.discard" = "Abandonner le dessin";
+
+/* Restores the pixel drawing to its state before the last stroke, fill, or clear */
+"chats.mcoimg.undo" = "Annuler";
+
+/* Reapplies the last undone stroke, fill, or clear */
+"chats.mcoimg.redo" = "Rétablir";
+
+/* Label for the pixel editor's tool picker */
+"chats.mcoimg.toolPicker" = "Outil";
+
+/* Pixel editor tool that paints with the selected colour */
+"chats.mcoimg.tool.brush" = "Pinceau";
+
+/* Pixel editor tool that paints the background colour */
+"chats.mcoimg.tool.eraser" = "Gomme";
+
+/* Pixel editor tool that fills a connected area with the selected colour */
+"chats.mcoimg.tool.fill" = "Remplissage";
+
+/* Toggle that shows or hides the pixel grid lines */
+"chats.mcoimg.showGrid" = "Afficher la grille";
+
+/* VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit */
+"chats.mcoimg.budget" = "Taille du dessin : %1$d sur %2$d octets";
+
+/* Shown under the canvas when the encoded drawing exceeds the conversation's limit */
+"chats.mcoimg.tooLargeInline" = "Trop volumineux à envoyer";
+
+/* VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name */
+"chats.mcoimg.cursorPosition" = "Colonne %1$d, ligne %2$d, %3$@";
+
+/* VoiceOver hint for the pixel canvas */
+"chats.mcoimg.canvasHint" = "Balayez vers le haut ou le bas pour vous déplacer. Touchez deux fois pour peindre.";
+
+/* VoiceOver action that moves the canvas cursor up one cell */
+"chats.mcoimg.moveUp" = "Déplacer vers le haut";
+
+/* VoiceOver action that moves the canvas cursor down one cell */
+"chats.mcoimg.moveDown" = "Déplacer vers le bas";
+
+/* VoiceOver action that moves the canvas cursor left one cell */
+"chats.mcoimg.moveLeft" = "Déplacer vers la gauche";
+
+/* VoiceOver action that moves the canvas cursor right one cell */
+"chats.mcoimg.moveRight" = "Déplacer vers la droite";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Image";
 

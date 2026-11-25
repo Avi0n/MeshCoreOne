@@ -158,6 +158,9 @@ public protocol MessagePersisting: Actor {
   /// Update message retry status
   func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws
 
+  /// Update the exact wire text before a user-initiated MCOimg resend.
+  func updateMessageText(id: UUID, text: String) async throws
+
   /// Update message timestamp (for resending)
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws
 
@@ -241,6 +244,12 @@ public protocol MessagePersisting: Actor {
 // MARK: - Default Parameter Values
 
 extension MessagePersisting {
+  public func updateMessageText(id: UUID, text: String) async throws {
+    guard var message = try await fetchMessage(id: id) else { return }
+    message.text = text
+    try await saveMessage(message)
+  }
+
   /// Update message ACK info with no round-trip time
   func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus) async throws {
     try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)

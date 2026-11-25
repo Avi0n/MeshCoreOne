@@ -192,9 +192,19 @@ public enum ReactionParser {
   public static func generateMessageHash(text: String, timestamp: UInt32) -> String {
     var data = Data(text.utf8)
     withUnsafeBytes(of: timestamp.littleEndian) { data.append(contentsOf: $0) }
+    return crockfordHash(of: data)
+  }
+
+  /// Hash for a packet that has no sender timestamp. Input is the byte `0x01` plus the named bytes.
+  public static func generateUntimedHash(_ data: Data) -> String {
+    var framed = Data([0x01])
+    framed.append(data)
+    return crockfordHash(of: framed)
+  }
+
+  private static func crockfordHash(of data: Data) -> String {
     let digest = SHA256.hash(data: data)
-    let bytes = Array(digest.prefix(5))
-    return encodeCrockfordBase32(bytes)
+    return encodeCrockfordBase32(Array(digest.prefix(5)))
   }
 
   /// Rows included in a message's reaction summary, most recent first.

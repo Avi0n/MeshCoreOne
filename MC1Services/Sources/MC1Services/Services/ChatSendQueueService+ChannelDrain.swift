@@ -43,6 +43,7 @@ extension ChatSendQueueService {
       ) else { return }
       try cancelSendIfRetired(dependencies.sendsRetired)
 
+      let sentDatagram = MCOImageCodec.isChannelDataText(envelope.messageText)
       switch try await transmitQueuedChannel(envelope: envelope, dependencies: dependencies) {
       case .dropped:
         return
@@ -60,13 +61,20 @@ extension ChatSendQueueService {
           timeout: dependencies.config.transportWaitTimeout
         )
       case let .sent(indexTimestamp):
-        if let nodeName = envelope.localNodeName {
+        // A datagram's hash covers the sender name stored on the row, which a resend keeps.
+        let target: ChannelReactionTarget? = if sentDatagram {
+          try? await dependencies.dataStore.fetchMessage(id: envelope.messageID)?
+            .channelReactionTarget(localNodeName: envelope.localNodeName)
+        } else {
+          envelope.localNodeName.map {
+            ChannelReactionTarget(senderName: $0, text: envelope.messageText, timestamp: indexTimestamp)
+          }
+        }
+        if let target {
           _ = await dependencies.reactionService.indexMessage(
             id: envelope.messageID,
             channelIndex: envelope.channelIndex,
-            senderName: nodeName,
-            text: envelope.messageText,
-            timestamp: indexTimestamp
+            target: target
           )
         }
         try? await dependencies.dataStore.deletePendingSendsForMessage(messageID: envelope.messageID)
@@ -78,6 +86,7 @@ extension ChatSendQueueService {
           error,
           postBumpCount: postBumpCount,
           envelope: envelope,
+          sentDatagram: sentDatagram,
           dependencies: dependencies
         )
       }
@@ -132,9 +141,10 @@ extension ChatSendQueueService {
     _ error: Error,
     postBumpCount: Int,
     envelope: ChannelMessageEnvelope,
+    sentDatagram: Bool,
     dependencies: ChannelDrainDependencies
   ) async throws {
-    guard isTransientChannelMessageError(error) else {
+    guard isTransientChannelMessageError(error, sentDatagram: sentDatagram) else {
       dependencies.logger.info(
         "channel drain terminal messageID=\(envelope.messageID) error=\(String(describing: error))"
       )

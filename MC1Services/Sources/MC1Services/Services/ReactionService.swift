@@ -71,24 +71,15 @@ public actor ReactionService {
   public func indexMessage(
     id: UUID,
     channelIndex: UInt8,
-    senderName: String,
-    text: String,
-    timestamp: UInt32
+    target: ChannelReactionTarget
   ) async -> [PendingReaction] {
-    await messageCache.index(
-      messageID: id,
-      channelIndex: channelIndex,
-      senderName: senderName,
-      text: text,
-      timestamp: timestamp
-    )
+    await messageCache.index(messageID: id, channelIndex: channelIndex, target: target)
 
     // Check pending queue for matching reactions
-    let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
     let key = PendingReactionKey(
       channelIndex: channelIndex,
-      targetSender: senderName,
-      messageHash: hash
+      targetSender: target.senderName,
+      messageHash: target.messageHash
     )
 
     guard let matched = pendingReactions.removeValue(forKey: key) else {
@@ -109,8 +100,15 @@ public actor ReactionService {
     targetText: String,
     targetTimestamp: UInt32
   ) -> String {
-    let hash = ReactionParser.generateMessageHash(text: targetText, timestamp: targetTimestamp)
-    return "@[\(targetSender)]\(emoji)\n\(hash)"
+    buildReactionText(
+      emoji: emoji,
+      target: ChannelReactionTarget(senderName: targetSender, text: targetText, timestamp: targetTimestamp)
+    )
+  }
+
+  /// Channel reaction wire text that names `target`.
+  public nonisolated func buildReactionText(emoji: String, target: ChannelReactionTarget) -> String {
+    "@[\(target.senderName)]\(emoji)\n\(target.messageHash)"
   }
 
   /// Builds DM reaction wire format (shorter, no sender)

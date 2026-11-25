@@ -85,6 +85,20 @@ struct MessageFragmentBuilderTests {
     #expect(summary == "👍:1")
   }
 
+  @Test
+  func `channel MCOimg keeps a stored reaction summary`() {
+    let message = makeMessage(text: "im4:pixel", reactionSummary: "👍:1", channelIndex: 0, contactID: nil)
+    let item = MessageFragmentBuilder.makeItem(for: message, inputs: makeInputs(messageID: message.id), envInputs: makeEnvInputs())
+    #expect(item.content.map(Self.kind(of:)) == [.mcoImage, .reactionSummary])
+  }
+
+  @Test
+  func `direct MCOimg keeps a stored reaction summary`() {
+    let message = makeMessage(text: "im4:pixel", reactionSummary: "👍:1")
+    let item = MessageFragmentBuilder.makeItem(for: message, inputs: makeInputs(messageID: message.id), envInputs: makeEnvInputs())
+    #expect(item.content.map(Self.kind(of:)) == [.mcoImage, .reactionSummary])
+  }
+
   /// Adding a reaction must flip `MessageItem.hashValue` so the diffable
   /// data source reloads the cell. Without this, an in-progress reaction
   /// add would not visibly update until another property (status, etc.)
@@ -447,6 +461,19 @@ struct MessageFragmentBuilderTests {
     #expect(item.footer.sendTimeWasCorrected == true)
   }
 
+  @Test
+  func `footer does not flag correction on an incoming datagram MCOimg`() {
+    var message = makeIncomingMessage(
+      timestamp: 1_700_000_000, senderTimestamp: 0, timestampCorrected: true
+    )
+    message.channelIndex = 0
+    message.text = "im4:pixel"
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: makeInputs(messageID: message.id), envInputs: makeEnvInputs()
+    )
+    #expect(item.footer.sendTimeWasCorrected == false)
+  }
+
   // MARK: - Hash propagation regression
 
   @Test
@@ -621,6 +648,8 @@ struct MessageFragmentBuilderTests {
     text: String = "hello",
     status: MessageStatus = .sent,
     reactionSummary: String? = nil,
+    channelIndex: UInt8? = nil,
+    contactID: UUID? = Self.contactID,
     linkPreviewURL: String? = nil,
     linkPreviewTitle: String? = nil,
     heardRepeats: Int = 0,
@@ -632,8 +661,8 @@ struct MessageFragmentBuilderTests {
     MessageDTO(
       id: id,
       radioID: Self.radioID,
-      contactID: Self.contactID,
-      channelIndex: nil,
+      contactID: contactID,
+      channelIndex: channelIndex,
       text: text,
       timestamp: UInt32(Self.referenceDate.timeIntervalSince1970),
       createdAt: Self.referenceDate,
@@ -815,13 +844,14 @@ struct MessageFragmentBuilderTests {
   }
 
   private enum FragmentKind: Equatable {
-    case text, inlineImage, linkPreview, mapPreview, malwareWarning, reactionSummary
+    case text, inlineImage, mcoImage, linkPreview, mapPreview, malwareWarning, reactionSummary
   }
 
   private static func kind(of fragment: MessageFragment) -> FragmentKind {
     switch fragment {
     case .text: .text
     case .inlineImage: .inlineImage
+    case .mcoImage: .mcoImage
     case .linkPreview: .linkPreview
     case .mapPreview: .mapPreview
     case .malwareWarning: .malwareWarning

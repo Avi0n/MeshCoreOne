@@ -1050,6 +1050,126 @@
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
 "chats.tip.deviceMenu.message" = "Керуйте з'єднанням, надсилайте оголошення та перевіряйте заряд. Радіо залишається підключеним навіть після примусового закриття застосунку. Натисніть «Відключити», щоб розірвати зв'язок.";
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Піксельний малюнок";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Непідтримуваний формат зображення";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Пошкоджене зображення";
+
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "Піксельний малюнок";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Очистити малюнок";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Надіслати";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "Білий";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "Сірий";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "Чорний";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "Червоний";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "Жовтий";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "Зелений";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "Синій";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "Фіолетовий";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Піксельне полотно";
+
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Малюнок занадто великий";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Малюнок займає %d байт; ця розмова дозволяє %d. Спрости малюнок і спробуй ще раз.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "Малюнок має %d байтів разом з назвою вузла; цей канал дозволяє %d. Спростіть малюнок і спробуйте ще раз.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "Не вдалося закодувати";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Не вдалося закодувати малюнок.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Кодування малюнка";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Надсилання малюнка";
+
+/* Title of the confirmation shown when cancelling a pixel drawing that is not blank */
+"chats.mcoimg.discardTitle" = "Відхилити малюнок?";
+
+/* Destructive button that throws the pixel drawing away */
+"chats.mcoimg.discard" = "Відхилити малюнок";
+
+/* Restores the pixel drawing to its state before the last stroke, fill, or clear */
+"chats.mcoimg.undo" = "Скасувати";
+
+/* Reapplies the last undone stroke, fill, or clear */
+"chats.mcoimg.redo" = "Повторити";
+
+/* Label for the pixel editor's tool picker */
+"chats.mcoimg.toolPicker" = "Інструмент";
+
+/* Pixel editor tool that paints with the selected colour */
+"chats.mcoimg.tool.brush" = "Пензель";
+
+/* Pixel editor tool that paints the background colour */
+"chats.mcoimg.tool.eraser" = "Гумка";
+
+/* Pixel editor tool that fills a connected area with the selected colour */
+"chats.mcoimg.tool.fill" = "Заливка";
+
+/* Toggle that shows or hides the pixel grid lines */
+"chats.mcoimg.showGrid" = "Показати сітку";
+
+/* VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit */
+"chats.mcoimg.budget" = "Розмір малюнка %1$d із %2$d байт";
+
+/* Shown under the canvas when the encoded drawing exceeds the conversation's limit */
+"chats.mcoimg.tooLargeInline" = "Занадто великий для надсилання";
+
+/* VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name */
+"chats.mcoimg.cursorPosition" = "Стовпець %1$d, рядок %2$d, %3$@";
+
+/* VoiceOver hint for the pixel canvas */
+"chats.mcoimg.canvasHint" = "Проведи вгору або вниз для переміщення. Подвійне торкання для малювання.";
+
+/* VoiceOver action that moves the canvas cursor up one cell */
+"chats.mcoimg.moveUp" = "Перемістити вгору";
+
+/* VoiceOver action that moves the canvas cursor down one cell */
+"chats.mcoimg.moveDown" = "Перемістити вниз";
+
+/* VoiceOver action that moves the canvas cursor left one cell */
+"chats.mcoimg.moveLeft" = "Перемістити ліворуч";
+
+/* VoiceOver action that moves the canvas cursor right one cell */
+"chats.mcoimg.moveRight" = "Перемістити праворуч";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Зображення";
 

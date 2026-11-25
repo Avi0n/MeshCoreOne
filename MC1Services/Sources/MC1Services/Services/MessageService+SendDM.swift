@@ -233,7 +233,11 @@ public extension MessageService {
       replyToID: replyToID
     )
     try await dataStore.saveMessage(messageDTO)
-    try await dataStore.updateContactLastMessage(contactID: contact.id, date: messageDTO.date)
+    do {
+      try await dataStore.updateContactLastMessage(contactID: contact.id, date: messageDTO.date)
+    } catch {
+      logger.warning("Pending DM saved but contact bookkeeping failed: \(error.localizedDescription)")
+    }
 
     return messageDTO
   }
@@ -304,6 +308,8 @@ public extension MessageService {
     if isSingleAttempt, !isResend, existingMessage.status == .delivered || existingMessage.status == .failed {
       return existingMessage
     }
+
+    try validateDirectMessage(text: existingMessage.text, to: contact)
 
     // The mesh seen table keys on ciphertext hash. A preserved timestamp continues
     // at the next unused attempt byte. A new timestamp is a new packet on this message.

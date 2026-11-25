@@ -28,6 +28,15 @@ public enum ChannelCrypto {
   /// Total header size before message text: timestamp (4) + txt_type (1) = 5 bytes.
   public static let plaintextHeaderSize = timestampSize + txtTypeSize
 
+  /// Little-endian data type at the start of a group-datagram plaintext.
+  public static let groupDatagramTypeSize = 2
+
+  /// Length byte that follows the group-datagram data type.
+  public static let groupDatagramLengthSize = 1
+
+  /// Bytes before the group-datagram blob: data type (2) + length (1).
+  public static let groupDatagramHeaderSize = groupDatagramTypeSize + groupDatagramLengthSize
+
   /// 1-byte wire channel hash matching firmware `BaseChatMesh::setChannel`:
   /// hashes the first 16 bytes when a 32-byte secret is zero-padded, else all bytes.
   public static func channelHash(for secret: Data) -> UInt8 {
@@ -38,6 +47,14 @@ public enum ChannelCrypto {
     }
     let digest = SHA256.hash(data: keyData)
     return digest.withUnsafeBytes { $0[0] }
+  }
+
+  /// MAC-checked AES plaintext, still including block padding.
+  public enum PlaintextResult: Sendable {
+    case success(Data)
+    case hmacFailed
+    case decryptFailed
+    case payloadTooShort
   }
 
   /// Result of attempting to decrypt a channel message.
@@ -56,7 +73,27 @@ public enum ChannelCrypto {
     case payloadTooShort
   }
 
-  /// Decrypt a channel message payload.
+  /// MAC-check and AES-128-ECB decrypt. The plaintext still includes block padding.
+  /// AES uses the first 16 secret bytes. HMAC uses the whole secret.
+  public static func decryptPlaintext(payload: Data, secret: Data) -> PlaintextResult {
+    guard payload.count >= macSize + 16 else {
+      return .payloadTooShort
+    }
+
+    let receivedMAC = payload.prefix(macSize)
+    let ciphertext = Data(payload.dropFirst(macSize))
+    let computedMAC = computeHMAC(data: ciphertext, key: secret)
+    guard receivedMAC == computedMAC else {
+      return .hmacFailed
+    }
+
+    guard let plaintext = decryptAES128ECB(ciphertext: ciphertext, key: secret) else {
+      return .decryptFailed
+    }
+    return .success(plaintext)
+  }
+
+  /// Decrypt a group-text payload into a timestamp, text type, and UTF-8 body.
   ///
   /// - Parameters:
   ///   - payload: The channel message payload (after channel index byte).
@@ -64,26 +101,31 @@ public enum ChannelCrypto {
   ///   - secret: The 16-byte channel secret.
   /// - Returns: Decryption result with message text or failure reason.
   public static func decrypt(payload: Data, secret: Data) -> DecryptResult {
-    // Minimum: 2 bytes MAC + 16 bytes (1 AES block for timestamp + some text)
-    guard payload.count >= macSize + 16 else {
-      return .payloadTooShort
+    switch decryptPlaintext(payload: payload, secret: secret) {
+    case .hmacFailed:
+      .hmacFailed
+    case .decryptFailed:
+      .decryptFailed
+    case .payloadTooShort:
+      .payloadTooShort
+    case let .success(plaintext):
+      parseGroupText(plaintext)
     }
+  }
 
-    let receivedMAC = payload.prefix(macSize)
-    let ciphertext = Data(payload.dropFirst(macSize))
+  /// Little-endian data type, one length byte, then that blob.
+  /// A short header or a length past the plaintext returns nil. Padding after the blob is not the data field.
+  public static func readGroupDatagram(_ plaintext: Data) -> (dataType: UInt16, data: Data)? {
+    guard plaintext.count >= groupDatagramHeaderSize else { return nil }
+    let dataType = plaintext.readUInt16LE(at: 0)
+    let declared = Int(plaintext[plaintext.startIndex + groupDatagramTypeSize])
+    let available = plaintext.count - groupDatagramHeaderSize
+    guard declared <= available else { return nil }
+    let body = plaintext.dropFirst(groupDatagramHeaderSize).prefix(declared)
+    return (dataType, Data(body))
+  }
 
-    // Verify HMAC-SHA256 (truncated to 2 bytes)
-    let computedMAC = computeHMAC(data: ciphertext, key: secret)
-    guard receivedMAC == computedMAC else {
-      return .hmacFailed
-    }
-
-    // Decrypt using AES-128 ECB
-    guard let plaintext = decryptAES128ECB(ciphertext: ciphertext, key: secret) else {
-      return .decryptFailed
-    }
-
-    // Parse decrypted payload: [timestamp: 4B] [txt_type: 1B] [message: rest]
+  private static func parseGroupText(_ plaintext: Data) -> DecryptResult {
     guard plaintext.count >= plaintextHeaderSize else {
       return .decryptFailed
     }
@@ -91,17 +133,12 @@ public enum ChannelCrypto {
     let timestamp = plaintext.prefix(timestampSize).withUnsafeBytes {
       $0.loadUnaligned(as: UInt32.self).littleEndian
     }
-
-    let txtType = plaintext[timestampSize]
-
-    // Extract message text, trimming null padding
+    let txtType = plaintext[plaintext.startIndex + timestampSize]
     let messageData = plaintext.dropFirst(plaintextHeaderSize)
     let trimmedData = messageData.prefix(while: { $0 != 0 })
-
     guard let text = String(data: Data(trimmedData), encoding: .utf8) else {
       return .decryptFailed
     }
-
     return .success(timestamp: timestamp, txtType: txtType, text: text)
   }
 

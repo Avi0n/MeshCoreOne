@@ -1091,6 +1091,211 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `Datagram channel MCOimg matches outside the window and the newer copy wins`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let sender = "Ada"
+    let hash = try ReactionParser.generateUntimedHash(MCOImageTransport.dataField(text: text, senderName: sender))
+    let parsed = try #require(ReactionParser.parse("@[\(sender)]👍\n\(hash)"))
+    let older = datagramImage(
+      radioID: device.id, channelIndex: 0, text: text, sender: sender,
+      createdAt: Date(timeIntervalSince1970: 1000)
+    )
+    let newer = datagramImage(
+      radioID: device.id, channelIndex: 0, text: text, sender: sender,
+      createdAt: Date(timeIntervalSince1970: 2000)
+    )
+    try await store.saveMessage(older)
+    try await store.saveMessage(newer)
+
+    let now = UInt32(Date().timeIntervalSince1970)
+    let found = try await store.findChannelMessageForReaction(
+      radioID: device.id,
+      channelIndex: 0,
+      parsedReaction: parsed,
+      localNodeName: "Local",
+      timestampWindow: (now - 300)...(now + 300),
+      limit: 200
+    )
+    #expect(found?.id == newer.id)
+  }
+
+  @Test
+  func `Group-text MCOimg takes the timed hash and datagram MCOimg the untimed hash`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let sender = "Ada"
+    let timestamp = UInt32(Date().timeIntervalSince1970)
+    var timed = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: 1,
+      text: text,
+      timestamp: timestamp,
+      createdAt: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: sender
+    )
+    timed.senderTimestamp = nil
+    timed.timestampCorrected = false
+    let datagram = datagramImage(
+      radioID: device.id, channelIndex: 2, text: text, sender: sender,
+      createdAt: Date(timeIntervalSince1970: TimeInterval(timestamp))
+    )
+    try await store.saveMessage(timed)
+    try await store.saveMessage(datagram)
+
+    let timedHash = ReactionParser.generateMessageHash(text: text, timestamp: timed.reactionTimestamp)
+    let untimedHash = try ReactionParser.generateUntimedHash(MCOImageTransport.dataField(text: text, senderName: sender))
+    let timedParsed = try #require(ReactionParser.parse("@[\(sender)]👍\n\(timedHash)"))
+    let untimedParsed = try #require(ReactionParser.parse("@[\(sender)]🔥\n\(untimedHash)"))
+    let window = (timestamp - 300)...(timestamp + 300)
+
+    let foundTimed = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 1, parsedReaction: timedParsed,
+      localNodeName: "Local", timestampWindow: window, limit: 200
+    )
+    let missedUntimed = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 1, parsedReaction: untimedParsed,
+      localNodeName: "Local", timestampWindow: window, limit: 200
+    )
+    let foundDatagram = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 2, parsedReaction: untimedParsed,
+      localNodeName: "Local", timestampWindow: window, limit: 200
+    )
+    let missedTimed = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 2, parsedReaction: timedParsed,
+      localNodeName: "Local", timestampWindow: window, limit: 200
+    )
+    #expect(foundTimed?.id == timed.id)
+    #expect(missedUntimed == nil)
+    #expect(foundDatagram?.id == datagram.id)
+    #expect(missedTimed == nil)
+  }
+
+  @Test
+  func `Outgoing datagram MCOimg keeps the stored sender name after a rename`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let image = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: 0,
+      text: text,
+      timestamp: 1_000_000,
+      createdAt: Date(timeIntervalSince1970: 1_000_000),
+      direction: .outgoing,
+      status: .sent,
+      senderNodeName: "Painter"
+    )
+    try await store.saveMessage(image)
+
+    let hash = try ReactionParser.generateUntimedHash(MCOImageTransport.dataField(text: text, senderName: "Painter"))
+    let parsed = try #require(ReactionParser.parse("@[Painter]👍\n\(hash)"))
+    let renamed = try #require(ReactionParser.parse("@[Other]👍\n\(hash)"))
+    let window = UInt32(1_000_000 - 300)...UInt32(1_000_000 + 300)
+    let found = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 0, parsedReaction: parsed,
+      localNodeName: "Other", timestampWindow: window, limit: 200
+    )
+    let missed = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 0, parsedReaction: renamed,
+      localNodeName: "Other", timestampWindow: window, limit: 200
+    )
+    #expect(found?.id == image.id)
+    #expect(missed == nil)
+  }
+
+  @Test
+  func `Group text outside the window does not match`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let text = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: 0,
+      text: "Plain channel text",
+      timestamp: 100,
+      createdAt: Date(timeIntervalSince1970: 100),
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: "Ada"
+    )
+    try await store.saveMessage(text)
+
+    let parsed = try #require(ReactionParser.parse(
+      ReactionService().buildReactionText(
+        emoji: "👍", targetSender: "Ada", targetText: text.text, targetTimestamp: text.reactionTimestamp
+      )
+    ))
+    let now = UInt32(Date().timeIntervalSince1970)
+    let found = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 0, parsedReaction: parsed,
+      localNodeName: "Local", timestampWindow: (now - 300)...(now + 300), limit: 200
+    )
+    #expect(found == nil)
+  }
+
+  @Test
+  func `Direct message MCOimg matches the timed hash`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let timestamp: UInt32 = 1_700_000_200
+    let contactID = UUID()
+    let message = MessageDTO.testDirectMessage(
+      radioID: device.id,
+      contactID: contactID,
+      text: "im4:pixel",
+      timestamp: timestamp,
+      createdAt: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+      direction: .incoming,
+      status: .delivered
+    )
+    try await store.saveMessage(message)
+    let hash = ReactionParser.generateMessageHash(text: message.text, timestamp: message.reactionTimestamp)
+    let found = try await store.findDMMessageForReaction(
+      radioID: device.id,
+      contactID: contactID,
+      messageHash: hash,
+      timestampWindow: (timestamp - 300)...(timestamp + 300),
+      limit: 200
+    )
+    #expect(found?.id == message.id)
+  }
+
+  private func datagramImage(
+    radioID: UUID,
+    channelIndex: UInt8,
+    text: String,
+    sender: String,
+    createdAt: Date
+  ) -> MessageDTO {
+    var message = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: text,
+      timestamp: UInt32(createdAt.timeIntervalSince1970),
+      createdAt: createdAt,
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: sender
+    )
+    message.senderTimestamp = 0
+    message.timestampCorrected = true
+    message.deduplicationKey = try? DeduplicationKey.channelMCOImage(
+      channelIndex: channelIndex,
+      dataField: MCOImageTransport.dataField(text: text, senderName: sender)
+    )
+    return message
+  }
+
+  @Test
   func `Update message status`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()

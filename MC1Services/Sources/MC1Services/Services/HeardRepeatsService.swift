@@ -137,6 +137,9 @@ public actor HeardRepeatsService {
   /// - Returns: The updated heardRepeats count if a match was found, nil otherwise
   @discardableResult
   public func processForRepeats(_ entry: RxLogEntryDTO) async -> Int? {
+    if entry.payloadType == .groupData {
+      return await processDatagramRepeat(entry)
+    }
     // Only process successfully decrypted channel messages
     guard entry.payloadType == .groupText, entry.decryptStatus == .success, let decodedText = entry.decodedText, let channelIndex = entry.channelIndex, let senderTimestamp = entry.senderTimestamp, let radioID else { return nil }
 
@@ -210,6 +213,7 @@ public actor HeardRepeatsService {
 
   /// Records a distinct extra incoming path. The store reads the current canonical:
   /// nil adopts the path, and a stale nil DTO still records a later distinct path.
+  /// An adopted path also takes the route and region of `contextSource`, when given.
   @discardableResult
   func recordDistinctPathIfNeeded(
     message: MessageDTO,
@@ -218,7 +222,8 @@ public actor HeardRepeatsService {
     snr: Double?,
     rssi: Int?,
     receivedAt: Date,
-    rxLogEntryID: UUID?
+    rxLogEntryID: UUID?,
+    adoptingContextOf contextSource: RxLogEntryDTO? = nil
   ) async -> Int? {
     #if DEBUG
       if let hold = admissionHoldForTesting {
@@ -235,6 +240,14 @@ public actor HeardRepeatsService {
         receivedAt: receivedAt,
         rxLogEntryID: rxLogEntryID
       )
+      if case .adoptedCanonical = admission, let contextSource {
+        try await dataStore.applyDatagramCanonicalContext(
+          messageID: message.id,
+          routeType: contextSource.routeType,
+          regionScope: contextSource.regionScope,
+          regionScopeMatches: contextSource.regionScopeMatches
+        )
+      }
       guard case let .recordedExtra(count) = admission else { return nil }
       logger.info("Recorded extra path #\(count) for message \(message.id)")
       eventBroadcaster.yield(HeardRepeatEvent(messageID: message.id, count: count))
@@ -242,6 +255,61 @@ public actor HeardRepeatsService {
     } catch {
       logger.error("Failed to record extra path: \(error.localizedDescription)")
       return nil
+    }
+  }
+
+  /// Attaches stored RX rows with this message's data field, oldest first.
+  /// A nil service radio skips an outgoing row.
+  func harvestDatagramPaths(
+    for message: MessageDTO,
+    decodedCandidates: [RxLogEntryDTO]
+  ) async {
+    if message.isOutgoing, message.radioID != radioID { return }
+    guard let blob = message.datagramDataField,
+          let channelIndex = message.channelIndex else { return }
+    let matching = ChannelRXCorrelation.matchingDatagrams(
+      decodedCandidates,
+      blob: blob,
+      radioID: message.radioID,
+      channelIndex: channelIndex
+    )
+    for entry in matching {
+      _ = await recordDatagramObservation(entry, on: message)
+    }
+  }
+
+  /// Copies a later region from the earliest matching datagram RX row onto each path MCOimg.
+  func copyDatagramRegionIfCanonical(
+    entry: RxLogEntryDTO,
+    regionScope: String?,
+    regionScopeMatches: [String],
+    channelEntries: [RxLogEntryDTO]
+  ) async {
+    guard entry.datagramDataType == MCOImageTransport.applicationDataType,
+          let blob = entry.datagramData,
+          let channelIndex = entry.channelIndex else { return }
+    let sameField = channelEntries.filter {
+      $0.channelIndex == channelIndex &&
+        $0.datagramDataType == entry.datagramDataType &&
+        $0.datagramData == blob
+    }
+    guard let earliest = sameField.min(by: { $0.receivedAt < $1.receivedAt }),
+          earliest.id == entry.id else { return }
+    do {
+      let messages = try await dataStore.fetchChannelMessages(
+        radioID: entry.radioID,
+        channelIndex: channelIndex,
+        timestampWindow: MCOImageTransport.datagramMatchWindow(around: earliest.receivedAt)
+      )
+      for message in messages where message.datagramDataField == blob {
+        try await dataStore.updateMessageRegion(
+          id: message.id,
+          regionScope: regionScope,
+          regionScopeMatches: regionScopeMatches
+        )
+      }
+    } catch {
+      logger.error("Failed to copy datagram region: \(error.localizedDescription)")
     }
   }
 
@@ -286,5 +354,51 @@ public actor HeardRepeatsService {
       logger.error("Failed to fetch repeats: \(error.localizedDescription)")
       return []
     }
+  }
+
+  private func processDatagramRepeat(_ entry: RxLogEntryDTO) async -> Int? {
+    guard entry.datagramDataType == MCOImageTransport.applicationDataType,
+          let blob = entry.datagramData,
+          let channelIndex = entry.channelIndex,
+          let radioID,
+          entry.radioID == radioID else { return nil }
+    do {
+      let messages = try await dataStore.fetchChannelMessages(
+        radioID: radioID,
+        channelIndex: channelIndex,
+        timestampWindow: MCOImageTransport.datagramMatchWindow(around: entry.receivedAt)
+      )
+      var lastCount: Int?
+      for message in messages where message.datagramDataField == blob {
+        lastCount = await recordDatagramObservation(entry, on: message) ?? lastCount
+      }
+      return lastCount
+    } catch {
+      logger.error("Failed to process datagram repeat: \(error.localizedDescription)")
+      return nil
+    }
+  }
+
+  /// An outgoing row counts the echo. An incoming row records the path, and the path it adopts
+  /// brings the RX row's route and region, which a datagram push does not carry.
+  private func recordDatagramObservation(_ entry: RxLogEntryDTO, on message: MessageDTO) async -> Int? {
+    guard !message.isOutgoing else {
+      do {
+        return try await recordSentEcho(message: message, entry: entry)
+      } catch {
+        logger.error("Failed to record datagram echo: \(error.localizedDescription)")
+        return nil
+      }
+    }
+    return await recordDistinctPathIfNeeded(
+      message: message,
+      pathNodes: entry.pathNodes,
+      pathLength: entry.pathLength,
+      snr: entry.snr,
+      rssi: entry.rssi,
+      receivedAt: entry.receivedAt,
+      rxLogEntryID: entry.id,
+      adoptingContextOf: entry
+    )
   }
 }

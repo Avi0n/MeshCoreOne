@@ -48,6 +48,9 @@ protocol MessagePollingServiceProtocol: Actor {
   /// Install the handler invoked for each incoming channel message.
   func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)
 
+  /// Install the handler invoked for each supported channel application datagram.
+  func setChannelDatagramHandler(_ handler: @escaping @Sendable (ChannelDatagram, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)
+
   /// Install the handler invoked for each incoming signed room message.
   func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void)
 

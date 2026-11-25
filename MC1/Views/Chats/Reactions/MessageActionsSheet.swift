@@ -40,7 +40,7 @@ struct MessageActionsSheet: View {
 
       Divider()
 
-      if !dynamicTypeSize.isAccessibilitySize {
+      if availability.canReact, !dynamicTypeSize.isAccessibilitySize {
         ActionsEmojiSection(
           recentEmojis: recentEmojis,
           showEmojiPicker: $showEmojiPicker,
@@ -52,7 +52,7 @@ struct MessageActionsSheet: View {
       ScrollViewReader { proxy in
         ScrollView {
           VStack(spacing: 0) {
-            if dynamicTypeSize.isAccessibilitySize {
+            if availability.canReact, dynamicTypeSize.isAccessibilitySize {
               ActionsEmojiSection(
                 recentEmojis: recentEmojis,
                 showEmojiPicker: $showEmojiPicker,

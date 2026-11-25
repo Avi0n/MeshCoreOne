@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 import os
 import SwiftData
 
@@ -198,7 +199,8 @@ public extension PersistenceStore {
     return (MessageDTO.reorderSameSenderClusters(dtos), hasMore)
   }
 
-  /// Finds a channel message matching a parsed reaction within a timestamp window.
+  /// Finds the channel message a parsed reaction names. Group text matches within `timestampWindow`.
+  /// A group datagram has no sender clock, so its newest copy anywhere in the channel matches.
   func findChannelMessageForReaction(
     radioID: UUID,
     channelIndex: UInt8,
@@ -209,6 +211,8 @@ public extension PersistenceStore {
   ) throws -> MessageDTO? {
     let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
     logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
+    let wanted = ChannelReactionTarget(senderName: parsedReaction.targetSender, messageHash: parsedReaction.messageHash)
+    let isWanted = { (candidate: MessageDTO) in candidate.channelReactionTarget(localNodeName: localNodeName) == wanted }
 
     let candidates = try fetchChannelMessageCandidates(
       radioID: radioID,
@@ -217,32 +221,23 @@ public extension PersistenceStore {
       limit: limit
     )
     logger.debug("[REACTION-MATCH] Found \(candidates.count) candidates in window")
-    guard !candidates.isEmpty else { return nil }
-
-    for candidate in candidates {
-      let direction = candidate.direction == .outgoing ? "outgoing" : "incoming"
-      let candidateHash = ReactionParser.generateMessageHash(text: candidate.text, timestamp: candidate.reactionTimestamp)
-      logger.debug("[REACTION-MATCH] Candidate: direction=\(direction), senderNodeName=\(candidate.senderNodeName ?? "nil"), hash=\(candidateHash), text=\(candidate.text.prefix(30))")
-
-      if candidate.direction == .outgoing {
-        guard let localNodeName, parsedReaction.targetSender == localNodeName else {
-          logger.debug("[REACTION-MATCH] Skip outgoing: localNodeName=\(localNodeName ?? "nil"), targetSender=\(parsedReaction.targetSender)")
-          continue
-        }
-      } else {
-        guard candidate.senderNodeName == parsedReaction.targetSender else {
-          logger.debug("[REACTION-MATCH] Skip incoming: senderNodeName=\(candidate.senderNodeName ?? "nil") != targetSender=\(parsedReaction.targetSender)")
-          continue
-        }
-      }
-
-      guard candidateHash == parsedReaction.messageHash else {
-        logger.debug("[REACTION-MATCH] Hash mismatch: \(candidateHash) != \(parsedReaction.messageHash)")
-        continue
-      }
-
+    if let match = candidates.first(where: isWanted) {
       logger.debug("[REACTION-MATCH] Found match!")
-      return candidate
+      return match
+    }
+
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
+    }
+    let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)])
+    for message in try modelContext.fetch(descriptor) {
+      let candidate = MessageDTO(from: message)
+      if candidate.isDatagramMCOImage, isWanted(candidate) {
+        logger.debug("[REACTION-MATCH] Found datagram match")
+        return candidate
+      }
     }
 
     logger.debug("[REACTION-MATCH] No match found")
@@ -529,6 +524,19 @@ public extension PersistenceStore {
     }
   }
 
+  func updateMessageText(id: UUID, text: String) async throws {
+    let targetID = id
+    let predicate = #Predicate<Message> { message in
+      message.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    if let message = try modelContext.fetch(descriptor).first {
+      message.text = text
+      try modelContext.save()
+    }
+  }
+
   /// Update message timestamp (for resending)
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) throws {
     let targetID = id
@@ -805,6 +813,58 @@ public extension PersistenceStore {
   }
 
   // MARK: - Heard Repeats
+
+  /// Channel messages in a `timestamp` window, with no fetch limit, so every copy in the window is seen.
+  func fetchChannelMessages(
+    radioID: UUID,
+    channelIndex: UInt8,
+    timestampWindow: ClosedRange<UInt32>
+  ) async throws -> [MessageDTO] {
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let lower = timestampWindow.lowerBound
+    let upper = timestampWindow.upperBound
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex &&
+        message.timestamp >= lower && message.timestamp <= upper
+    }
+    return try modelContext.fetch(FetchDescriptor(predicate: predicate)).map { MessageDTO(from: $0) }
+  }
+
+  func storedChannelMessages(radioID: UUID, channelIndex: UInt8) throws -> [MessageDTO] {
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
+    }
+    return try modelContext.fetch(FetchDescriptor(predicate: predicate)).map { MessageDTO(from: $0) }
+  }
+
+  func applyDatagramCanonicalContext(
+    messageID: UUID,
+    routeType: RouteType?,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws {
+    guard let message = try fetchMessageModel(id: messageID) else { return }
+    if let routeType {
+      message.routeTypeRawValue = Int(routeType.rawValue)
+    }
+    message.regionScope = regionScope
+    message.regionScopeMatches = regionScopeMatches
+    try modelContext.save()
+  }
+
+  func updateMessageRegion(
+    id: UUID,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws {
+    guard let message = try fetchMessageModel(id: id) else { return }
+    message.regionScope = regionScope
+    message.regionScopeMatches = regionScopeMatches
+    try modelContext.save()
+  }
 
   func fetchRecentSentChannelMessageKeys(radioID: UUID, limit: Int) async throws -> [SentChannelMessageKey]? {
     let targetRadioID = radioID

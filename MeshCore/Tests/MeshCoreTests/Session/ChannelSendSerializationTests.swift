@@ -11,23 +11,21 @@ struct ChannelSendSerializationTests {
   private static let secondScope = FloodScope.region("Beta")
   private static let selectedScope = FloodScope.region("Gamma")
 
-  @Test
-  func `concurrent channel sends and scope writes keep each send together`() async throws {
+  @Test(arguments: [false, true])
+  func `concurrent channel sends and scope writes keep each send together`(binary: Bool) async throws {
     let (session, transport) = try await startSession()
     let first = Task {
-      try await session.sendChannelMessage(
-        channel: Self.firstChannel, text: "first", timestamp: Self.timestamp,
-        floodScope: .scope(Self.firstScope)
-      )
+      try await send(session: session, binary: binary,
+                     channel: Self.firstChannel, text: "first", timestamp: Self.timestamp,
+                     floodScope: .scope(Self.firstScope))
     }
     try await waitForFrameCount(2, transport: transport)
     #expect(await transport.sentData[1] == PacketBuilder.setFloodScope(Self.firstScope.scopeKey()))
 
     let second = Task {
-      try await session.sendChannelMessage(
-        channel: Self.secondChannel, text: "second", timestamp: Self.timestamp,
-        floodScope: .scope(Self.secondScope)
-      )
+      try await send(session: session, binary: binary,
+                     channel: Self.secondChannel, text: "second", timestamp: Self.timestamp,
+                     floodScope: .scope(Self.secondScope))
     }
     let selection = Task { try await session.setFloodScope(Self.selectedScope) }
     try await waitForSerializerWaiters(2, session: session)
@@ -35,9 +33,8 @@ struct ChannelSendSerializationTests {
 
     await transport.simulateOK()
     try await waitForFrameCount(3, transport: transport)
-    #expect(await transport.sentData[2] == PacketBuilder.sendChannelMessage(
-      channel: Self.firstChannel, text: "first", timestamp: Self.timestamp
-    ))
+    #expect(try await transport.sentData[2] == command(binary: binary,
+                                                       channel: Self.firstChannel, text: "first", timestamp: Self.timestamp))
     await transport.simulateOK()
     try await waitForFrameCount(4, transport: transport)
     #expect(await transport.sentData[3] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
@@ -56,11 +53,11 @@ struct ChannelSendSerializationTests {
     let frames = await Array(transport.sentData.dropFirst())
     let secondScopeFrame = PacketBuilder.setFloodScope(Self.secondScope.scopeKey())
     let secondScopeIndex = try #require(frames.firstIndex(of: secondScopeFrame))
-    #expect(frames[secondScopeIndex + 1] == PacketBuilder.sendChannelMessage(
-      channel: Self.secondChannel, text: "second", timestamp: Self.timestamp
-    ))
+    #expect(try frames[secondScopeIndex + 1] == command(binary: binary,
+                                                        channel: Self.secondChannel, text: "second", timestamp: Self.timestamp))
     #expect(frames[secondScopeIndex + 2] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
-    #expect(frames.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count == 2)
+    let commandCode = binary ? CommandCode.sendChannelData : CommandCode.sendChannelMessage
+    #expect(frames.filter { $0.first == commandCode.rawValue }.count == 2)
     await session.stop()
   }
 
@@ -171,6 +168,26 @@ struct ChannelSendSerializationTests {
     let messageCount = await transport.sentData.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count
     #expect(messageCount == (afterScopeACK ? 1 : 0))
     await session.stop()
+  }
+
+  private func command(binary: Bool, channel: UInt8, text: String, timestamp: Date) throws -> Data {
+    if binary {
+      return try PacketBuilder.sendChannelData(channelIndex: channel, dataType: 0x0120, payload: Data(text.utf8))
+    }
+    return PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+  }
+
+  private func send(
+    session: MeshCoreSession, binary: Bool, channel: UInt8, text: String,
+    timestamp: Date, floodScope: ResolvedFloodScope
+  ) async throws {
+    if binary {
+      try await session.sendChannelData(
+        channelIndex: channel, dataType: 0x0120, payload: Data(text.utf8), floodScope: floodScope
+      )
+    } else {
+      try await session.sendChannelMessage(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope)
+    }
   }
 
   private func waitForFrameCount(_ count: Int, transport: MockTransport) async throws {

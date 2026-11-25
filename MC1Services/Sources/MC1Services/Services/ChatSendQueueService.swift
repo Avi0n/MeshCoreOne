@@ -287,10 +287,8 @@ public final class ChatSendQueueService {
 
     let text: String
     if target.channelIndex != nil {
-      guard let targetSender = target.isOutgoing ? senderName : target.senderNodeName else { return nil }
-      text = reactionService.buildReactionText(
-        emoji: emoji, targetSender: targetSender, targetText: target.text, targetTimestamp: target.reactionTimestamp
-      )
+      guard let reactionTarget = target.channelReactionTarget(localNodeName: senderName) else { return nil }
+      text = reactionService.buildReactionText(emoji: emoji, target: reactionTarget)
     } else {
       text = reactionService.buildDMReactionText(
         emoji: emoji, targetText: target.text, targetTimestamp: target.reactionTimestamp
@@ -567,8 +565,9 @@ public final class ChatSendQueueService {
     isTransientError(error, deviceCode: FirmwareDeviceErrorCode.directMessageTableFull)
   }
 
-  nonisolated static func isTransientChannelMessageError(_ error: Error) -> Bool {
+  nonisolated static func isTransientChannelMessageError(_ error: Error, sentDatagram: Bool) -> Bool {
     isTransientError(error, deviceCode: FirmwareDeviceErrorCode.channelMessageNotFound)
+      || (sentDatagram && isTransientError(error, deviceCode: FirmwareDeviceErrorCode.channelDataTableFull))
   }
 
   /// Returns true if `error` is `MeshCoreError.deviceError(channelMessageNotFound)`

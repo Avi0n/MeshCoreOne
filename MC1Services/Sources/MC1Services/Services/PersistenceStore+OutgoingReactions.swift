@@ -6,10 +6,14 @@ public extension PersistenceStore {
     guard message.direction == .outgoing, message.status == .pending,
           let senderName = message.reactionSenderName,
           let details = outgoingReactionDetails(message),
-          let target = try outgoingReactionTarget(message),
-          details.messageHash == ReactionParser.generateMessageHash(
-            text: target.text, timestamp: target.senderTimestamp ?? target.timestamp
-          ) else { return nil }
+          let target = try outgoingReactionTarget(message) else { return nil }
+    let targetDTO = MessageDTO(from: target)
+    let expectedHash = if targetDTO.channelIndex != nil {
+      targetDTO.channelReactionTarget(localNodeName: senderName)?.messageHash
+    } else {
+      ReactionParser.generateMessageHash(text: target.text, timestamp: targetDTO.reactionTimestamp)
+    }
+    guard details.messageHash == expectedHash else { return nil }
     guard try !reactionExists(messageID: target.id, senderName: senderName, emoji: details.emoji) else {
       return nil
     }

@@ -21,6 +21,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public var stubbedUpdateMessageStatusError: Error?
   public var stubbedResolvePendingAcknowledgementError: Error?
   public var stubbedSaveContactError: Error?
+  var stubbedUpdateContactLastMessageError: Error?
   public var stubbedFetchContactError: Error?
   public var stubbedFetchContactPublicKeysError: Error?
   public var stubbedDeleteContactError: Error?
@@ -71,6 +72,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func setUpdateMessageAckObserver(_ observer: (@Sendable (MessageStatus) async -> Void)?) {
     updateMessageAckObserver = observer
+  }
+
+  public func setStubbedUpdateContactLastMessageError(_ error: Error?) {
+    stubbedUpdateContactLastMessageError = error
   }
 
   public func setStubbedFetchContactError(_ error: Error?) {
@@ -221,34 +226,21 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     timestampWindow: ClosedRange<UInt32>,
     limit: Int
   ) async throws -> MessageDTO? {
+    let wanted = ChannelReactionTarget(senderName: parsedReaction.targetSender, messageHash: parsedReaction.messageHash)
+    let isWanted = { (candidate: MessageDTO) in candidate.channelReactionTarget(localNodeName: localNodeName) == wanted }
     let candidates = try await fetchChannelMessageCandidates(
       radioID: radioID,
       channelIndex: channelIndex,
       timestampWindow: timestampWindow,
       limit: limit
     )
-
-    for candidate in candidates {
-      if candidate.direction == .outgoing {
-        guard let localNodeName, parsedReaction.targetSender == localNodeName else {
-          continue
-        }
-      } else {
-        guard candidate.senderNodeName == parsedReaction.targetSender else {
-          continue
-        }
-      }
-
-      let hash = ReactionParser.generateMessageHash(
-        text: candidate.text,
-        timestamp: candidate.reactionTimestamp
-      )
-      guard hash == parsedReaction.messageHash else { continue }
-
-      return candidate
+    if let match = candidates.first(where: isWanted) {
+      return match
     }
-
-    return nil
+    return messages.values
+      .filter { $0.radioID == radioID && $0.channelIndex == channelIndex && $0.isDatagramMCOImage }
+      .sorted { $0.createdAt > $1.createdAt }
+      .first(where: isWanted)
   }
 
   public func fetchChannelMessageCandidates(
@@ -1169,6 +1161,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   public func updateContactLastMessage(contactID: UUID, date: Date?) async throws {
+    if let error = stubbedUpdateContactLastMessageError { throw error }
     if let contact = contacts[contactID] {
       contacts[contactID] = ContactDTO(
         id: contact.id,

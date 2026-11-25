@@ -30,4 +30,22 @@ enum ChannelRXCorrelation {
     }
     .sorted { $0.receivedAt < $1.receivedAt }
   }
+
+  /// Group-datagram rows whose `0x0120` data field equals `blob`, oldest first.
+  /// Group text is not a match. Other data types are not a match.
+  static func matchingDatagrams(
+    _ entries: [RxLogEntryDTO],
+    blob: Data,
+    radioID: UUID,
+    channelIndex: UInt8
+  ) -> [RxLogEntryDTO] {
+    entries.filter { entry in
+      entry.payloadType == .groupData &&
+        entry.radioID == radioID &&
+        entry.channelIndex == channelIndex &&
+        entry.datagramDataType == MCOImageTransport.applicationDataType &&
+        entry.datagramData == blob
+    }
+    .sorted { $0.receivedAt < $1.receivedAt }
+  }
 }

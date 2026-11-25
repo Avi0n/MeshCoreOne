@@ -207,6 +207,9 @@ public final class ServiceContainer {
     contactRadioOwner.bind(contactService)
     let plainTextSendGate = PlainTextSendGate()
     self.plainTextSendGate = plainTextSendGate
+    let repeats = heardRepeatsService
+    let rxLog = rxLogService
+    let store = dataStore
     messageService = MessageService(
       session: session,
       dataStore: dataStore,
@@ -215,7 +218,18 @@ public final class ServiceContainer {
       ackEvents: ackEvents,
       dmSendBudget: { DMSendBudget.current() },
       plainTextSendGate: plainTextSendGate,
-      heardRepeatsService: heardRepeatsService
+      heardRepeatsService: heardRepeatsService,
+      datagramPathHarvest: { message in
+        guard let channelIndex = message.channelIndex else { return }
+        let raw = await (try? store.fetchRxLogEntries(
+          radioID: message.radioID,
+          channelIndex: channelIndex,
+          payloadType: .groupData,
+          receivedWithin: MCOImageTransport.datagramReceiveWindow(around: message.timestamp)
+        )) ?? []
+        let decoded = await rxLog.decodedEntries(raw)
+        await repeats.harvestDatagramPaths(for: message, decodedCandidates: decoded)
+      }
     )
     channelService = ChannelService(
       session: session,

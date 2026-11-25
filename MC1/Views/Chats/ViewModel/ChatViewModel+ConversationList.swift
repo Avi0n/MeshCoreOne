@@ -374,6 +374,7 @@ extension ChatViewModel {
   /// Get the cached last-message preview text for a conversation, keyed by its id.
   func lastMessagePreview(id: UUID) -> String? {
     guard let text = lastMessageCache[id]?.text else { return nil }
+    if MCOImageCodec.isMCOImageText(text) { return L10n.Chats.Chats.Mcoimg.image }
     return MECPCatalog.displayText(text)
   }
 

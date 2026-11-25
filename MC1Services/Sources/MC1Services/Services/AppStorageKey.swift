@@ -74,6 +74,8 @@ public enum AppStorageKey: String {
   case lastShownWhatsNewVersion
   /// Left out of `BackupUserDefaults`, so a restored on value cannot enable collection. A missing key stays off.
   case collectDebugLogs
+  /// Intentionally device-local: a display preference for the Pixel Paint canvas, not registered in `BackupUserDefaults`.
+  case pixelPaintShowsGrid
 
   // Notification toggles read by NotificationPreferences and
   // NotificationPreferencesStore; all share defaultNotificationEnabled.
@@ -112,6 +114,7 @@ public enum AppStorageKey: String {
   public static let defaultUseDefaultTranslationApp: Bool = false
   public static let defaultTranslationOffersEnabled: Bool = true
   public static let defaultLiveActivityEnabled: Bool = true
+  public static let defaultPixelPaintShowsGrid: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.
   public static let defaultAutoDeleteStaleNodesDays: Int = 0
   public static let defaultDMDirectAttempts: Int = DMSendBudget.defaultDirectAttempts

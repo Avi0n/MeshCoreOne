@@ -104,7 +104,6 @@ extension ChatViewModel {
     guard !text.isEmpty else { return true }
     guard let channel = currentChannel,
           let queue = chatSendQueueServiceProvider() else {
-      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return false
     }
 
@@ -123,7 +122,6 @@ extension ChatViewModel {
         await presentLocalEnqueueFailure(messageID: message.id, error: error)
       }
     } catch ChatSendQueueServiceError.notConnected {
-      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return false
     } catch {
       errorMessage = error.userFacingMessage
@@ -153,6 +151,8 @@ extension ChatViewModel {
     // Stand in for the surfaces loadChannelMessages would have reset.
     errorMessage = nil
     errorBannerMessage = nil
+
+    guard let message = await messagePreparedForResend(message) else { return }
 
     // Capture once so the three status-update writes below all target the
     // same container even if a reconnect fires between the awaits.

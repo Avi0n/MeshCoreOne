@@ -1052,6 +1052,126 @@
 
 // MARK: - Inline Image
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "픽셀 그리기";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "지원되지 않는 이미지 형식";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "손상된 이미지";
+
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "픽셀 그림";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "그림 지우기";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "보내기";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "흰색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "회색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "검은색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "빨간색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "노란색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "초록색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "파란색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "보라색";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "픽셀 캔버스";
+
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "그림이 너무 큼";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "그림이 %d바이트입니다. 이 대화는 %d바이트까지 허용합니다. 그림을 단순화한 후 다시 시도하십시오.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "그림 크기는 노드 이름을 포함해 %d바이트이며, 이 채널은 %d바이트까지 허용합니다. 그림을 단순하게 만든 후 다시 시도하세요.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "인코딩할 수 없음";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "그림을 인코딩할 수 없습니다.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "그림 인코딩 중...";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "그림 보내는 중...";
+
+/* Title of the confirmation shown when cancelling a pixel drawing that is not blank */
+"chats.mcoimg.discardTitle" = "그림을 버리겠습니까?";
+
+/* Destructive button that throws the pixel drawing away */
+"chats.mcoimg.discard" = "그림 버리기";
+
+/* Restores the pixel drawing to its state before the last stroke, fill, or clear */
+"chats.mcoimg.undo" = "실행 취소";
+
+/* Reapplies the last undone stroke, fill, or clear */
+"chats.mcoimg.redo" = "실행 복귀";
+
+/* Label for the pixel editor's tool picker */
+"chats.mcoimg.toolPicker" = "도구";
+
+/* Pixel editor tool that paints with the selected colour */
+"chats.mcoimg.tool.brush" = "브러시";
+
+/* Pixel editor tool that paints the background colour */
+"chats.mcoimg.tool.eraser" = "지우개";
+
+/* Pixel editor tool that fills a connected area with the selected colour */
+"chats.mcoimg.tool.fill" = "채우기";
+
+/* Toggle that shows or hides the pixel grid lines */
+"chats.mcoimg.showGrid" = "격자 표시";
+
+/* VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit */
+"chats.mcoimg.budget" = "그림 크기 %2$d바이트 중 %1$d바이트";
+
+/* Shown under the canvas when the encoded drawing exceeds the conversation's limit */
+"chats.mcoimg.tooLargeInline" = "보내기에 너무 큼";
+
+/* VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name */
+"chats.mcoimg.cursorPosition" = "%1$d열, %2$d행, %3$@";
+
+/* VoiceOver hint for the pixel canvas */
+"chats.mcoimg.canvasHint" = "위아래로 쓸어넘겨 이동하십시오. 그리려면 이중 탭하십시오.";
+
+/* VoiceOver action that moves the canvas cursor up one cell */
+"chats.mcoimg.moveUp" = "위로 이동";
+
+/* VoiceOver action that moves the canvas cursor down one cell */
+"chats.mcoimg.moveDown" = "아래로 이동";
+
+/* VoiceOver action that moves the canvas cursor left one cell */
+"chats.mcoimg.moveLeft" = "왼쪽으로 이동";
+
+/* VoiceOver action that moves the canvas cursor right one cell */
+"chats.mcoimg.moveRight" = "오른쪽으로 이동";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "이미지";
 

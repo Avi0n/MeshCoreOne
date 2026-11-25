@@ -41,7 +41,7 @@ public enum PacketBuilder: Sendable {
   /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
   public static let floodPathSentinel: UInt8 = 0xFF
   /// RF payload limit for `CMD_SEND_CHANNEL_DATA`, matching firmware `MAX_GROUP_DATA_LENGTH` (165).
-  static let channelDataMaxPayloadBytes = 165
+  public static let channelDataMaxPayloadBytes = 165
   static let channelNameFieldBytes = 32
   static let channelMaxNameBytes = channelNameFieldBytes - 1
   /// Host-frame cap (`MAX_FRAME_SIZE` in firmware).

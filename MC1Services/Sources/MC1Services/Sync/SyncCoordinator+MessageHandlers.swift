@@ -21,6 +21,7 @@ extension SyncCoordinator {
 
     await wireContactMessageHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
     await wireChannelMessageHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
+    await wireChannelDatagramHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
     await wireSignedMessageHandler(dependencies: dependencies)
     await wireCLIMessageHandler(dependencies: dependencies)
 
@@ -60,20 +61,51 @@ extension SyncCoordinator {
     }
   }
 
+  private func wireChannelDatagramHandler(dependencies: SyncDependencies, radioID: UUID, selfNodeName: String) async {
+    await dependencies.messagePollingService.setChannelDatagramHandler { [weak self] datagram, channel, context, scope, preference, arrivedAt in
+      guard let self, scope.radioID == radioID, scope.isCurrent, let decoded = MCOImageTransport.decode(datagram) else { return }
+      // The group text this picture would have been. Sender time 0 marks that group data has no clock.
+      let frame = ChannelMessage(
+        channelIndex: datagram.channelIndex,
+        pathLength: datagram.pathLength,
+        textType: MeshTextType.plain.rawValue,
+        senderTimestamp: Date(timeIntervalSince1970: 0),
+        text: "\(decoded.senderName): \(decoded.text)",
+        snr: datagram.snr
+      )
+      await handleIncomingMessage(
+        kind: .datagram(frame, senderName: decoded.senderName, text: decoded.text, channel: channel),
+        receivedAt: arrivedAt,
+        context: context,
+        dependencies: dependencies,
+        selfNodeName: selfNodeName,
+        scope: scope,
+        preference: preference
+      )
+    }
+  }
+
   // MARK: - Incoming Message Pipeline
 
-  /// Discriminates the two text-message ingestion paths, carrying the wire
+  /// Discriminates the text-message ingestion paths, carrying the wire
   /// message and the resolved conversation for each.
   private enum IncomingMessageKind {
     case direct(ContactMessage, contact: ContactDTO?)
     case channel(ChannelMessage, channel: ChannelDTO?)
+    /// A group-datagram picture with its length-prefixed sender, which the frame text cannot carry exactly.
+    case datagram(ChannelMessage, senderName: String, text: String, channel: ChannelDTO?)
 
-    /// Log noun distinguishing the two paths in shared diagnostics.
+    /// Log noun distinguishing the paths in shared diagnostics.
     var logLabel: String {
       switch self {
       case .direct: "direct"
-      case .channel: "channel"
+      case .channel, .datagram: "channel"
       }
+    }
+
+    /// Group data carries no sender timestamp.
+    var hasSenderClock: Bool {
+      if case .datagram = self { false } else { true }
     }
   }
 
@@ -127,6 +159,82 @@ extension SyncCoordinator {
       return refreshed
     }
     return messageDTO
+  }
+
+  /// RX rows for a channel MCOimg join on the data field. The push has no RX id, so it is not admitted.
+  private func harvestDatagramAndRefresh(
+    messageDTO: MessageDTO,
+    dependencies: SyncDependencies,
+    scope: ReceiveScope
+  ) async throws -> MessageDTO {
+    guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return messageDTO }
+    do {
+      let raw = try await dependencies.dataStore.fetchRxLogEntries(
+        radioID: messageDTO.radioID,
+        channelIndex: channelIndex,
+        payloadType: .groupData,
+        receivedWithin: MCOImageTransport.datagramReceiveWindow(around: messageDTO.timestamp)
+      )
+      let decoded = await dependencies.rxLogService.decodedEntries(raw)
+      guard scope.isCurrent else { return messageDTO }
+      await dependencies.heardRepeatsService.harvestDatagramPaths(
+        for: messageDTO,
+        decodedCandidates: decoded
+      )
+    } catch {
+      logger.error("Failed to harvest datagram paths: \(error)")
+    }
+    if let refreshed = try await dependencies.dataStore.fetchMessage(id: messageDTO.id) {
+      return refreshed
+    }
+    return messageDTO
+  }
+
+  /// True when this data field already has an MCOimg row. The push is not admitted.
+  /// An incoming hit harvests stored RX rows onto that row.
+  private func skipExistingDatagramPicture(
+    _ message: MessageDTO,
+    dependencies: SyncDependencies,
+    scope: ReceiveScope
+  ) async -> Bool {
+    guard let existing = await existingDatagramPicture(message, dependencies: dependencies) else {
+      return false
+    }
+    guard scope.isCurrent else { return true }
+    if !existing.isOutgoing {
+      _ = try? await harvestDatagramAndRefresh(
+        messageDTO: existing,
+        dependencies: dependencies,
+        scope: scope
+      )
+    }
+    return true
+  }
+
+  /// Outgoing MCOimg first, then any incoming MCOimg with the same data field, among rows whose
+  /// `timestamp` is within `MCOImageTransport.datagramMatchWindowSeconds` of this push.
+  /// A group-text row is not a hit. An MCOimg that cannot rebuild a data field is not a hit.
+  private func existingDatagramPicture(
+    _ message: MessageDTO,
+    dependencies: SyncDependencies
+  ) async -> MessageDTO? {
+    guard let blob = message.datagramDataField, let channelIndex = message.channelIndex else {
+      return nil
+    }
+    do {
+      let rows = try await dependencies.dataStore.fetchChannelMessages(
+        radioID: message.radioID,
+        channelIndex: channelIndex,
+        timestampWindow: MCOImageTransport.datagramMatchWindow(around: message.timestamp)
+      )
+      if let outgoing = rows.first(where: { $0.isOutgoing && $0.datagramDataField == blob }) {
+        return outgoing
+      }
+      return rows.first { !$0.isOutgoing && $0.datagramDataField == blob }
+    } catch {
+      logger.warning("Datagram MCOimg lookup failed, proceeding with save: \(error)")
+      return nil
+    }
   }
 
   /// True when a row already owns this content key. A known distinct channel path
@@ -223,11 +331,22 @@ extension SyncCoordinator {
       contactID = nil
       channelIndex = message.channelIndex
       senderKeyPrefix = nil
+    case let .datagram(message, datagramSender, datagramText, _):
+      text = datagramText
+      senderNodeName = datagramSender
+      senderTimestampDate = message.senderTimestamp
+      textTypeRaw = message.textType
+      snr = message.snr
+      reportedPathLength = message.pathLength
+      contactID = nil
+      channelIndex = message.channelIndex
+      senderKeyPrefix = nil
     }
 
     let timestamp = UInt32(senderTimestampDate.timeIntervalSince1970)
 
-    // Correct invalid timestamps (sender clock wrong)
+    // Correct invalid timestamps (sender clock wrong). A datagram's sender time 0 is always
+    // corrected to receipt and stored as 0, which marks the missing clock.
     let receiveTime = receivedAt
     let (finalTimestamp, timestampCorrected) = Self.correctTimestampIfNeeded(timestamp, receiveTime: receiveTime)
     if timestampCorrected {
@@ -239,18 +358,23 @@ extension SyncCoordinator {
     // Use content-based key for dedup (stable across retry attempts).
     // The RX log packetHash is per-encrypted-packet and differs between
     // retries with different attempt counters, so it must not drive dedup.
-    let deduplicationKey = Self.fallbackDeduplicationKey(
-      contactID: contactID, channelIndex: channelIndex,
-      senderNodeName: senderNodeName, timestamp: timestamp, content: text
+    // A datagram that cannot rebuild its data field keys on the receive second instead.
+    let deduplicationKey = Self.channelDeduplicationKey(
+      kind: resolvedKind,
+      contactID: contactID,
+      channelIndex: channelIndex,
+      senderNodeName: senderNodeName,
+      timestamp: resolvedKind.hasSenderClock ? timestamp : finalTimestamp,
+      content: text
     )
 
     // Channel lookup joins decrypted 0x88 rows by DeduplicationKey; DMs still
-    // match timestamp then sender-prefix.
+    // match timestamp then sender-prefix. A datagram has no sender timestamp to join on.
     let rxResult = await lookupRxLogEntry(
       dependencies: dependencies,
       radioID: radioID,
       channelIndex: channelIndex,
-      senderTimestamp: timestamp,
+      senderTimestamp: resolvedKind.hasSenderClock ? timestamp : nil,
       senderPublicKeyPrefix: senderKeyPrefix,
       defaultPathLength: reportedPathLength,
       channelDeduplicationKey: channelIndex != nil ? deduplicationKey : nil
@@ -262,9 +386,11 @@ extension SyncCoordinator {
     case .direct:
       !selfNodeName.isEmpty &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
-    case .channel:
+    case .channel, .datagram:
+      // Base91 includes `@`, `[`, and `]`, so a picture is never a mention.
       !selfNodeName.isEmpty &&
         senderNodeName != selfNodeName &&
+        !MCOImageCodec.isMCOImageText(text) &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
     }
 
@@ -323,67 +449,106 @@ extension SyncCoordinator {
         scope: scope, preference: preference, dependencies: dependencies
       )
 
-    case let .channel(message, channel):
-      if await recordChannelArrivalAndSkipDuplicate(
+    case let .channel(frame, channel), let .datagram(frame, _, _, channel):
+      await receiveChannelMessage(
+        messageDTO,
+        frame: frame,
         deduplicationKey: deduplicationKey,
-        radioID: radioID,
         rxResult: rxResult,
-        snr: snr,
-        receiveTime: receiveTime,
+        channel: channel,
+        selfNodeName: selfNodeName,
+        scope: scope,
+        preference: preference,
+        dependencies: dependencies
+      )
+    }
+  }
+
+  private func receiveChannelMessage(
+    _ message: MessageDTO,
+    frame: ChannelMessage,
+    deduplicationKey: String,
+    rxResult: RxLogLookupResult,
+    channel: ChannelDTO?,
+    selfNodeName: String,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?,
+    dependencies: SyncDependencies
+  ) async {
+    if await skipExistingDatagramPicture(
+      message, dependencies: dependencies, scope: scope
+    ) {
+      return
+    }
+    // The `mcoimg` key has no clock, so a datagram picture's identity is only the windowed
+    // data-field match above; the key would merge a later identical drawing into an old row.
+    if message.datagramDataField == nil, await recordChannelArrivalAndSkipDuplicate(
+      deduplicationKey: deduplicationKey,
+      radioID: message.radioID,
+      rxResult: rxResult,
+      snr: message.snr,
+      receiveTime: message.createdAt,
+      dependencies: dependencies,
+      scope: scope
+    ) {
+      return
+    }
+    guard scope.isCurrent else { return }
+    if isBlockedSender(message.senderNodeName) {
+      return
+    }
+    do {
+      if let channel, try await dependencies.dataStore.shouldSuppressChannelMessage(
+        message, frame: frame, channel: channel, scope: scope, preference: preference
+      ) { return }
+    } catch {
+      logger.error("Failed to evaluate channel Text Rules: \(error)")
+      return
+    }
+    guard scope.isCurrent else { return }
+    if await handleChannelReaction(
+      text: message.text,
+      channelIndex: frame.channelIndex,
+      senderNodeName: message.senderNodeName,
+      selfNodeName: selfNodeName,
+      receiveTime: message.createdAt,
+      radioID: message.radioID,
+      dependencies: dependencies
+    ) {
+      return
+    }
+    do {
+      await runTestBeforeMessageSave(message)
+      guard try await dependencies.dataStore.saveReceivedChannelMessage(
+              message, scope: scope, conversationID: channel?.textRulesID
+            ),
+            scope.isCurrent else { return }
+      await dependencies.heardRepeatsService.noteIncomingChannelMessage(
+        deduplicationKey: message.deduplicationKey
+      )
+      let savedDTO = if message.isDatagramMCOImage {
+        try await harvestDatagramAndRefresh(
+          messageDTO: message,
+          dependencies: dependencies,
+          scope: scope
+        )
+      } else {
+        try await harvestAndRefreshChannelMessage(
+          messageDTO: message,
+          radioID: message.radioID,
+          dependencies: dependencies,
+          scope: scope
+        )
+      }
+      try await indexAndNotifyChannelMessage(
+        messageDTO: savedDTO,
+        channel: channel,
         dependencies: dependencies,
         scope: scope
-      ) {
-        return
-      }
-      guard scope.isCurrent else { return }
-      if isBlockedSender(senderNodeName) {
-        return
-      }
-      do {
-        if let channel, try await dependencies.dataStore.shouldSuppressChannelMessage(
-          messageDTO, frame: message, channel: channel, scope: scope, preference: preference
-        ) { return }
-      } catch {
-        logger.error("Failed to evaluate channel Text Rules: \(error)")
-        return
-      }
-      guard scope.isCurrent else { return }
-      if await handleChannelReaction(
-        text: text,
-        channelIndex: message.channelIndex,
-        senderNodeName: senderNodeName,
-        selfNodeName: selfNodeName,
-        receiveTime: receiveTime,
-        radioID: radioID,
-        dependencies: dependencies
-      ) {
-        return
-      }
-      do {
-        await runTestBeforeMessageSave(messageDTO)
-        guard try await dependencies.dataStore.saveReceivedChannelMessage(
-                messageDTO, scope: scope, conversationID: channel?.textRulesID
-              ),
-              scope.isCurrent else { return }
-        await dependencies.heardRepeatsService.noteIncomingChannelMessage(
-          deduplicationKey: messageDTO.deduplicationKey
-        )
-        let savedDTO = try await harvestAndRefreshChannelMessage(
-          messageDTO: messageDTO,
-          radioID: radioID,
-          dependencies: dependencies,
-          scope: scope
-        )
-        try await indexAndNotifyChannelMessage(
-          messageDTO: savedDTO,
-          channel: channel,
-          dependencies: dependencies,
-          scope: scope
-        )
-        await notifyConversationsChanged(scope: scope)
-      } catch {
-        logger.error("Failed to save channel message: \(error)")
-      }
+      )
+      await notifyConversationsChanged(scope: scope)
+    } catch {
+      logger.error("Failed to save channel message: \(error)")
     }
   }
 
@@ -497,13 +662,11 @@ extension SyncCoordinator {
   ) async throws {
     guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return }
     // Use the sender timestamp so pending reactions match corrected-clock messages.
-    if let senderName = messageDTO.senderNodeName {
+    if let target = messageDTO.channelReactionTarget(localNodeName: nil) {
       let pendingMatches = await dependencies.reactionService.indexMessage(
         id: messageDTO.id,
         channelIndex: channelIndex,
-        senderName: senderName,
-        text: messageDTO.text,
-        timestamp: messageDTO.reactionTimestamp
+        target: target
       )
 
       for pending in pendingMatches {
@@ -709,6 +872,32 @@ extension SyncCoordinator {
     content: String
   ) -> String {
     DeduplicationKey.contentBased(
+      contactID: contactID,
+      channelIndex: channelIndex,
+      senderNodeName: senderNodeName,
+      timestamp: timestamp,
+      content: content
+    )
+  }
+
+  /// A channel MCOimg that can rebuild its data field keys on that field.
+  /// Group text, and an MCOimg that cannot rebuild, keep the content key.
+  private nonisolated static func channelDeduplicationKey(
+    kind: IncomingMessageKind,
+    contactID: UUID?,
+    channelIndex: UInt8?,
+    senderNodeName: String?,
+    timestamp: UInt32,
+    content: String
+  ) -> String {
+    if case .datagram = kind,
+       let channelIndex,
+       let senderNodeName,
+       !senderNodeName.isEmpty,
+       let field = try? MCOImageTransport.dataField(text: content, senderName: senderNodeName) {
+      return DeduplicationKey.channelMCOImage(channelIndex: channelIndex, dataField: field)
+    }
+    return fallbackDeduplicationKey(
       contactID: contactID,
       channelIndex: channelIndex,
       senderNodeName: senderNodeName,

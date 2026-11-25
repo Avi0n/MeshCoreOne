@@ -298,14 +298,26 @@ public final class NotificationService: NSObject {
 
   // MARK: - Sending Notifications
 
+  /// App `Chats` table entry that names an MCOimg, so a notification never shows Base91.
+  private nonisolated static let mcoImageNameKey = "chats.mcoimg.image"
+  private nonisolated static let mcoImageNameTable = "Chats"
+  private nonisolated static let mcoImageNameFallback = "Pixel drawing"
+
+  /// Localized MCOimg name from the app bundle, or the English fallback when the table is absent.
+  nonisolated static func mcoImageName(bundle: Bundle = .main) -> String {
+    bundle.localizedString(forKey: mcoImageNameKey, value: mcoImageNameFallback, table: mcoImageNameTable)
+  }
+
   /// Space-joined MECP reading, then the sender prefix. Decode runs on `messageText`
-  /// alone so a channel body is never parsed as `Ada: MECP/…`.
+  /// alone so a channel body is never parsed as `Ada: MECP/…`. An MCOimg reads as its name.
   nonisolated static func arrivalBody(
     messageText: String,
     senderName: String? = nil,
     bundle: Bundle = .main
   ) -> String {
-    let body = MECPCatalog.displayText(messageText, bundle: bundle)
+    let body = MCOImageCodec.isMCOImageText(messageText)
+      ? mcoImageName(bundle: bundle)
+      : MECPCatalog.displayText(messageText, bundle: bundle)
     if let senderName {
       return "\(senderName): \(body)"
     }

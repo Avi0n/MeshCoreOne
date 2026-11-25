@@ -246,7 +246,7 @@ struct UnifiedMessageBubble: View, Equatable {
         onRequestSnapshot: { callbacks.requestSnapshot?($0) },
         onRetry: { callbacks.retrySnapshot?($0) }
       )
-    case .text, .inlineImage:
+    case .text, .inlineImage, .mcoImage:
       EmptyView()
     }
   }
@@ -257,7 +257,7 @@ struct UnifiedMessageBubble: View, Equatable {
     switch fragment {
     case .linkPreview, .mapPreview, .malwareWarning:
       true
-    case .reactionSummary, .text, .inlineImage:
+    case .reactionSummary, .text, .inlineImage, .mcoImage:
       false
     }
   }
@@ -357,10 +357,14 @@ struct UnifiedMessageBubble: View, Equatable {
         }
       }
     }
-    label += MessageVisibleBody(
-      stored: message.text,
-      translation: layout.textPayload?.translation
-    ).spokenText
+    if let imageLabel = layout.mcoImage?.accessibilityLabel {
+      label += imageLabel
+    } else {
+      label += MessageVisibleBody(
+        stored: message.text,
+        translation: layout.textPayload?.translation
+      ).spokenText
+    }
     if item.envelope.isOutgoing {
       label += ", \(MessageStatusText.text(for: item.footer))"
     }

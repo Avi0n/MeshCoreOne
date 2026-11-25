@@ -184,7 +184,9 @@ public struct TextRulesPreference: Sendable, Codable, Equatable {
     }
   }
 
+  /// An MCOimg body is Base91, not words, so a picture matches on its sender only.
   public func firstMatch(body: String?, sender: String?) -> RuleMatch? {
+    let body = body.flatMap { MCOImageCodec.isMCOImageText($0) ? nil : $0 }
     for rule in rules {
       let bodyHighlights = rule.lookIn == .sender ? [] : Self.highlights(in: body, for: rule)
       let senderHighlights = rule.lookIn == .message ? [] : Self.highlights(in: sender, for: rule)

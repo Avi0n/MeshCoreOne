@@ -42,7 +42,7 @@ public extension MessageService {
     // retireInlineSends waits until the Sent write in this function finishes.
     try beginInlineSend()
     defer { endInlineSend() }
-    try await rejectIfChannelTextTooLong(text, radioID: radioID)
+    let prepared = try await prepareChannelMessage(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -52,17 +52,24 @@ public extension MessageService {
       id: messageID,
       radioID: radioID,
       channelIndex: channelIndex,
-      text: text,
+      text: prepared.text,
       timestamp: timestamp,
-      textType: textType
+      textType: textType,
+      mcoImageSenderName: prepared.mcoImageSenderName
     )
     try await dataStore.saveMessage(messageDTO)
+    await harvestOutgoingDatagramPathsIfNeeded(messageDTO)
     await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: timestamp)
 
     do {
-      try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+      let transmission = try await channelTransmission(
+        text: prepared.text,
+        senderNodeName: prepared.mcoImageSenderName,
+        radioID: radioID
+      )
+      try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
         try await sendChannelMessageWithScope(
-          text: text,
+          transmission,
           channelIndex: channelIndex,
           radioID: radioID,
           timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp))
@@ -98,7 +105,7 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> MessageDTO {
-    try await rejectIfChannelTextTooLong(text, radioID: radioID)
+    let prepared = try await prepareChannelMessage(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -107,14 +114,23 @@ public extension MessageService {
       id: messageID,
       radioID: radioID,
       channelIndex: channelIndex,
-      text: text,
+      text: prepared.text,
       timestamp: timestamp,
-      textType: textType
+      textType: textType,
+      mcoImageSenderName: prepared.mcoImageSenderName
     )
     try await dataStore.saveMessage(messageDTO)
+    await harvestOutgoingDatagramPathsIfNeeded(messageDTO)
     await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: timestamp)
 
     return messageDTO
+  }
+
+  /// An RX row saved before the message is attached here. A later row is attached by `processForRepeats`.
+  /// The harvest writes only while `HeardRepeatsService` still owns this radio.
+  private func harvestOutgoingDatagramPathsIfNeeded(_ message: MessageDTO) async {
+    guard message.isOutgoing, message.isDatagramMCOImage else { return }
+    await datagramPathHarvest?(message)
   }
 
   /// Sends an already-created pending channel message.
@@ -146,9 +162,19 @@ public extension MessageService {
       let isReaction = message.reactionTargetMessageID != nil
       let alreadyAccepted = isReaction && (acceptedChannelReactions.contains(messageID) || message.status == .sent)
       if !alreadyAccepted {
-        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+        let transmission = try await channelTransmission(
+          text: message.text,
+          senderNodeName: message.senderNodeName,
+          radioID: radioID
+        )
+        if case .mcoImage = transmission {
+          // Group data carries no clock, so echo matching anchors on this row's `timestamp`.
+          // Stamp air time, not enqueue time, so a send parked while disconnected still matches.
+          try await dataStore.updateMessageTimestamp(id: messageID, timestamp: UInt32(Date().timeIntervalSince1970))
+        }
+        try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
-            text: message.text,
+            transmission,
             channelIndex: channelIndex,
             radioID: radioID,
             timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
@@ -186,7 +212,7 @@ public extension MessageService {
     }
   }
 
-  /// Resends a channel message, preserving its wire timestamp only during recovery.
+  /// Recovery keeps the wire timestamp; a user resend stamps a new one. An MCOimg keeps the nonce prepared before admission.
   /// Returns that timestamp so reaction indexing matches the send.
   @discardableResult
   func resendChannelMessage(
@@ -224,9 +250,18 @@ public extension MessageService {
         acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)
       )
       if !alreadyAccepted {
-        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+        let transmission = try await channelTransmission(
+          text: message.text,
+          senderNodeName: message.senderNodeName,
+          radioID: message.radioID
+        )
+        if preserveTimestamp, case .mcoImage = transmission {
+          // Group data has no wire clock to preserve; anchor echo matching on air time.
+          try await dataStore.updateMessageTimestamp(id: messageID, timestamp: UInt32(Date().timeIntervalSince1970))
+        }
+        try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
-            text: message.text,
+            transmission,
             channelIndex: channelIndex,
             radioID: message.radioID,
             timestamp: wireDate
@@ -264,13 +299,23 @@ public extension MessageService {
     return wireTimestamp
   }
 
+  private func channelPoolErrorCode(_ transmission: ChannelTransmission) -> UInt8 {
+    switch transmission {
+    case .text:
+      FirmwareDeviceErrorCode.channelMessageNotFound
+    case .mcoImage:
+      FirmwareDeviceErrorCode.channelDataTableFull
+    }
+  }
+
   private func createOutgoingChannelMessage(
     id: UUID,
     radioID: UUID,
     channelIndex: UInt8,
     text: String,
     timestamp: UInt32,
-    textType: TextType
+    textType: TextType,
+    mcoImageSenderName: String?
   ) -> MessageDTO {
     let message = Message(
       id: id,
@@ -282,6 +327,10 @@ public extension MessageService {
       statusRawValue: MessageStatus.pending.rawValue,
       textTypeRawValue: textType.rawValue
     )
+    if let mcoImageSenderName {
+      // The datagram sender. A later node rename must not change this field.
+      message.senderNodeName = mcoImageSenderName
+    }
     return MessageDTO(from: message)
   }
 

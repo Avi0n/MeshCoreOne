@@ -409,4 +409,39 @@ struct ReactionParserTests {
     let expectedHash = ReactionParser.generateMessageHash(text: targetText, timestamp: timestamp)
     #expect(parsed?.messageHash == expectedHash)
   }
+
+  @Test
+  func `Untimed hash ignores the timestamp and differs from the timed im4 hash`() throws {
+    let payload = Data([0x14, 0, 0, 0, 0])
+    let sender = "Ada"
+    let text = try MCOImageCodec.text(fromAppPayload: payload)
+    let data = try MCOImageTransport.dataField(text: text, senderName: sender)
+    let first = ReactionParser.generateUntimedHash(data)
+    let second = ReactionParser.generateUntimedHash(data)
+    #expect(first == second)
+    let im4 = try MCOImageCodec.text(fromAppPayload: payload)
+    let timed = ReactionParser.generateMessageHash(text: im4, timestamp: 1_700_000_000)
+    let later = ReactionParser.generateMessageHash(text: im4, timestamp: 1_700_000_100)
+    #expect(first != timed)
+    #expect(timed != later)
+
+    var changed = payload
+    changed[1] = changed[1] &+ 1
+    let changedText = try MCOImageCodec.text(fromAppPayload: changed)
+    let changedData = try MCOImageTransport.dataField(text: changedText, senderName: sender)
+    #expect(ReactionParser.generateUntimedHash(changedData) != first)
+  }
+
+  @Test
+  func `V3 receive fixture hashes the original data field and not the transmit upgrade`() throws {
+    let payload = try #require(Data(base64Encoded: "E3oBjQBCvgE="))
+    let sender = "Peer:名"
+    let stored = try MCOImageCodec.text(fromAppPayload: payload)
+    let packet = try MCOImageTransport.dataField(text: stored, senderName: sender)
+    let manual = Data([UInt8(sender.utf8.count)]) + Data(sender.utf8) + payload
+    #expect(packet == manual)
+    let hash = ReactionParser.generateUntimedHash(packet)
+    let encoded = try MCOImageTransport.encode(text: stored, senderName: sender)
+    #expect(ReactionParser.generateUntimedHash(encoded) != hash)
+  }
 }

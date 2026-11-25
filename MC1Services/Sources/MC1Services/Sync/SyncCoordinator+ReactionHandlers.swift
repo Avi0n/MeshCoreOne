@@ -228,21 +228,13 @@ extension SyncCoordinator {
         radioID: radioID
       )
       if await persistReactionIfNew(reactionDTO, dependencies: dependencies) {
-        let targetSenderName: String? = if targetMessage.direction == .outgoing {
-          selfNodeName.isEmpty ? nil : selfNodeName
-        } else {
-          targetMessage.senderNodeName
-        }
-
-        if let targetSenderName {
+        if let target = targetMessage.channelReactionTarget(localNodeName: selfNodeName.isEmpty ? nil : selfNodeName) {
           // Index for future reactions (pending matches not needed here since
           // message exists in DB, so pending reactions would also match via DB fallback)
           _ = await dependencies.reactionService.indexMessage(
             id: targetMessageID,
             channelIndex: channelIndex,
-            senderName: targetSenderName,
-            text: targetMessage.text,
-            timestamp: targetMessage.reactionTimestamp
+            target: target
           )
         }
 
@@ -360,6 +352,7 @@ extension SyncCoordinator {
     for candidate in candidates {
       // Skip messages that are themselves reactions
       if ReactionParser.isReactionText(candidate.text, isDM: false) { continue }
+      if candidate.isChannelMCOImage { continue }
 
       // For channel messages, the Dart hash includes the sender name
       let candidateSenderName: String? = if candidate.direction == .outgoing {
@@ -472,6 +465,7 @@ extension SyncCoordinator {
 
     for candidate in candidates {
       if ReactionParser.isReactionText(candidate.text, isDM: false) { continue }
+      if candidate.isChannelMCOImage { continue }
 
       // Verify sender name hash
       let candidateSenderName: String? = if candidate.direction == .outgoing {
