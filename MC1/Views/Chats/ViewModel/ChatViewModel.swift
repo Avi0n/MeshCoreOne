@@ -231,6 +231,9 @@ final class ChatViewModel {
   /// "Unable to Send" alert).
   var errorBannerMessage: String?
 
+  /// Set by the compose bar's keep-trying toggle. Applies to the next DM sent, then clears.
+  var backoffRetryArmed = false
+
   /// Reentry guard for retry actions. A single `ChatViewModel` is bound to one
   /// conversation at a time (`currentChannel` xor `currentContact`), so this
   /// flag covers both DM and channel retry paths — they can never overlap.

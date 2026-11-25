@@ -162,11 +162,16 @@ extension ChatViewModel {
     errorMessage = nil
 
     do {
-      let admission = try await queue.enqueueDirectMessage(text: text, to: contact) { message in
+      let maxBackoffRounds = backoffRetryArmed ? DMBackoffPolicy.defaultRounds : 0
+      let admission = try await queue.enqueueDirectMessage(
+        text: text, to: contact, maxBackoffRounds: maxBackoffRounds
+      ) { message in
         self.appendMessageIfNew(message)
         self.schedulePrefetchForMessage(message, isChannelMessage: false)
         self.syncCoordinator?.notifyConversationsChanged()
       }
+      // A send that never reached the queue restores the draft, so it keeps the toggle too.
+      backoffRetryArmed = false
       if case let .enqueueFailed(message, error) = admission {
         await presentLocalEnqueueFailure(messageID: message.id, error: error)
       }

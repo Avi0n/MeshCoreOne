@@ -130,6 +130,27 @@ struct ChatSendQueueBackoffTests {
     await harness.queue.shutdown()
   }
 
+  @Test(arguments: [0, 3])
+  func `a new DM stores the backoff rounds it opted into`(rounds: Int) async throws {
+    let harness = try await makeHarness(maxBackoffRounds: 0, notBefore: Date().addingTimeInterval(3600))
+    let contact = try #require(await harness.store.fetchContacts(radioID: harness.radioID).first)
+    let admission = try await harness.queue.enqueueDirectMessage(
+      text: "opt in", to: contact, maxBackoffRounds: rounds
+    )
+    guard case let .queued(message) = admission else {
+      Issue.record("The DM must be queued")
+      return
+    }
+    try await waitUntil("the admitted row is saved") {
+      (try? await harness.store.fetchPendingSends(radioID: harness.radioID))?
+        .contains { $0.messageID == message.id } == true
+    }
+    let row = try #require(await harness.store.fetchPendingSends(radioID: harness.radioID).first { $0.messageID == message.id })
+    #expect(row.maxBackoffRounds == rounds)
+    #expect(row.backoffRound == 0)
+    await harness.queue.shutdown()
+  }
+
   @Test
   func `a send that did not opt in fails at expiry as before`() async throws {
     let harness = try await makeHarness(maxBackoffRounds: 0)
