@@ -193,7 +193,8 @@ public final class ChatSendQueueService {
               isResend: envelope.isResend,
               isSingleAttempt: envelope.isSingleAttempt,
               pendingSendID: pendingSendID,
-              sendLease: sendLease
+              sendLease: sendLease,
+              backoffRounds: envelope.maxBackoffRounds
             )
             if message.status == .delivered || message.status == .failed, let pendingSendID {
               try? await dataStoreRef.deletePendingSend(id: pendingSendID)

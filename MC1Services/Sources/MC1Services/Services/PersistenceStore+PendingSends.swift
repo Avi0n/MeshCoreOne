@@ -432,16 +432,23 @@ public extension PersistenceStore {
     row.isSingleAttempt = true
     row.backoffRound = round
     row.notBefore = notBefore
+    // The burst already counted toward a total that includes these rounds, so they continue it.
+    let burstRetries = max(message.maxRetryAttempts - row.maxBackoffRounds, 0)
+    let retryAttempt = burstRetries + round - 1
+    let maxRetryAttempts = burstRetries + row.maxBackoffRounds
     message.status = .retrying
-    message.retryAttempt = round - 1
-    message.maxRetryAttempts = row.maxBackoffRounds
+    message.retryAttempt = retryAttempt
+    message.maxRetryAttempts = maxRetryAttempts
     do {
       try modelContext.save()
     } catch {
       modelContext.rollback()
       throw error
     }
-    return DMBackoffPlan(round: round, maxRounds: row.maxBackoffRounds, notBefore: notBefore)
+    return DMBackoffPlan(
+      round: round, maxRounds: row.maxBackoffRounds, notBefore: notBefore,
+      retryAttempt: retryAttempt, maxRetryAttempts: maxRetryAttempts
+    )
   }
 
   private func pendingSendRow(id: UUID) throws -> PendingSend? {

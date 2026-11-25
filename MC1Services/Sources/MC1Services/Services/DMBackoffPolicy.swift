@@ -26,4 +26,7 @@ public struct DMBackoffPlan: Sendable, Equatable {
   public let round: Int
   public let maxRounds: Int
   public let notBefore: Date
+  /// Footer retry index and total, continuing the burst's count (see `Message.retryAttempt`).
+  public let retryAttempt: Int
+  public let maxRetryAttempts: Int
 }

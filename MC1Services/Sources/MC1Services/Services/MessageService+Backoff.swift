@@ -37,7 +37,7 @@ extension MessageService {
     }
     logger.info("DM backoff round \(plan.round)/\(plan.maxRounds) messageID=\(messageID) notBefore=\(plan.notBefore)")
     statusEventBroadcaster.yield(.retrying(
-      messageID: messageID, attempt: plan.round - 1, maxAttempts: plan.maxRounds
+      messageID: messageID, attempt: plan.retryAttempt, maxAttempts: plan.maxRetryAttempts
     ))
     await backoffScheduledHandler?(plan.notBefore)
     return true

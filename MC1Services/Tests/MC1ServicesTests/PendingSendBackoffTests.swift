@@ -58,6 +58,30 @@ struct PendingSendBackoffTests {
     #expect(try await fixture.store.queuedDirectMessageWireAttempts().contains { $0.messageID == fixture.messageID })
   }
 
+  /// An 8-attempt burst with 3 rounds counts to 11: the rounds show 9/11, 10/11 and 11/11.
+  @Test
+  func `rounds continue the burst's attempt count`() async throws {
+    let fixture = try await makeFixture(maxBackoffRounds: 3)
+    try await fixture.store.updateMessageRetryStatus(
+      id: fixture.messageID, status: .sent, retryAttempt: 6, maxRetryAttempts: 10
+    )
+    var deadline = fixture.deadline
+    for round in 1...3 {
+      let plan = try #require(await fixture.store.scheduleBackoffRetry(
+        pendingSendID: fixture.row.id, expectedDeadline: deadline, policy: policy, now: Date()
+      ))
+      #expect(plan.retryAttempt == 6 + round)
+      #expect(plan.maxRetryAttempts == 10)
+      let message = try #require(await fixture.store.fetchMessage(id: fixture.messageID))
+      #expect(message.retryAttempt == 6 + round)
+      #expect(message.maxRetryAttempts == 10)
+      deadline = Date().addingTimeInterval(60)
+      try await fixture.store.savePendingAcknowledgement(
+        ackOwner(for: fixture.row, deadline: deadline), replacingPendingSendID: fixture.row.id
+      )
+    }
+  }
+
   @Test
   func `each round waits twice as long and stops after the last one`() async throws {
     let fixture = try await makeFixture(maxBackoffRounds: 2)
