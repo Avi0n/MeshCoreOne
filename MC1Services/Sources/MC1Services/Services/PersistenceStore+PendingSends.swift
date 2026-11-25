@@ -109,9 +109,13 @@ public extension PersistenceStore {
     }
     var messageDescriptor = FetchDescriptor<Message>(predicate: messagePredicate)
     messageDescriptor.fetchLimit = 1
-    if let message = try modelContext.fetch(messageDescriptor).first,
-       message.status != .delivered {
-      message.status = .pending
+    if let message = try modelContext.fetch(messageDescriptor).first {
+      // A new burst starts its own attempt count; the footer shows it while awaiting an ACK.
+      message.retryAttempt = 0
+      message.maxRetryAttempts = 0
+      if message.status != .delivered {
+        message.status = .pending
+      }
     }
 
     let scopedRadioID = dto.radioID

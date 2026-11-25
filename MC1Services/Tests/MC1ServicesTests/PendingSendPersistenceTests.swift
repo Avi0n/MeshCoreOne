@@ -299,6 +299,29 @@ struct PendingSendPersistenceTests {
     #expect(assigned == 1, "Replacing the only row for the radio starts fresh at 1")
   }
 
+  /// A manual retry starts a new burst, so the footer must not show the old burst's count.
+  @Test
+  func `replacePendingSendForRetry clears the previous attempt count`() async throws {
+    let store = try makeStore()
+    let radioID = UUID()
+    let messageID = UUID()
+    let contactID = UUID()
+
+    try await store.saveMessage(makeOutgoingDM(id: messageID, radioID: radioID, contactID: contactID, status: .pending))
+    try await store.updateMessageRetryStatus(id: messageID, status: .retrying, retryAttempt: 6, maxRetryAttempts: 7)
+    _ = try await store.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+
+    let newDTO = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: messageID, contactID: contactID),
+      radioID: radioID
+    )
+    _ = try await store.replacePendingSendForRetry(messageID: messageID, dto: newDTO)
+
+    let refreshed = try #require(try await store.fetchMessage(id: messageID))
+    #expect(refreshed.retryAttempt == 0)
+    #expect(refreshed.maxRetryAttempts == 0)
+  }
+
   /// `.delivered` is the race-won state: a late ACK that landed while
   /// the user was reaching for retry must not be clobbered back to
   /// `.pending`. The `PendingSend` row is still inserted — the queue's
