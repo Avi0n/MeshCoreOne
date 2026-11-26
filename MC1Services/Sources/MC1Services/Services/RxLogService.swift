@@ -14,6 +14,8 @@ public actor RxLogService {
   private var channelSecrets: [UInt8: Data] = [:] // channelIndex -> secret
   private var channelSecretsByHash: [UInt8: [(index: UInt8, secret: Data)]] = [:] // channelHash -> candidates
   private var channelNames: [UInt8: String] = [:] // channelIndex -> name
+  /// Bumped by channel updates so a slower database load does not overwrite them.
+  private var channelCacheGeneration = 0
   private var contactNames: [Data: String] = [:] // pubkey prefix -> name
 
   // Crypto keys for direct message decryption
@@ -90,12 +92,13 @@ public actor RxLogService {
     regionReprocessTask?.cancel()
     regionReprocessTask = nil
     let generation = regionCacheGeneration
+    let channelGeneration = channelCacheGeneration
 
     eventMonitorTask = Task(priority: .utility) { [weak self] in
       guard let self else { return }
 
       // Build known-regions cache (and channel/contact secrets).
-      await loadSecretsFromDatabase(radioID: radioID, generation: generation)
+      await loadSecretsFromDatabase(radioID: radioID, generation: generation, channelGeneration: channelGeneration)
       guard !Task.isCancelled else { return }
 
       // Subscribe before reprocess. EventDispatcher only buffers for existing
@@ -122,16 +125,18 @@ public actor RxLogService {
   }
 
   /// Load channel secrets and contact public keys from database to enable decryption before sync completes.
-  private func loadSecretsFromDatabase(radioID: UUID, generation: Int) async {
+  private func loadSecretsFromDatabase(radioID: UUID, generation: Int, channelGeneration: Int) async {
     do {
       let channels = try await dataStore.fetchChannels(radioID: radioID)
-      // Channels arrive sorted by slot index; a corrupt store can hold duplicate
-      // indices, so keep the first match for a deterministic choice.
-      channelSecrets = Dictionary(channels.map { ($0.index, $0.secret) }, uniquingKeysWith: { first, _ in first })
-      rebuildChannelSecretsByHash()
-      channelNames = Dictionary(channels.map { ($0.index, $0.name) }, uniquingKeysWith: { first, _ in first })
-      if !channels.isEmpty {
-        logger.info("Loaded \(channels.count) channel secrets from database")
+      if channelGeneration == channelCacheGeneration {
+        // Channels arrive sorted by slot index; a corrupt store can hold duplicate
+        // indices, so keep the first match for a deterministic choice.
+        channelSecrets = Dictionary(channels.map { ($0.index, $0.secret) }, uniquingKeysWith: { first, _ in first })
+        rebuildChannelSecretsByHash()
+        channelNames = Dictionary(channels.map { ($0.index, $0.name) }, uniquingKeysWith: { first, _ in first })
+        if !channels.isEmpty {
+          logger.info("Loaded \(channels.count) channel secrets from database")
+        }
       }
     } catch {
       logger.error("Failed to load channel secrets: \(error.localizedDescription)")
@@ -205,6 +210,7 @@ public actor RxLogService {
   /// Update channel cache (secrets and names).
   /// Re-processes any recent noMatchingKey entries when secrets are provided.
   public func updateChannels(secrets: [UInt8: Data], names: [UInt8: String]) async {
+    channelCacheGeneration += 1
     channelSecrets = secrets
     rebuildChannelSecretsByHash()
     channelNames = names

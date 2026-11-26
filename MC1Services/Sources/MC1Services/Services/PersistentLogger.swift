@@ -4,18 +4,23 @@ import os
 /// Drop-in replacement for Logger that uses the shared DebugLogBuffer.
 /// Writes to OSLog for every level; `.info` and above also persist to SwiftData.
 public struct PersistentLogger: Sendable {
+  private let osLog: OSLog
   private let logger: Logger
   private let subsystem: String
   private let category: String
 
   public init(subsystem: String, category: String) {
-    logger = Logger(subsystem: subsystem, category: category)
+    let osLog = OSLog(subsystem: subsystem, category: category)
+    self.osLog = osLog
+    logger = Logger(osLog)
     self.subsystem = subsystem
     self.category = category
   }
 
   public func debug(_ message: @autoclosure () -> String) {
-    guard logger.isEnabled(type: .debug) else { return }
+    // Logger.isEnabled is a libswiftos export added in iOS 26.4. A strong
+    // reference aborts launch on iOS 18. OSLog.isEnabled is os_log_type_enabled.
+    guard osLog.isEnabled(type: .debug) else { return }
     let text = message()
     logger.debug("\(text)")
   }

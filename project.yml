@@ -27,7 +27,7 @@ packages:
     from: 1.5.0
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
-    exactVersion: 6.28.0
+    exactVersion: 7.1.0
   MessagingUI:
     url: https://github.com/bwees-forks/swiftui-messaging-ui
     revision: c2d2698927b1e51799c931890a121d951aef9875

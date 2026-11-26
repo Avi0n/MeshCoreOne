@@ -316,6 +316,45 @@ struct RxLogServiceReprocessTests {
     #expect(saved.channelName == "Beta")
   }
 
+  @Test
+  func `a database load that finishes after updateChannels keeps the newer channels`() async throws {
+    let radioID = UUID()
+    let store = MockPersistenceStore()
+    try await store.saveDevice(.testDevice(id: radioID).copy { $0.knownRegions = ["Placeholder"] })
+    let session = MeshCoreSession(transport: MockTransport())
+    let service = RxLogService(session: session, dataStore: store, heardRepeatsService: nil)
+
+    let (fetchEntered, fetchEnteredContinuation) = AsyncStream<Void>.makeStream()
+    let (fetchRelease, fetchReleaseContinuation) = AsyncStream<Void>.makeStream()
+    await store.setFetchChannelsHold {
+      fetchEnteredContinuation.yield()
+      for await _ in fetchRelease {
+        break
+      }
+    }
+
+    await service.startEventMonitoring(radioID: radioID)
+    defer { Task { await service.stopEventMonitoring() } }
+    for await _ in fetchEntered {
+      break
+    }
+
+    let secret = Data(repeating: 0x33, count: 16)
+    await service.updateChannels(secrets: [2: secret], names: [2: "Beta"])
+    fetchReleaseContinuation.finish()
+    try await waitUntil("database load finished") {
+      await service.knownRegions == ["Placeholder"]
+    }
+
+    let payload = Self.encryptedChannelPayload(timestamp: 1_700_000_030, text: "Bob: ping", secret: secret)
+    await service.process(Self.makeParsed(payloadType: .groupText, packetPayload: payload))
+
+    let stored = try await store.fetchRxLogEntries(radioID: radioID, limit: 1)
+    let saved = try #require(stored.first)
+    #expect(saved.decryptStatus == .success)
+    #expect(saved.channelIndex == 2)
+  }
+
   // MARK: - Helpers
 
   private static func makeParsed(payloadType: PayloadType, packetPayload: Data) -> ParsedRxLogData {
