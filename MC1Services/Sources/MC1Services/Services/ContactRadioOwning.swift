@@ -5,6 +5,12 @@ import MeshCore
 /// Cleanup holders keep this reference weak; `ServiceContainer` retains the service.
 public protocol ContactRadioOwning: AnyObject, Sendable {
   func resetPath(radioID: UUID, publicKey: Data) async throws
+  func attemptFloodFallback<T: Sendable>(
+    radioID: UUID,
+    publicKey: Data,
+    rethrowIfUnavailable callerError: Error,
+    operation: @Sendable () async throws -> T
+  ) async throws -> T
   func healAbsentRadioContact(radioID: UUID, publicKey: Data) async throws -> Bool
   func importRadioContact(radioID: UUID, contact: MeshContact) async throws
 }

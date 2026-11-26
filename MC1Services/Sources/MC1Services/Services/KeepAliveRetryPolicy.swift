@@ -49,6 +49,8 @@ enum KeepAliveRetryPolicy {
       return .stop
     case .floodRouted:
       return .skip
+    case .sessionError(.preempted):
+      return .retryNextInterval
     case .sessionNotFound, .contactNotFound:
       return .disconnectNow
     default:

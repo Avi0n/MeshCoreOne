@@ -845,7 +845,7 @@ extension SyncCoordinator {
           }
           await dependencies.notificationService.updateBadgeCount()
         case .contactUpdated, .conversationsChanged, .nodeStorageFullChanged,
-             .contactDeletedCleanup, .pathDiscoveryResponse, .pathDiscoveryWriteFailed,
+             .contactDeletedCleanup,
              .traceResponse, .traceSnrObserved:
           break
         }

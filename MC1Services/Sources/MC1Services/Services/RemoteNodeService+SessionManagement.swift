@@ -140,7 +140,7 @@ public extension RemoteNodeService {
     // Request status (which triggers sync)
     do {
       let contactType: ContactType = .room
-      _ = try await session.requestStatus(from: remoteSession.publicKey, type: contactType)
+      _ = try await session.requestStatus(from: remoteSession.publicKey, type: contactType, priority: .interactive)
     } catch let error as MeshCoreError {
       throw RemoteNodeError.sessionError(error)
     }

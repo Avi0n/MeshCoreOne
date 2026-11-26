@@ -22,6 +22,7 @@ public actor RepeaterAdminService {
   private let session: any RemoteAccessSessionOps
   private let remoteNodeService: RemoteNodeService
   private let dataStore: any PersistenceStoreProtocol
+  private let radioID: UUID
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "RepeaterAdmin")
   private let auditLogger = CommandAuditLogger()
 
@@ -49,11 +50,13 @@ public actor RepeaterAdminService {
   public init(
     session: any RemoteAccessSessionOps,
     remoteNodeService: RemoteNodeService,
-    dataStore: any PersistenceStoreProtocol
+    dataStore: any PersistenceStoreProtocol,
+    radioID: UUID
   ) {
     self.session = session
     self.remoteNodeService = remoteNodeService
     self.dataStore = dataStore
+    self.radioID = radioID
   }
 
   // MARK: - Admin Connection
@@ -66,6 +69,7 @@ public actor RepeaterAdminService {
     password: String?,
     rememberPassword: Bool = true,
     pathLength: UInt8 = 0,
+    samePasswordExemption: Bool = false,
     onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
   ) async throws -> RemoteNodeSessionDTO {
     let remoteSession = try await remoteNodeService.createSession(
@@ -74,16 +78,25 @@ public actor RepeaterAdminService {
     )
 
     // Login to the repeater with appropriate timeout
-    _ = try await remoteNodeService.login(
+    let result = try await remoteNodeService.login(
       sessionID: remoteSession.id,
       password: password,
+      priority: .interactive,
       pathLength: pathLength,
+      samePasswordExemption: samePasswordExemption,
       onTimeoutKnown: onTimeoutKnown
     )
 
-    // Store password only after successful login
-    if let password, rememberPassword {
-      try await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
+    if !result.mayAnswerEarlierLogin {
+      if let password, rememberPassword {
+        try await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
+      } else if !rememberPassword {
+        do {
+          try await remoteNodeService.deletePassword(forContact: contact)
+        } catch {
+          logger.warning("Failed to delete saved password: \(error)")
+        }
+      }
     }
 
     guard let updatedSession = try await dataStore.fetchRemoteNodeSession(id: remoteSession.id) else {
@@ -107,6 +120,7 @@ public actor RepeaterAdminService {
     offset: UInt16 = 0,
     orderBy: NeighborSortOrder = .newestFirst,
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
+    priority: MeshRequestPriority,
     timeout: Duration? = nil
   ) async throws -> NeighboursResponse {
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
@@ -125,7 +139,8 @@ public actor RepeaterAdminService {
           count: count,
           offset: offset,
           orderBy: orderBy.rawValue,
-          pubkeyPrefixLength: pubkeyPrefixLength
+          pubkeyPrefixLength: pubkeyPrefixLength,
+          priority: priority
         )
       }
     } catch is TimeoutError {
@@ -143,6 +158,7 @@ public actor RepeaterAdminService {
     sessionID: UUID,
     orderBy: NeighborSortOrder = .newestFirst,
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
+    priority: MeshRequestPriority,
     timeout: Duration? = nil
   ) async throws -> NeighboursResponse {
     // Paginate over the per-page request so each round-trip keeps its audit log entry
@@ -155,6 +171,7 @@ public actor RepeaterAdminService {
         offset: offset,
         orderBy: orderBy,
         pubkeyPrefixLength: pubkeyPrefixLength,
+        priority: priority,
         timeout: timeout
       )
     }
@@ -170,22 +187,22 @@ public actor RepeaterAdminService {
   // MARK: - Status
 
   /// Request status from a repeater.
-  public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
-    try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
+  public func requestStatus(sessionID: UUID, priority: MeshRequestPriority) async throws -> StatusResponse {
+    try await remoteNodeService.requestStatus(sessionID: sessionID, priority: priority)
   }
 
   // MARK: - Telemetry
 
   /// Request telemetry from a repeater.
-  public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
-    try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
+  public func requestTelemetry(sessionID: UUID, priority: MeshRequestPriority) async throws -> TelemetryResponse {
+    try await remoteNodeService.requestTelemetry(sessionID: sessionID, priority: priority)
   }
 
   // MARK: - Owner Info
 
   /// Request owner info from a repeater using binary protocol.
-  public func requestOwnerInfo(sessionID: UUID, timeout: Duration? = nil) async throws -> OwnerInfoResponse {
-    try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, timeout: timeout)
+  public func requestOwnerInfo(sessionID: UUID, priority: MeshRequestPriority) async throws -> OwnerInfoResponse {
+    try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, priority: priority)
   }
 
   // MARK: - CLI Commands
@@ -227,9 +244,8 @@ public actor RepeaterAdminService {
     return sessions.filter(\.isRepeater)
   }
 
-  /// Check if a contact is a known repeater with an active session.
   public func getConnectedSession(publicKeyPrefix: Data) async throws -> RemoteNodeSessionDTO? {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSessionByPrefix(publicKeyPrefix),
+    guard let remoteSession = try await dataStore.fetchRemoteNodeSession(radioID: radioID, publicKeyPrefix: publicKeyPrefix),
           remoteSession.isRepeater, remoteSession.isConnected else {
       return nil
     }

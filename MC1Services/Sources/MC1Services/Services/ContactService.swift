@@ -70,7 +70,7 @@ public actor ContactService {
 
   let session: any MeshCoreSessionProtocol
   let dataStore: any PersistenceStoreProtocol
-  private let logger = PersistentLogger(subsystem: "com.mc1", category: "ContactService")
+  let logger = PersistentLogger(subsystem: "com.mc1", category: "ContactService")
 
   static let deletionUpdateBatchSize = 20
 
@@ -85,6 +85,17 @@ public actor ContactService {
   /// One gate for contact sync and commands that read or write a radio contact.
   /// A cancelled waiter leaves without a command. Firmware can still change a contact between the fresh read and the update.
   private let contactOperationSerializer = RequestResponseSerializer()
+  private var routeWriteGenerations: [Data: UInt64] = [:]
+
+  let clock: any Clock<Duration>
+  let defaults: UserDefaults
+  let onDeferredRouteRestore: (@Sendable (PendingRouteRestore) async -> Void)?
+  var failedRepairDeadlines: [FailedRepairKey: @Sendable () -> Duration] = [:]
+
+  struct FailedRepairKey: Hashable {
+    let radioID: UUID
+    let publicKey: Data
+  }
 
   /// Multicast broadcaster for sync progress and node-deletion events.
   /// Consumers subscribe via `events()`; finished by `ServiceContainer.tearDown()`.
@@ -96,12 +107,18 @@ public actor ContactService {
     session: any MeshCoreSessionProtocol,
     dataStore: any PersistenceStoreProtocol,
     syncCoordinator: SyncCoordinator?,
-    cleanupCoordinator: (any ContactCleanupHandling)?
+    cleanupCoordinator: (any ContactCleanupHandling)?,
+    clock: any Clock<Duration> = ContinuousClock(),
+    defaults: UserDefaults = .standard,
+    onDeferredRouteRestore: (@Sendable (PendingRouteRestore) async -> Void)? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
     self.syncCoordinator = syncCoordinator
     self.cleanupCoordinator = cleanupCoordinator
+    self.clock = clock
+    self.defaults = defaults
+    self.onDeferredRouteRestore = onDeferredRouteRestore
   }
 
   // MARK: - Events
@@ -478,6 +495,7 @@ public actor ContactService {
       }
       throw ContactServiceError.sessionError(error)
     }
+    routeWriteGenerations[publicKey, default: 0] &+= 1
     _ = try await dataStore.updateContactRoute(
       radioID: radioID,
       publicKey: publicKey,
@@ -488,20 +506,42 @@ public actor ContactService {
 
   // MARK: - Path Discovery
 
-  /// Send a path discovery request to find optimal route to contact
-  /// - Parameters:
-  ///   - radioID: The device ID
-  ///   - publicKey: The contact's 32-byte public key
-  /// - Returns: MessageSentInfo containing the estimated timeout from firmware
-  public func sendPathDiscovery(radioID: UUID, publicKey: Data) async throws -> MessageSentInfo {
+  /// Discovers a path once, stamps `lastHeard`, and saves any decoded out-path before returning.
+  public func discoverPath(
+    radioID: UUID,
+    publicKey: Data,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)? = nil
+  ) async throws -> PathInfo {
+    let result: PathInfo
     do {
-      return try await session.sendPathDiscovery(to: publicKey)
+      result = try await session.discoverPath(
+        to: publicKey,
+        priority: priority,
+        budget: budget,
+        onTimeoutKnown: onTimeoutKnown
+      )
     } catch let error as MeshCoreError {
       if case let .deviceError(code) = error, code == ProtocolError.notFound.rawValue {
         throw ContactServiceError.contactNotFound
       }
       throw ContactServiceError.sessionError(error)
     }
+    do {
+      _ = try await dataStore.touchContactHeard(radioID: radioID, publicKey: publicKey, at: Date())
+    } catch {
+      logger.error("Path discovery lastHeard stamp failed: \(error.localizedDescription)")
+    }
+    if result.outHopCount != nil {
+      try await setPath(
+        radioID: radioID,
+        publicKey: publicKey,
+        path: result.outPath,
+        pathLength: result.outPathLength
+      )
+    }
+    return result
   }
 
   // MARK: - Set Path
@@ -562,6 +602,7 @@ public actor ContactService {
       }
       throw ContactServiceError.sessionError(error)
     }
+    routeWriteGenerations[publicKey, default: 0] &+= 1
     guard try await dataStore.updateContactRoute(
       radioID: radioID,
       publicKey: publicKey,
@@ -1130,29 +1171,83 @@ public actor ContactService {
     }
   }
 
-  /// One region target: fresh radio contact when one exists, otherwise the anonymous
-  /// target. A local row whose radio contact is gone is not written back.
+  /// Brackets any temporary 0-hop write and conditional restore inside contact serialization
+  /// while keeping the RF `query` unlocked.
   func ownedRegionQuery(
     target: MeshContact,
     radioID: UUID,
     query: @Sendable (MeshContact) async throws -> [String]
   ) async throws -> [String] {
-    try await withContactOperation {
+    let (resolved, wroteTemporaryZeroHop, routeGen): (MeshContact, Bool, UInt64) = try await withContactOperation {
       let radio: MeshContact?
       do {
         radio = try await session.getContact(publicKey: target.publicKey)
       } catch let error as MeshCoreError {
         throw ContactServiceError.sessionError(error)
       }
+      let baseContact: MeshContact
       if let radio {
-        return try await query(radio)
-      }
-      let hasLocal = try await dataStore.fetchContact(radioID: radioID, publicKey: target.publicKey) != nil
-      if hasLocal {
+        baseContact = radio
+      } else if try await dataStore.fetchContact(radioID: radioID, publicKey: target.publicKey) != nil {
         throw ContactServiceError.contactNotFound
+      } else {
+        baseContact = target
       }
-      return try await query(target)
+
+      let routeGen = routeWriteGenerations[baseContact.publicKey, default: 0]
+      guard baseContact.outPathLength == PacketBuilder.floodPathSentinel else {
+        return (baseContact, false, routeGen)
+      }
+
+      // Region requests need a direct out path. Preserve raw type because resetting the path does not restore it.
+      let directContact = MeshContact(
+        id: baseContact.id,
+        publicKey: baseContact.publicKey,
+        type: baseContact.type,
+        typeRawValue: baseContact.typeRawValue,
+        flags: baseContact.flags,
+        outPathLength: 0,
+        outPath: Data(),
+        advertisedName: baseContact.advertisedName,
+        lastAdvertisement: baseContact.lastAdvertisement,
+        latitude: baseContact.latitude,
+        longitude: baseContact.longitude,
+        lastModified: baseContact.lastModified
+      )
+      do {
+        try await session.addContact(directContact)
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
+      }
+      return (directContact, true, routeGen)
     }
+
+    do {
+      let regions = try await query(resolved)
+      if wroteTemporaryZeroHop {
+        await restoreFloodRouteIfUnchanged(publicKey: resolved.publicKey, expectedGeneration: routeGen)
+      }
+      return regions
+    } catch {
+      if wroteTemporaryZeroHop {
+        await restoreFloodRouteIfUnchanged(publicKey: resolved.publicKey, expectedGeneration: routeGen)
+      }
+      throw error
+    }
+  }
+
+  private func restoreFloodRouteIfUnchanged(publicKey: Data, expectedGeneration: UInt64) async {
+    await Task {
+      try? await withContactOperation {
+        guard routeWriteGenerations[publicKey, default: 0] == expectedGeneration else { return }
+        guard let current = try? await session.getContact(publicKey: publicKey),
+              current.outPathLength == 0,
+              current.outPath.isEmpty else {
+          return
+        }
+        try? await session.resetPath(publicKey: publicKey)
+      }
+    }.value
   }
 }
 

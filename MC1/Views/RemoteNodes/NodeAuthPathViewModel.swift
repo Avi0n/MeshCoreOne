@@ -12,20 +12,20 @@ final class NodeAuthPathViewModel {
 
   func load(
     contact: ContactDTO,
-    services: ServiceContainer?,
+    dataStore: PersistenceStore?,
     radioID: UUID,
     userLocation: CLLocation?,
     isCurrent: @MainActor () -> Bool
   ) async {
-    guard let services else {
+    guard let dataStore else {
       hops = []
       return
     }
 
     do {
-      let contacts = try await services.dataStore.fetchContacts(radioID: radioID)
+      let contacts = try await dataStore.fetchContacts(radioID: radioID)
       guard !Task.isCancelled, isCurrent() else { return }
-      let discoveredNodes = try await services.dataStore.fetchDiscoveredNodes(radioID: radioID)
+      let discoveredNodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
       guard !Task.isCancelled, isCurrent() else { return }
 
       hops = NeighborNameResolver.resolvePath(

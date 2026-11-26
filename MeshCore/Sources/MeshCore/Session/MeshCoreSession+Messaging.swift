@@ -417,36 +417,96 @@ public extension MeshCoreSession {
     )
   }
 
-  /// Sends a login request to a remote node.
-  ///
-  /// Authenticates with a password-protected node to gain administrative access.
-  ///
-  /// - Parameters:
-  ///   - destination: The node's public key (6+ bytes).
-  ///   - password: The authentication password.
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
-  func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
-    try await sendAndWaitWithError(
-      PacketBuilder.sendLogin(to: destination, password: password),
-      matching: { event in
-        if case let .messageSent(info) = event { return info }
-        return nil
+  /// Authenticates with a remote node and awaits its login response through the mesh request gate.
+  func login(
+    to destination: Data,
+    password: String,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)? = nil,
+    samePasswordExemption: Bool = false
+  ) async throws -> LoginExchangeResult {
+    try requireFullPublicKey(destination, operation: "login")
+    let gatePrefix = Data(destination.prefix(MeshRequestGate.contactPrefixLength))
+    let matchPrefix = Data(destination.prefix(6))
+    let passwordDigest = Self.sha256Digest(of: password)
+    let spec = MeshExchangeSpec<LoginExchangeOutcome>(
+      request: PacketBuilder.sendLogin(to: destination, password: password),
+      publicKey: destination,
+      kind: .login,
+      operation: "Login",
+      acceptsBinaryResponse: false,
+      routedEventFilter: { event in
+        switch event {
+        case .loginSuccess, .loginFailed: true
+        default: false
+        }
       },
-      errorMatcher: Self.deviceErrorMatcher
+      matchRoutedEvent: { event in
+        switch event {
+        case let .loginSuccess(info) where info.publicKeyPrefix == matchPrefix:
+          .success(info)
+        case let .loginFailed(prefix) where prefix == nil || prefix == matchPrefix:
+          .failed
+        default:
+          nil
+        }
+      },
+      parseBinaryResponse: nil,
+      budget: budget,
+      onTimeoutKnown: onTimeoutKnown,
+      loginPasswordDigest: passwordDigest,
+      samePasswordExemption: samePasswordExemption,
+      onUnconsumedExit: { [weak self] replyMayBeInFlight in
+        guard replyMayBeInFlight, let self else { return }
+        await self.recordUnconsumedLoginDigest(passwordDigest, forPrefix: gatePrefix)
+      }
     )
+    let (outcome, sendCount) = try await performMeshExchangeWithSendCount(spec, priority: priority)
+    let mayAnswerEarlier = consumeLoginDigests(forPrefix: gatePrefix, currentDigest: passwordDigest)
+    if sendCount > 1, sessionIsRunning {
+      recordUnconsumedLoginDigest(passwordDigest, forPrefix: gatePrefix)
+    }
+    switch outcome {
+    case let .success(info):
+      return LoginExchangeResult(info: info, mayAnswerEarlierLogin: mayAnswerEarlier)
+    case .failed:
+      return LoginExchangeResult(info: nil, mayAnswerEarlierLogin: false)
+    }
   }
 
-  /// Sends a login request to a remote node.
-  ///
-  /// - Parameters:
-  ///   - destination: The destination (contact or public key).
-  ///   - password: The authentication password.
-  /// - Returns: Information about the sent message.
-  /// - Throws: ``MeshCoreError`` on failure.
-  func sendLogin(to destination: Destination, password: String) async throws -> MessageSentInfo {
-    let publicKey = try destination.fullPublicKey()
-    return try await sendLogin(to: publicKey, password: password)
+  /// Sends a path discovery request once and awaits its `PathInfo` reply through the mesh request gate.
+  func discoverPath(
+    to destination: Data,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)? = nil
+  ) async throws -> PathInfo {
+    try requireFullPublicKey(destination, operation: "discoverPath")
+    let matchPrefix = Data(destination.prefix(6))
+    let spec = MeshExchangeSpec<PathInfo>(
+      request: PacketBuilder.sendPathDiscovery(to: destination),
+      publicKey: destination,
+      kind: .pathDiscovery,
+      operation: "Path discovery",
+      acceptsBinaryResponse: false,
+      routedEventFilter: { event in
+        if case .pathResponse = event { return true }
+        return false
+      },
+      matchRoutedEvent: { event in
+        guard case let .pathResponse(info) = event,
+              info.publicKeyPrefix == matchPrefix else { return nil }
+        return info
+      },
+      parseBinaryResponse: nil,
+      budget: budget,
+      onTimeoutKnown: onTimeoutKnown,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
 
   /// Sends a logout request to a remote node.
@@ -458,12 +518,25 @@ public extension MeshCoreSession {
   func sendLogout(to destination: Data) async throws {
     try await sendSimpleCommand(PacketBuilder.sendLogout(to: destination))
   }
+}
 
-  /// Requests status information from a remote node.
-  ///
-  /// - Parameter destination: The node's public key (6+ bytes).
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
+extension MeshCoreSession {
+  func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
+    try await sendAndWaitWithError(
+      PacketBuilder.sendLogin(to: destination, password: password),
+      matching: { event in
+        if case let .messageSent(info) = event { return info }
+        return nil
+      },
+      errorMatcher: Self.deviceErrorMatcher
+    )
+  }
+
+  func sendLogin(to destination: Destination, password: String) async throws -> MessageSentInfo {
+    let publicKey = try destination.fullPublicKey()
+    return try await sendLogin(to: publicKey, password: password)
+  }
+
   func sendStatusRequest(to destination: Data) async throws -> MessageSentInfo {
     try await sendAndWaitWithError(
       PacketBuilder.sendStatusRequest(to: destination),
@@ -475,11 +548,6 @@ public extension MeshCoreSession {
     )
   }
 
-  /// Requests telemetry data from a remote node.
-  ///
-  /// - Parameter destination: The node's public key (6+ bytes).
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
   func sendTelemetryRequest(to destination: Data) async throws -> MessageSentInfo {
     try await sendAndWaitWithError(
       PacketBuilder.getSelfTelemetry(destination: destination),
@@ -491,13 +559,6 @@ public extension MeshCoreSession {
     )
   }
 
-  /// Initiates path discovery to a remote node.
-  ///
-  /// Triggers route discovery to find or refresh the path to a destination.
-  ///
-  /// - Parameter destination: The node's public key (6+ bytes).
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
   func sendPathDiscovery(to destination: Data) async throws -> MessageSentInfo {
     try await sendAndWaitWithError(
       PacketBuilder.sendPathDiscovery(to: destination),
@@ -508,7 +569,9 @@ public extension MeshCoreSession {
       errorMatcher: Self.deviceErrorMatcher
     )
   }
+}
 
+public extension MeshCoreSession {
   /// Sends a trace packet through the mesh network.
   ///
   /// Trace packets record the path they traverse, useful for network debugging.
@@ -655,24 +718,45 @@ public extension MeshCoreSession {
     beforeSend: @escaping @Sendable () throws -> Void
   ) async throws -> MessageSentInfo {
     try requireFullPublicKey(publicKey, operation: "sendKeepAlive")
-    let cancelled = OSAllocatedUnfairLock(initialState: false)
 
-    return try await withTaskCancellationHandler {
-      try await requestResponseSerializer.withSerialization { [self] in
-        var watermark = try await syncSince().littleEndian
-        let payload = withUnsafeBytes(of: &watermark) { Data($0) }
-        let data = PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
-        return try await sendAndMatchHoldingSerialization(data, beforeSend: {
-          if cancelled.withLock({ $0 }) { throw CancellationError() }
-          try beforeSend()
-        }) { event in
-          if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
-          if case let .messageSent(info) = event { return .success(info) }
-          return .ignore
-        }
-      }
-    } onCancel: {
-      cancelled.withLock { $0 = true }
+    // Keep-alive is a binary request, so it clears the companion's pending reply slot.
+    // The gate is taken before the host slot and never while holding it.
+    let ticket = try await meshRequestGate.acquire(
+      priority: .background,
+      contactPrefix: Data(publicKey.prefix(MeshRequestGate.contactPrefixLength)),
+      kind: .binary
+    )
+    do {
+      let sent = try await sendKeepAliveHoldingGate(
+        to: publicKey,
+        syncSince: syncSince,
+        beforeSend: beforeSend
+      )
+      await meshRequestGate.release(ticket, sameContactHold: nil)
+      return sent
+    } catch {
+      await meshRequestGate.release(ticket, sameContactHold: nil)
+      throw error
     }
   }
+
+  private func sendKeepAliveHoldingGate(
+    to publicKey: Data,
+    syncSince: @escaping @Sendable () async throws -> UInt32,
+    beforeSend: @escaping @Sendable () throws -> Void
+  ) async throws -> MessageSentInfo {
+    try await sendPendingSlotWrite(
+      buildFrame: {
+        var watermark = try await syncSince().littleEndian
+        let payload = withUnsafeBytes(of: &watermark) { Data($0) }
+        return PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
+      },
+      beforeSend: beforeSend
+    )
+  }
+}
+
+private enum LoginExchangeOutcome: Sendable {
+  case success(LoginInfo)
+  case failed
 }

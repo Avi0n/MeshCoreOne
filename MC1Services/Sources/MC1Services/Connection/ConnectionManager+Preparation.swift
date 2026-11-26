@@ -60,9 +60,13 @@ extension ConnectionManager {
       deviceID: deviceID, radioID: canonicalExisting?.radioID ?? existing?.radioID ?? UUID(), selfInfo: selfInfo,
       capabilities: capabilities, autoAddConfig: config, existingDevice: canonicalExisting ?? existing
     ))
+    let previousPublicKey = (canonicalExisting ?? existing)?.publicKey
     let bluetoothPeripheralID = attempt.target.deviceID
     let registration = enqueueMetadata { store in
       let device = try await store.registerConnectionDevice(observation, bluetoothPeripheralID: bluetoothPeripheralID)
+      if let previousPublicKey, previousPublicKey != selfInfo.publicKey {
+        try await store.disconnectAllRemoteNodeSessions(radioID: device.radioID)
+      }
       try await store.backfillTextRulesIdentities(radioID: device.radioID)
       return device
     }
@@ -91,7 +95,10 @@ extension ConnectionManager {
       appStateProvider: appStateProvider, connectionStateEvents: connectionStateEvents,
       initialConnectionState: .connected, radioWiFiState: wifiState,
       notificationService: notificationServiceForTesting(), ackEvents: attempt.ackEvents,
-      textRulesPreference: { [weak self] in await self?.textRulesPreference }
+      textRulesPreference: { [weak self] in await self?.textRulesPreference },
+      onDeferredRouteRestore: { [weak self] restore in
+        await self?.recordPendingRouteRestore(restore)
+      }
     )
     attempt.preparedServices = container
     await wireCleanChannelSyncCallback(on: container)

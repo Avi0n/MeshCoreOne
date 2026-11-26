@@ -153,6 +153,7 @@ extension CLIToolViewModel {
       let loginResult = try await remoteNodeService.login(
         sessionID: remoteSession.id,
         password: password,
+        priority: .interactive,
         pathLength: contact.outPathLength,
         onTimeoutKnown: { [weak self] seconds in
           await self?.startCountdown(seconds)
@@ -169,8 +170,9 @@ extension CLIToolViewModel {
         return
       }
 
-      // Store password after successful login
-      try? await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
+      if !loginResult.mayAnswerEarlierLogin {
+        try? await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
+      }
 
       // Success - create CLI session
       guard let remoteTarget = CLIRemoteTarget(contactType: contact.type) else {

@@ -92,13 +92,13 @@ final class RoomStatusViewModel {
       operationName: "status",
       setLoading: { self.helper.isLoadingStatus = $0 },
       setError: { self.helper.statusSectionError = $0 },
-      operation: { [roomAdminService] timeout in
+      operation: { [roomAdminService] _ in
         #if DEBUG
           if let hookedStatus {
             return try await hookedStatus(session.id)
           }
         #endif
-        return try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
+        return try await roomAdminService.requestStatus(sessionID: session.id, priority: .interactive)
       },
       onSuccess: { [ticket] response in
         guard ticket.isCurrent(in: self.statusEpoch) else { return }
@@ -125,8 +125,8 @@ final class RoomStatusViewModel {
       operationName: "telemetry",
       setLoading: { self.helper.isLoadingTelemetry = $0 },
       setError: { self.helper.telemetrySectionError = $0 },
-      operation: { [roomAdminService] timeout in
-        try await roomAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
+      operation: { [roomAdminService] _ in
+        try await roomAdminService.requestTelemetry(sessionID: session.id, priority: .interactive)
       },
       onSuccess: { await self.helper.handleTelemetryResponse($0) }
     )

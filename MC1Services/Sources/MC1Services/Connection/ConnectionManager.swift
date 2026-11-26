@@ -186,6 +186,7 @@ public final class ConnectionManager {
   }
 
   var radioWiFiStates: [UUID: RadioWiFiState] = [:]
+  var pendingRouteRestores: [UUID: [Data: PendingRouteRestore]] = [:]
   var pendingIdentityReconciliations: [UUID: IdentityImportReceipt] = [:]
   #if DEBUG
     var sessionClockForTesting: (any Clock<Duration>)?

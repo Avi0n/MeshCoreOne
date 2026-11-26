@@ -77,7 +77,7 @@ extension RemoteNodeService {
       let remaining = deadline - .now
       let pollDuration = min(RemoteOperationTimeoutPolicy.pollInterval, remaining)
       do {
-        _ = try await session.getMessage(timeout: max(Self.minimumCLIPollTimeout, timeInterval(for: pollDuration)))
+        _ = try await session.getMessage(timeout: max(Self.minimumCLIPollTimeout, Self.timeInterval(for: pollDuration)))
       } catch is CancellationError {
         cancelPendingCLIRequest(for: prefix, requestID: requestID)
         return

@@ -21,6 +21,12 @@ public struct SessionConfiguration: Sendable {
   /// Firmware's estimate is outbound airtime×path; the return path needs headroom.
   public static let binaryRetransmitRTTHeadroom: TimeInterval = 2.0
 
+  /// Maximum sends (initial + resends) for flood-routed or background mesh exchanges.
+  static let floodOrBackgroundMaxSends = 2
+
+  /// Maximum sends for single-shot exchanges such as `discoverPath` or disabled retransmit.
+  static let singleSendMaxSends = 1
+
   /// Maximum idle gap allowed between contact stream events.
   public let contactStreamInactivityTimeout: TimeInterval
 
@@ -149,6 +155,10 @@ public enum MeshCoreError: Error, Sendable {
 
   /// The requested feature is disabled on the device.
   case featureDisabled
+
+  /// A background mesh exchange was preempted by an interactive request.
+  /// `afterHandOff` is `true` once a frame has been handed to the transport.
+  case preempted(afterHandOff: Bool)
 }
 
 /// Represents the result of a message fetch operation.

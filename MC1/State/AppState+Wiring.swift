@@ -136,8 +136,7 @@ extension AppState {
             }
           }
         case .newContactDiscovered, .nodeStorageFullChanged,
-             .pathDiscoveryResponse, .pathDiscoveryWriteFailed, .traceResponse,
-             .traceSnrObserved, .orphanDirectMessagesAdopted:
+             .traceResponse, .traceSnrObserved, .orphanDirectMessagesAdopted:
           // The paired .conversationsChanged already refreshes the list; the
           // banner and badge are handled by the SyncCoordinator consumer.
           break

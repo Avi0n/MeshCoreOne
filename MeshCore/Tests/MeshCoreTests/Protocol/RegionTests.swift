@@ -291,16 +291,13 @@ struct RequestRegionsIntegrationTests {
     firstCommand: String
   ) async throws {
     try await acknowledgeNextCommand(transport, sentCountBefore: 0, label: firstCommand)
-    try await waitUntil("region timeout should park on the test clock") {
-      await transport.sentData.count >= 2
-        && clock.sleeperCount == 1
-        && clock.nextSleepDuration == .seconds(regionOverallTimeout)
+    try await waitUntil("anon request should be written") {
+      await transport.sentData.count >= 2 && clock.sleeperCount == 1
     }
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: ack, timeoutMs: 100))
-    try #require(
-      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(regionOverallTimeout),
-      "region timeout should stay parked until the test clock advances"
-    )
+    try await waitUntil("region timeout should park on the test clock") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(regionOverallTimeout)
+    }
     clock.advanceToNextSleep()
     try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
   }
@@ -327,7 +324,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(transport: transport)
     try await startSession(session, transport: transport)
-    let regions = Task { try await session.requestRegions(from: makeTestContact()) }
+    let regions = Task { try await session.requestRegions(from: makeTestContact(), priority: .interactive) }
     try await waitUntil { await transport.sentData.count == 1 }
     if !duringTemporaryWrite {
       await transport.simulateOK()
@@ -364,7 +361,7 @@ struct RequestRegionsIntegrationTests {
     let transport = MockTransport()
     let session = MeshCoreSession(transport: transport)
     try await startSession(session, transport: transport)
-    let regions = Task { try await session.requestRegions(from: makeTestContact()) }
+    let regions = Task { try await session.requestRegions(from: makeTestContact(), priority: .interactive) }
     try await acknowledgeNextCommand(transport, sentCountBefore: 0)
     try await waitUntil { await transport.sentData.count == 2 }
     regions.cancel()
@@ -387,7 +384,7 @@ struct RequestRegionsIntegrationTests {
     let expectedAck = Data([0x01, 0x02, 0x03, 0x04])
 
     let regionsTask = Task {
-      try await session.requestRegions(from: contact)
+      try await session.requestRegions(from: contact, priority: .interactive)
     }
 
     // Acknowledge updateContact (sets zero-hop for flood-routed contact)
@@ -419,7 +416,7 @@ struct RequestRegionsIntegrationTests {
     let expectedAck = Data([0xDE, 0xAD, 0xBE, 0xEF])
 
     let regionsTask = Task {
-      try await session.requestRegions(from: contact)
+      try await session.requestRegions(from: contact, priority: .interactive)
     }
     try await finishTimedOutRegionRequest(
       transport: transport, clock: clock, ack: expectedAck, firstCommand: "updateContact"
@@ -444,7 +441,7 @@ struct RequestRegionsIntegrationTests {
     let contact = makeTestContact()
 
     let regionsTask = Task {
-      try await session.requestRegions(from: contact)
+      try await session.requestRegions(from: contact, priority: .interactive)
     }
 
     // Acknowledge updateContact for flood-routed contact
@@ -480,7 +477,7 @@ struct RequestRegionsIntegrationTests {
     let contact = makeTestContact(outPathLength: 0xFF, outPath: Data())
 
     let regionsTask = Task {
-      try await session.requestRegions(from: contact)
+      try await session.requestRegions(from: contact, priority: .interactive)
     }
     try await finishTimedOutRegionRequest(
       transport: transport,
@@ -527,7 +524,7 @@ struct RequestRegionsIntegrationTests {
       latitude: 0, longitude: 0, lastModified: Date()
     )
 
-    let regionsTask = Task { try await session.requestRegions(from: contact) }
+    let regionsTask = Task { try await session.requestRegions(from: contact, priority: .interactive) }
     try await finishTimedOutRegionRequest(
       transport: transport,
       clock: clock,

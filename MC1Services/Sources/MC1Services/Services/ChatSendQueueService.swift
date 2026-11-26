@@ -530,7 +530,7 @@ public final class ChatSendQueueService {
     case .parseError, .commandFailed, .invalidResponse,
          .contactNotFound, .dataTooLarge, .signingFailed, .invalidInput,
          .unknown, .bluetoothUnavailable, .bluetoothUnauthorized,
-         .featureDisabled:
+         .featureDisabled, .preempted:
       return false
     }
   }

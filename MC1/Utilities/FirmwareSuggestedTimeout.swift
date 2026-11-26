@@ -36,15 +36,6 @@ enum FirmwareSuggestedTimeout {
   /// multi-hop return, so small hints still get a useful budget.
   static let pathDiscoveryMinimumOverallSeconds = 20.0
 
-  /// Retransmit spacing multiplier on firmware est. Companion holds one
-  /// `pending_discovery` tag and replaces it on each send; headroom 2 leaves
-  /// room for a first reply before the next resend.
-  static let pathDiscoveryRetransmitRTTHeadroom = 2
-
-  /// Minimum spacing between path-discovery resends. Flood is expensive; never
-  /// pace faster than this even when 2× est is shorter.
-  static let pathDiscoveryRetransmitFloor: Duration = .seconds(5)
-
   /// Scaled hint before clamping. Used for logging the raw estimate next to
   /// the value actually applied.
   static func candidateSeconds(suggestedTimeoutMs: UInt32) -> Double {
@@ -66,13 +57,5 @@ enum FirmwareSuggestedTimeout {
       pathDiscoveryMinimumOverallSeconds,
       sanitizedSeconds(suggestedTimeoutMs: suggestedTimeoutMs, profile: .flood)
     )
-  }
-
-  /// Spacing between path-discovery resends, or `nil` when firmware gave no
-  /// hint (single send for the whole budget).
-  static func pathDiscoveryRetransmitInterval(suggestedTimeoutMs: UInt32) -> Duration? {
-    guard suggestedTimeoutMs > 0 else { return nil }
-    let headed = Int(suggestedTimeoutMs) * pathDiscoveryRetransmitRTTHeadroom
-    return max(pathDiscoveryRetransmitFloor, .milliseconds(headed))
   }
 }

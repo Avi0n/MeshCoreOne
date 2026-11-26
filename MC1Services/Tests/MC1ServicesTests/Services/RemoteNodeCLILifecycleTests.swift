@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1Services
 import MeshCore
+import MeshCoreTestSupport
 import Testing
 
 @Suite("RemoteNodeService CLI lifecycle", .timeLimit(.minutes(1)))
@@ -118,14 +119,49 @@ struct RemoteNodeCLILifecycleTests {
   @Test
   func `Direct-to-Flood retry keeps its slot ahead of queued commands`() async throws {
     try await withHarness { harness in
-      try await harness.dataStore.saveContact(ContactDTO.testContact(
+      let contact = ContactDTO.testContact(
         radioID: harness.radioID, publicKey: Self.publicKey,
         typeRawValue: ContactType.repeater.rawValue, outPathLength: 1, outPath: Data([0x0A])
+      )
+      try await harness.dataStore.saveContact(contact)
+      await harness.session.seedRadioContact(MeshContact(
+        id: Self.publicKey.hexString,
+        publicKey: Self.publicKey,
+        type: .repeater,
+        flags: ContactFlags(rawValue: 0),
+        outPathLength: 1,
+        outPath: Data([0x0A]),
+        advertisedName: "Repeater",
+        lastAdvertisement: Date(timeIntervalSince1970: 1_700_000_000),
+        latitude: 0,
+        longitude: 0,
+        lastModified: Date(timeIntervalSince1970: 1_700_000_100)
       ))
       let remoteSession = RemoteNodeSessionDTO.testSession(
         radioID: harness.radioID, publicKey: Self.publicKey, role: .repeater, permissionLevel: .admin
       )
       try await harness.dataStore.saveRemoteNodeSessionDTO(remoteSession)
+      await harness.session.setRequestStatusResult(.success(StatusResponse(
+        publicKeyPrefix: Self.publicKey.prefix(6),
+        battery: 4000,
+        txQueueLength: 0,
+        noiseFloor: -100,
+        lastRSSI: -70,
+        packetsReceived: 1,
+        packetsSent: 1,
+        airtime: 1,
+        uptime: 10,
+        sentFlood: 0,
+        sentDirect: 0,
+        receivedFlood: 0,
+        receivedDirect: 0,
+        fullEvents: 0,
+        lastSNR: 8.0,
+        directDuplicates: 0,
+        floodDuplicates: 0,
+        rxAirtime: 1,
+        receiveErrors: 0
+      )))
       await harness.session.setSendCommandResult(.failure(MeshCoreError.timeout))
       await harness.session.setSendCommandHold { await harness.sendGate.wait() }
       let first = Task {
@@ -139,6 +175,11 @@ struct RemoteNodeCLILifecycleTests {
       await harness.session.setSendCommandHold(nil)
       await harness.session.setSendCommandResult(.success(Self.sentInfo))
       await harness.sendGate.release()
+
+      try await waitUntil("CLI recovery waits for reciprocalPathSettle") {
+        harness.clock.sleeperCount == 1 && harness.clock.nextSleepDuration == RemoteOperationTimeoutPolicy.reciprocalPathSettle
+      }
+      harness.clock.advance(by: RemoteOperationTimeoutPolicy.reciprocalPathSettle)
 
       try await harness.waitForSubmissions(2)
       #expect(await harness.commands == ["get name", "get name"])
@@ -157,8 +198,37 @@ struct RemoteNodeCLILifecycleTests {
     let radioID = UUID()
     let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
     let session = MockMeshCoreSession()
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
-    let harness = Harness(service: service, session: session, dataStore: dataStore, radioID: radioID)
+    let clock = TestClock()
+    let suiteName = "RemoteNodeCLILifecycle.\(UUID().uuidString)"
+    let setupDefaults = try #require(UserDefaults(suiteName: suiteName))
+    setupDefaults.removePersistentDomain(forName: suiteName)
+    defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
+    let contacts = try ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil,
+      clock: clock,
+      defaults: #require(UserDefaults(suiteName: suiteName))
+    )
+    let owner = ContactRadioOwner()
+    owner.bind(contacts)
+    let service = try RemoteNodeService(
+      session: session,
+      clock: clock,
+      dataStore: dataStore,
+      keychainService: KeychainService(),
+      contactRadioOwner: owner,
+      defaults: #require(UserDefaults(suiteName: suiteName))
+    )
+    let harness = Harness(
+      service: service,
+      contacts: contacts,
+      clock: clock,
+      session: session,
+      dataStore: dataStore,
+      radioID: radioID
+    )
     await service.startEventMonitoring()
     do {
       try await waitUntil("CLI event monitor should subscribe") { await session.eventSubscriptionCount == 1 }
@@ -172,6 +242,8 @@ struct RemoteNodeCLILifecycleTests {
 
   private struct Harness {
     let service: RemoteNodeService
+    let contacts: ContactService
+    let clock: TestClock
     let session: MockMeshCoreSession
     let dataStore: PersistenceStore
     let radioID: UUID

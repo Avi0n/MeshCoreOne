@@ -178,6 +178,28 @@ public enum CLIResponse: Sendable, Equatable {
     structuredQueries.contains(query)
   }
 
+  /// Read-only/idempotent CLI commands safe to retry once after route repair.
+  public static func isReadOnlyQuery(_ command: String) -> Bool {
+    let trimmed = command.trimmingCharacters(in: .whitespacesAndNewlines)
+    if structuredQueries.contains(trimmed) {
+      return true
+    }
+    switch trimmed {
+    case Query.version, Query.name, Query.ownerInfo, Query.clock, "sensor list":
+      return true
+    default:
+      if trimmed.hasPrefix("sensor list ") {
+        let offset = trimmed.dropFirst("sensor list ".count).trimmingCharacters(in: .whitespaces)
+        return Int(offset) != nil
+      }
+      if trimmed.hasPrefix("sensor get ") {
+        let key = trimmed.dropFirst("sensor get ".count).trimmingCharacters(in: .whitespaces)
+        return !key.isEmpty
+      }
+      return false
+    }
+  }
+
   /// Whether a reply is plausible for the given pending query. Replies to
   /// structured gets must parse to their typed case (or an error); everything
   /// else matches any text.

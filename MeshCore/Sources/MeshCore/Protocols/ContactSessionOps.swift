@@ -47,12 +47,13 @@ public protocol ContactSessionOps: Actor {
   /// - Throws: `MeshCoreError` if the path reset command fails.
   func resetPath(publicKey: Data) async throws
 
-  /// Sends a path discovery request to a contact.
-  ///
-  /// - Parameter destination: The contact's public key.
-  /// - Returns: A `MessageSentInfo` object containing information about the discovery request.
-  /// - Throws: `MeshCoreError` if the discovery request fails.
-  func sendPathDiscovery(to destination: Data) async throws -> MessageSentInfo
+  /// Discovers a path to a contact once and awaits its `PathInfo` reply.
+  func discoverPath(
+    to destination: Data,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> PathInfo
 
   /// Shares a contact via zero-hop broadcast.
   ///

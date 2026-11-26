@@ -162,7 +162,8 @@ public final class ServiceContainer {
     notificationService suppliedNotificationService: NotificationService? = nil,
     ackEvents: AsyncStream<MeshEvent>? = nil,
     messageConfig: MessageServiceConfig = .default,
-    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil }
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
+    onDeferredRouteRestore: (@Sendable (PendingRouteRestore) async -> Void)? = nil
   ) {
     self.session = session
     self.appStateProvider = appStateProvider
@@ -184,6 +185,7 @@ public final class ServiceContainer {
     let contactRadioOwner = ContactRadioOwner()
     remoteNodeService = RemoteNodeService(
       session: session,
+      clock: session.clock,
       dataStore: dataStore,
       keychainService: keychainService,
       contactRadioOwner: contactRadioOwner,
@@ -202,7 +204,9 @@ public final class ServiceContainer {
       session: session,
       dataStore: dataStore,
       syncCoordinator: syncCoordinator,
-      cleanupCoordinator: cleanupCoordinator
+      cleanupCoordinator: cleanupCoordinator,
+      clock: session.clock,
+      onDeferredRouteRestore: onDeferredRouteRestore
     )
     contactRadioOwner.bind(contactService)
     let plainTextSendGate = PlainTextSendGate()
@@ -274,15 +278,18 @@ public final class ServiceContainer {
     repeaterAdminService = RepeaterAdminService(
       session: session,
       remoteNodeService: remoteNodeService,
-      dataStore: dataStore
+      dataStore: dataStore,
+      radioID: radioID
     )
     roomAdminService = RoomAdminService(
       remoteNodeService: remoteNodeService,
-      dataStore: dataStore
+      dataStore: dataStore,
+      radioID: radioID
     )
     roomServerService = RoomServerService(
       session: session,
       remoteNodeService: remoteNodeService,
+      contactService: contactService,
       dataStore: dataStore,
       radioID: radioID,
       plainTextSendGate: plainTextSendGate,

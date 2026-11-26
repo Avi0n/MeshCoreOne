@@ -12,7 +12,7 @@ struct MMARequestTests {
     let before = Date()
     let start = before.addingTimeInterval(-3600)
     let end = before.addingTimeInterval(-60)
-    let request = Task { try await session.requestMMA(from: publicKey, start: start, end: end) }
+    let request = Task { try await session.requestMMA(from: publicKey, start: start, end: end, priority: .interactive) }
     let sent = try await nextCommand(transport)
     let after = Date()
 
@@ -42,7 +42,12 @@ struct MMARequestTests {
     let transport = MockTransport()
     let session = try await startedSession(transport)
     let request = Task {
-      try await session.requestMMA(from: Data(repeating: 0x42, count: 32), start: .distantPast, end: Date().addingTimeInterval(60))
+      try await session.requestMMA(
+        from: Data(repeating: 0x42, count: 32),
+        start: .distantPast,
+        end: Date().addingTimeInterval(60),
+        priority: .interactive
+      )
     }
     let sent = try await nextCommand(transport)
     #expect(sent.readUInt32LE(at: 34) == UInt32.max)

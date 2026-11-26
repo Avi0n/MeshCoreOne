@@ -58,8 +58,6 @@ struct NodeAuthenticationSourcePresentationTests {
       logger.notice("MC1NodeAuthUISmoke connect-ready mode=\(mode.rawValue, privacy: .public): tap actual Connect once")
       if mode.isHeld {
         try await waitUntil { await env.wifi.heldLoginResultCount > 0 }
-        let originalLoginEntered = await vault.pendingLoginCount == 1
-        try #require(originalLoginEntered)
         #expect(successes == 0)
         logger.notice("MC1NodeAuthUISmoke admitted mode=\(mode.rawValue, privacy: .public)")
         if mode == .heldSamePartition {
@@ -70,8 +68,6 @@ struct NodeAuthenticationSourcePresentationTests {
         let expectedPartition = live?.device.radioID == (mode == .heldSamePartition ? original.device.radioID : ghost.radioID)
         #expect(replacedGeneration)
         #expect(expectedPartition)
-        let pendingWasRetired = await vault.pendingLoginCount == 0
-        #expect(pendingWasRetired)
         let replacementStart = await env.wifi.sentData.count
         await env.wifi.releaseLoginResults()
         let settledCountdown = countdown(in: harness.window)
@@ -80,7 +76,7 @@ struct NodeAuthenticationSourcePresentationTests {
         let noLateCountdownUpdate = laterCountdown == settledCountdown
         #expect(noLateCountdownUpdate)
         let staleErrorVisible = visible(RemoteNodeError.cancelled.userFacingMessage, on: harness)
-          || visible(L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut, on: harness)
+          || visible(L10n.RemoteNodes.RemoteNodes.Auth.noReply, on: harness)
         #expect(staleErrorVisible == false)
         #expect(successes == 0)
         let replacementFrames = await env.wifi.sentData.dropFirst(replacementStart)

@@ -97,7 +97,7 @@ struct ConnectionManagerMembershipTests {
         harness.manager.currentConnection == nil && harness.manager.connectionTeardownCount == 0
           && harness.manager.membershipBatch?.id != firstBatch.id
       }
-      #expect(await firstServices.remoteNodeService.pendingLoginCount == 0)
+      #expect(await firstServices.remoteNodeService.isRetired)
       await harness.bluetooth.releaseLoginResults()
       await harness.bluetooth.holdLoginResults()
       let loginCountBeforeRebuild = await loginDestinations(harness.bluetooth).count

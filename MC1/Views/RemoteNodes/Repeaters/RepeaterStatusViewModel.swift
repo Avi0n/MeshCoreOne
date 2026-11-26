@@ -171,8 +171,8 @@ final class RepeaterStatusViewModel {
       operationName: "status",
       setLoading: { self.helper.isLoadingStatus = $0 },
       setError: { self.helper.statusSectionError = $0 },
-      operation: { [repeaterAdminService] timeout in
-        try await repeaterAdminService.requestStatus(sessionID: session.id, timeout: timeout)
+      operation: { [repeaterAdminService] _ in
+        try await repeaterAdminService.requestStatus(sessionID: session.id, priority: .interactive)
       },
       onSuccess: { [ticket] response in
         guard ticket.isCurrent(in: self.statusEpoch) else { return }
@@ -211,7 +211,11 @@ final class RepeaterStatusViewModel {
       setLoading: { self.isLoadingNeighbors = $0 },
       setError: { self.neighborsSectionError = $0 },
       operation: { [repeaterAdminService] timeout in
-        try await repeaterAdminService.fetchAllNeighbors(sessionID: session.id, timeout: timeout)
+        try await repeaterAdminService.fetchAllNeighbors(
+          sessionID: session.id,
+          priority: .interactive,
+          timeout: timeout
+        )
       },
       onSuccess: { await self.handleNeighboursResponse($0) }
     )
@@ -324,8 +328,8 @@ final class RepeaterStatusViewModel {
       operationName: "telemetry",
       setLoading: { self.helper.isLoadingTelemetry = $0 },
       setError: { self.helper.telemetrySectionError = $0 },
-      operation: { [repeaterAdminService] timeout in
-        try await repeaterAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
+      operation: { [repeaterAdminService] _ in
+        try await repeaterAdminService.requestTelemetry(sessionID: session.id, priority: .interactive)
       },
       onSuccess: { await self.helper.handleTelemetryResponse($0) }
     )
@@ -341,8 +345,8 @@ final class RepeaterStatusViewModel {
       operationName: "ownerInfo",
       setLoading: { self.isLoadingOwnerInfo = $0 },
       setError: { self.ownerInfoError = $0 },
-      operation: { [repeaterAdminService] timeout in
-        try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, timeout: timeout)
+      operation: { [repeaterAdminService] _ in
+        try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, priority: .interactive)
       },
       onSuccess: { self.applyOwnerInfo($0) }
     )

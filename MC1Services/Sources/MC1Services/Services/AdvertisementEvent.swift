@@ -26,10 +26,6 @@ public enum AdvertisementEvent: Sendable {
   case nodeStorageFullChanged(isFull: Bool)
   /// Overwrite-oldest deletions. Observers drop notifications and refresh the badge.
   case contactDeletedCleanup(contactIDs: [UUID])
-  /// A path discovery response arrived for a contact.
-  case pathDiscoveryResponse(PathInfo)
-  /// The radio rejected a decodable out path from a path discovery response.
-  case pathDiscoveryWriteFailed(PathInfo, ContactServiceError)
   /// A trace response arrived; `traceInfo.tag` correlates it with the
   /// trace that requested it.
   case traceResponse(traceInfo: TraceInfo, radioID: UUID)

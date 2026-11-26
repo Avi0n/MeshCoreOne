@@ -3,30 +3,20 @@ import Foundation
 /// Session operations for authenticated access to remote nodes (room servers
 /// and repeaters): login, commands, keep-alive, and remote queries.
 public protocol RemoteAccessSessionOps: Actor {
-  /// Sends a login request to a remote node.
-  ///
-  /// - Parameters:
-  ///   - destination: The node's public key (6+ bytes).
-  ///   - password: The authentication password.
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: `MeshCoreError` if the device doesn't respond.
-  func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo
+  /// Authenticates with a remote node and awaits its reply through the mesh request gate.
+  func login(
+    to destination: Data,
+    password: String,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?,
+    samePasswordExemption: Bool
+  ) async throws -> LoginExchangeResult
 
   /// Sends a logout request to a remote node.
-  ///
-  /// - Parameter destination: The node's public key (6+ bytes).
-  /// - Throws: `MeshCoreError` on timeout or device error.
   func sendLogout(to destination: Data) async throws
 
   /// Sends a command message to a remote node.
-  ///
-  /// - Parameters:
-  ///   - destination: The destination public key (6+ bytes, uses first 6 as prefix).
-  ///   - command: The command string to send.
-  ///   - textType: `.cliData` for a repeater or room, or `.cliCommand` for a contact's radio.
-  ///   - timestamp: Message timestamp.
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: `MeshCoreError` if the device doesn't respond.
   func sendCommand(
     to destination: Data,
     command: String,
@@ -42,68 +32,28 @@ public protocol RemoteAccessSessionOps: Actor {
   ) async throws -> MessageSentInfo
 
   /// Requests owner information from a repeater using the binary protocol.
-  ///
-  /// - Parameter publicKey: The full 32-byte public key of the repeater.
-  /// - Returns: An ``OwnerInfoResponse`` containing firmware version, node name, and owner info.
-  /// - Throws: `MeshCoreError` on timeout or device error.
-  func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse
+  func requestOwnerInfo(from publicKey: Data, priority: MeshRequestPriority) async throws -> OwnerInfoResponse
 
   /// Requests status information from a remote node.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - type: The target node type used to choose the correct firmware status layout.
-  /// - Returns: A status response containing battery, uptime, and other metrics.
-  /// - Throws: `MeshCoreError` on timeout, device error, or unexpected response.
-  func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse
+  func requestStatus(from publicKey: Data, type: ContactType, priority: MeshRequestPriority) async throws -> StatusResponse
 
   /// Requests telemetry data from a remote node using the binary protocol.
-  ///
-  /// - Parameter publicKey: The full 32-byte public key of the remote node.
-  /// - Returns: Telemetry response containing sensor data and device status.
-  /// - Throws: `MeshCoreError` on timeout, device error, or unexpected response.
-  func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse
+  func requestTelemetry(from publicKey: Data, priority: MeshRequestPriority) async throws -> TelemetryResponse
 
   /// Requests the neighbor list from a remote node.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - count: Maximum number of neighbors to return.
-  ///   - offset: Starting offset for pagination.
-  ///   - orderBy: Sort order (0 = by RSSI).
-  ///   - pubkeyPrefixLength: Length of public key prefix to include.
-  /// - Returns: Neighbors response containing the list of adjacent nodes.
-  /// - Throws: `MeshCoreError` on timeout or device error.
   func requestNeighbours(
     from publicKey: Data,
     count: UInt8,
     offset: UInt16,
     orderBy: UInt8,
-    pubkeyPrefixLength: UInt8
+    pubkeyPrefixLength: UInt8,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse
 
-  /// Returns one message at a time from the device's message queue. Call repeatedly
-  /// until ``MessageResult/noMoreMessages`` is returned to drain the queue.
-  ///
-  /// - Parameter timeout: Optional timeout override in seconds. Uses the session's default timeout when `nil`.
-  /// - Returns: A ``MessageResult`` containing the fetched message, if any.
-  /// - Throws: `MeshCoreError` if the fetch fails.
+  /// Returns one message at a time from the device's message queue.
   func getMessage(timeout: TimeInterval?) async throws -> MessageResult
 
   /// Sends a message with automatic retry logic and optional path reset.
-  ///
-  /// - Parameters:
-  ///   - destination: The full 32-byte public key of the recipient.
-  ///   - text: The message text to send.
-  ///   - timestamp: The message timestamp.
-  ///   - maxAttempts: The maximum number of total attempts to make.
-  ///   - floodAfter: The number of failed attempts after which to reset the path to flood.
-  ///   - maxFloodAttempts: The maximum number of attempts to make while in flood mode.
-  ///   - timeout: The acknowledgment timeout per attempt. If `nil`, uses the suggested
-  ///              timeout provided by the device.
-  /// - Returns: Information about the sent message if an acknowledgment was received,
-  ///            otherwise `nil` if all attempts failed.
-  /// - Throws: `MeshCoreError/invalidInput` if the destination key is not 32 bytes.
   func sendMessageWithRetry(
     to destination: Data,
     text: String,
@@ -114,12 +64,13 @@ public protocol RemoteAccessSessionOps: Actor {
     timeout: TimeInterval?
   ) async throws -> MessageSentInfo?
 
-  /// Initiates path discovery to a remote node.
-  ///
-  /// - Parameter destination: The node's public key (6+ bytes).
-  /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: `MeshCoreError` if the device doesn't respond.
-  func sendPathDiscovery(to destination: Data) async throws -> MessageSentInfo
+  /// Discovers a path to a remote node once and awaits its `PathInfo` reply.
+  func discoverPath(
+    to destination: Data,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> PathInfo
 }
 
 // MARK: - Default Implementations

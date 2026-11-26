@@ -153,7 +153,7 @@ struct ConnectionStateTests {
     )
 
     await #expect(throws: MeshCoreError.self) {
-      _ = try await session.requestStatus(from: Data(repeating: 0xBB, count: 31))
+      _ = try await session.requestStatus(from: Data(repeating: 0xBB, count: 31), priority: .interactive)
     }
 
     #expect(await transport.sentData.isEmpty)

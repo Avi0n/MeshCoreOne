@@ -1,18 +1,19 @@
 import Foundation
 @testable import MC1Services
 import MeshCore
+import MeshCoreTestSupport
 import Testing
 
-/// Binary admin waits use `performBinaryExchange` and do not reset the contact path on timeout.
-/// No-reply CLI skips recovery. Other CLI still uses `performWithDirectPathFloodRecovery`.
-@Suite("RemoteNodeService binary admin path policy")
+@Suite("RemoteNodeService binary admin and CLI path recovery")
 struct RemoteNodePathRecoveryTests {
   private static let publicKey = Data(repeating: 0xCD, count: 32)
   private static let directPath = Data([0x0A, 0x0B, 0x0C])
 
-  private final class Harness {
+  private final class Harness: @unchecked Sendable {
     let service: RemoteNodeService
+    let contacts: ContactService
     let session: MockMeshCoreSession
+    let clock: TestClock
     let dataStore: PersistenceStore
     let sessionID: UUID
     let radioID: UUID
@@ -20,14 +21,18 @@ struct RemoteNodePathRecoveryTests {
 
     init(
       service: RemoteNodeService,
+      contacts: ContactService,
       session: MockMeshCoreSession,
+      clock: TestClock,
       dataStore: PersistenceStore,
       sessionID: UUID,
       radioID: UUID,
       defaultsSuiteName: String
     ) {
       self.service = service
+      self.contacts = contacts
       self.session = session
+      self.clock = clock
       self.dataStore = dataStore
       self.sessionID = sessionID
       self.radioID = radioID
@@ -45,7 +50,7 @@ struct RemoteNodePathRecoveryTests {
     fallbackEnabled: Bool? = nil
   ) async throws -> Harness {
     let suiteName = "RemoteNodePathRecovery.\(UUID().uuidString)"
-    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
     defaults.removePersistentDomain(forName: suiteName)
     if let fallbackEnabled {
       defaults.set(fallbackEnabled, forKey: AppStorageKey.remoteFloodFallback.rawValue)
@@ -72,15 +77,44 @@ struct RemoteNodePathRecoveryTests {
       try await dataStore.saveRemoteNodeSessionDTO(remoteSession)
 
       let session = MockMeshCoreSession()
-      let service = RemoteNodeService(
+      await session.seedRadioContact(MeshContact(
+        id: Self.publicKey.hexString,
+        publicKey: Self.publicKey,
+        type: .repeater,
+        flags: ContactFlags(rawValue: 0),
+        outPathLength: outPathLength,
+        outPath: outPath,
+        advertisedName: "Repeater",
+        lastAdvertisement: Date(timeIntervalSince1970: 1_700_000_000),
+        latitude: 0,
+        longitude: 0,
+        lastModified: Date(timeIntervalSince1970: 1_700_000_100)
+      ))
+
+      let clock = TestClock()
+      let contacts = ContactService(
         session: session,
         dataStore: dataStore,
+        syncCoordinator: nil,
+        cleanupCoordinator: nil,
+        clock: clock,
+        defaults: defaults
+      )
+      let owner = ContactRadioOwner()
+      owner.bind(contacts)
+      let service = RemoteNodeService(
+        session: session,
+        clock: clock,
+        dataStore: dataStore,
         keychainService: KeychainService(),
+        contactRadioOwner: owner,
         defaults: defaults
       )
       return Harness(
         service: service,
+        contacts: contacts,
         session: session,
+        clock: clock,
         dataStore: dataStore,
         sessionID: remoteSession.id,
         radioID: radioID,
@@ -122,7 +156,7 @@ struct RemoteNodePathRecoveryTests {
     await harness.session.setRequestStatusResult(.failure(MeshCoreError.timeout))
 
     await #expect(throws: RemoteNodeError.self) {
-      _ = try await harness.service.requestStatus(sessionID: harness.sessionID, timeout: .seconds(5))
+      _ = try await harness.service.requestStatus(sessionID: harness.sessionID, priority: .interactive)
     }
     #expect(await harness.session.resetPathPublicKeys.isEmpty)
 
@@ -144,7 +178,7 @@ struct RemoteNodePathRecoveryTests {
 
     for _ in 0..<3 {
       await #expect(throws: RemoteNodeError.self) {
-        _ = try await harness.service.requestStatus(sessionID: harness.sessionID, timeout: .seconds(5))
+        _ = try await harness.service.requestStatus(sessionID: harness.sessionID, priority: .interactive)
       }
     }
     #expect(await harness.session.resetPathPublicKeys.isEmpty)
@@ -157,7 +191,7 @@ struct RemoteNodePathRecoveryTests {
 
     let response = try await harness.service.requestStatus(
       sessionID: harness.sessionID,
-      timeout: .seconds(5)
+      priority: .interactive
     )
     #expect(response.battery == 4100)
     #expect(await harness.session.resetPathPublicKeys.isEmpty)
@@ -171,7 +205,7 @@ struct RemoteNodePathRecoveryTests {
     let error = await #expect(throws: RemoteNodeError.self) {
       _ = try await harness.service.requestStatus(
         sessionID: harness.sessionID,
-        timeout: .seconds(5)
+        priority: .interactive
       )
     }
     guard case .timeout? = error else {
@@ -187,7 +221,7 @@ struct RemoteNodePathRecoveryTests {
     await harness.session.setRequestTelemetryResults([.failure(MeshCoreError.timeout)])
 
     await #expect(throws: RemoteNodeError.self) {
-      _ = try await harness.service.requestTelemetry(sessionID: harness.sessionID, timeout: .seconds(5))
+      _ = try await harness.service.requestTelemetry(sessionID: harness.sessionID, priority: .interactive)
     }
     #expect(await harness.session.resetPathPublicKeys.isEmpty)
   }
@@ -218,18 +252,43 @@ struct RemoteNodePathRecoveryTests {
   }
 
   @Test
-  func `a normal command that times out resets the path and resends once`() async throws {
+  func `a read-only query that times out repairs path via probe, pauses settle, and retries`() async throws {
     let harness = try await makeHarness(outPathLength: 3, outPath: Self.directPath)
+    await harness.session.setRequestStatusResult(.success(makeStatusResponse()))
+    await harness.service.startEventMonitoring()
 
-    await #expect(throws: RemoteNodeError.self) {
-      _ = try await harness.service.sendRawCLICommand(
+    let task = Task {
+      try await harness.service.sendRawCLICommand(
         sessionID: harness.sessionID,
         command: "get name",
         timeout: .milliseconds(1)
       )
     }
-    #expect(await harness.session.sendCommandInvocations.count == 2)
+
+    try await waitUntil("service pauses for reciprocalPathSettle") {
+      harness.clock.sleeperCount == 1 && harness.clock.nextSleepDuration == RemoteOperationTimeoutPolicy.reciprocalPathSettle
+    }
+    harness.clock.advance(by: RemoteOperationTimeoutPolicy.reciprocalPathSettle)
+
+    try await waitUntil("retry CLI command is sent") {
+      await harness.session.sendCommandInvocations.count == 2
+    }
+    let command = await harness.session.sendCommandInvocations[1].command
+    let prefix = try #require(CLIResponse.splitEchoedPrefix(command)?.prefix)
+    await harness.session.yieldEvent(.contactMessageReceived(ContactMessage(
+      senderPublicKeyPrefix: Self.publicKey.prefix(6),
+      pathLength: 0,
+      textType: 1,
+      senderTimestamp: Date(),
+      signature: nil,
+      text: prefix + "MyRepeater",
+      snr: nil
+    )))
+
+    #expect(try await task.value == "MyRepeater")
     #expect(await harness.session.resetPathPublicKeys == [Self.publicKey])
+    #expect(await harness.session.requestStatusPriorities == [.interactive])
+    await harness.service.retire()
   }
 
   @Test
@@ -263,7 +322,7 @@ struct RemoteNodePathRecoveryTests {
     await harness.session.setRequestOwnerInfoResults([.failure(MeshCoreError.timeout)])
 
     await #expect(throws: RemoteNodeError.self) {
-      _ = try await harness.service.requestOwnerInfo(sessionID: harness.sessionID, timeout: .seconds(5))
+      _ = try await harness.service.requestOwnerInfo(sessionID: harness.sessionID, priority: .interactive)
     }
     #expect(await harness.session.resetPathPublicKeys.isEmpty)
   }

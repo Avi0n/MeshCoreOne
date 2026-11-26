@@ -13,8 +13,12 @@ public protocol RoomPersisting: Actor {
   /// Fetch a remote node session by 6-byte public key prefix
   func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO?
 
+  func fetchRemoteNodeSession(radioID: UUID, publicKeyPrefix prefix: Data) async throws -> RemoteNodeSessionDTO?
+
   /// Fetch all remote node sessions for a device
   func fetchRemoteNodeSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO]
+
+  func disconnectAllRemoteNodeSessions(radioID: UUID) async throws
 
   /// Fetch all connected sessions for re-authentication after BLE reconnection
   func fetchConnectedRemoteNodeSessions() async throws -> [RemoteNodeSessionDTO]

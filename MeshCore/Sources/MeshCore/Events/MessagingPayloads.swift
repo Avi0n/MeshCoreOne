@@ -5,12 +5,19 @@ import Foundation
 /// This struct is returned by message-sending methods and contains information
 /// needed to wait for delivery acknowledgement.
 public struct MessageSentInfo: Sendable, Equatable {
+  /// Firmware `route` value indicating flood routing.
+  public static let floodRoute: UInt8 = 1
+
   /// Route flag from the firmware: 1 = flood, 0 = direct.
   public let route: UInt8
   /// The expected acknowledgement data for correlation.
   public let expectedAck: Data
   /// The suggested timeout in milliseconds to wait for acknowledgement.
   public let suggestedTimeoutMs: UInt32
+
+  public var isFloodRoute: Bool {
+    route == Self.floodRoute
+  }
 
   /// Initializes a new message sent information object.
   ///

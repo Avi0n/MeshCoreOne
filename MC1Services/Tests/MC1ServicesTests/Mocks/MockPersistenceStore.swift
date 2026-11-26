@@ -2079,6 +2079,37 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     remoteNodeSessions.values.first { $0.publicKey.prefix(6) == prefix }
   }
 
+  public func fetchRemoteNodeSession(radioID: UUID, publicKeyPrefix prefix: Data) async throws -> RemoteNodeSessionDTO? {
+    remoteNodeSessions.values.first { $0.radioID == radioID && $0.publicKey.prefix(6) == prefix }
+  }
+
+  public func disconnectAllRemoteNodeSessions(radioID: UUID) async throws {
+    for (id, session) in remoteNodeSessions where session.radioID == radioID && session.isConnected {
+      remoteNodeSessions[id] = RemoteNodeSessionDTO(
+        id: session.id,
+        radioID: session.radioID,
+        publicKey: session.publicKey,
+        name: session.name,
+        role: session.role,
+        latitude: session.latitude,
+        longitude: session.longitude,
+        isConnected: false,
+        permissionLevel: session.permissionLevel,
+        lastConnectedDate: session.lastConnectedDate,
+        lastBatteryMillivolts: session.lastBatteryMillivolts,
+        lastUptimeSeconds: session.lastUptimeSeconds,
+        lastNoiseFloor: session.lastNoiseFloor,
+        unreadCount: session.unreadCount,
+        notificationLevel: session.notificationLevel,
+        isPinned: session.isPinned,
+        lastRxAirtimeSeconds: session.lastRxAirtimeSeconds,
+        neighborCount: session.neighborCount,
+        lastSyncTimestamp: session.lastSyncTimestamp,
+        lastMessageDate: session.lastMessageDate
+      )
+    }
+  }
+
   public func fetchRemoteNodeSessions(radioID: UUID) async throws -> [RemoteNodeSessionDTO] {
     remoteNodeSessions.values.filter { $0.radioID == radioID }
   }

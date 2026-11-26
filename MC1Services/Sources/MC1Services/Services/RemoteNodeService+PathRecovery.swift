@@ -4,43 +4,57 @@ import MeshCore
 extension RemoteNodeService {
   // MARK: - Direct-path flood recovery
 
-  /// On a direct-path mesh timeout, reset to flood and retry once when path fallback is on.
-  /// A failed reset rethrows the original timeout. Binary admin waits use `performBinaryExchange`.
+  /// Probes over flood on direct-path CLI timeout inside `attemptFloodFallback`; settles
+  /// `reciprocalPathSettle` and retries once only for read-only queries.
   func performWithDirectPathFloodRecovery<T: Sendable>(
     radioID: UUID,
     publicKey: Data,
+    isSensor: Bool,
+    isRoom: Bool,
+    isReadOnlyQuery: Bool,
     operationName: String,
     operation: () async throws -> T
   ) async throws -> T {
     do {
       return try await operation()
     } catch {
-      guard Self.isMeshTimeout(error), await isDirectRouted(radioID: radioID, publicKey: publicKey),
-            RemoteFloodFallback.isEnabled(defaults: defaults) else {
+      guard Self.isMeshTimeout(error),
+            let owner = contactRadioOwner.resolve() else {
         throw error
       }
 
       let firstTimeout = error
-      logger.info("\(operationName): direct-path timeout; resetting path to flood and retrying once")
+      logger.info("\(operationName): direct-path timeout; probing via flood fallback")
       do {
-        try await resetContactPathToFlood(radioID: radioID, publicKey: publicKey)
+        try await owner.attemptFloodFallback(
+          radioID: radioID,
+          publicKey: publicKey,
+          rethrowIfUnavailable: firstTimeout
+        ) {
+          if isSensor {
+            _ = try await self.session.requestTelemetry(from: publicKey, priority: .interactive)
+          } else {
+            let contactType: ContactType = isRoom ? .room : .repeater
+            _ = try await self.session.requestStatus(
+              from: publicKey,
+              type: contactType,
+              priority: .interactive
+            )
+          }
+        }
       } catch is CancellationError {
         throw CancellationError()
       } catch {
-        logger.warning(
-          "\(operationName): path reset failed (\(error.localizedDescription)); not retrying"
-        )
         throw firstTimeout
       }
 
-      do {
-        return try await operation()
-      } catch {
-        if Self.isMeshTimeout(error) {
-          logger.warning("\(operationName): flood retry also timed out")
-        }
-        throw error
+      try await clock.sleep(for: RemoteOperationTimeoutPolicy.reciprocalPathSettle)
+      guard isReadOnlyQuery else {
+        logger.info("\(operationName): route repaired; not retrying non-read-only CLI command")
+        throw RemoteNodeError.timeout
       }
+
+      return try await operation()
     }
   }
 
@@ -53,29 +67,5 @@ extension RemoteNodeService {
       return true
     }
     return false
-  }
-
-  /// True when the local contact is not flood-routed. Missing contacts count as
-  /// direct so `resetPath` can still clear a radio-side path.
-  private func isDirectRouted(radioID: UUID, publicKey: Data) async -> Bool {
-    guard let contact = try? await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
-      return true
-    }
-    return !contact.isFloodRouted
-  }
-
-  /// Clears the companion out-path via `resetPath` and mirrors flood on the local contact.
-  private func resetContactPathToFlood(radioID: UUID, publicKey: Data) async throws {
-    if let owner = contactRadioOwner.resolve() {
-      try await owner.resetPath(radioID: radioID, publicKey: publicKey)
-      return
-    }
-    try await session.resetPath(publicKey: publicKey)
-    _ = try? await dataStore.updateContactRoute(
-      radioID: radioID,
-      publicKey: publicKey,
-      outPathLength: PacketBuilder.floodPathSentinel,
-      outPath: Data()
-    )
   }
 }

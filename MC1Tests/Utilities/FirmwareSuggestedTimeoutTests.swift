@@ -95,15 +95,4 @@ struct FirmwareSuggestedTimeoutTests {
     let timeout = FirmwareSuggestedTimeout.pathDiscoverySeconds(suggestedTimeoutMs: 0)
     #expect(timeout == 30.0)
   }
-
-  @Test
-  func `Path discovery retransmit interval uses double firmware est with a five second floor`() {
-    #expect(FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(suggestedTimeoutMs: 0) == nil)
-    #expect(
-      FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(suggestedTimeoutMs: 1000) == .seconds(5)
-    )
-    #expect(
-      FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(suggestedTimeoutMs: 5000) == .seconds(10)
-    )
-  }
 }

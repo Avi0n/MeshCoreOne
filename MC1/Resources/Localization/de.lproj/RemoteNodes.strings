@@ -89,6 +89,12 @@
 /* Location: NodeAuthenticationSheet.swift - Accessibility announcement for countdown */
 "remoteNodes.auth.secondsRemainingAnnouncement" = "%d Sekunden verbleibend";
 
+/* TODO: translate - Error shown when authentication times out without a reply */
+"remoteNodes.auth.noReply" = "No reply. Check the password, or the node may be out of range.";
+
+/* TODO: translate - Status shown while waiting for the radio to accept a login request */
+"remoteNodes.auth.waitingForRadio" = "Waiting for the radio…";
+
 // MARK: - Repeater Settings
 
 /* Location: RepeaterSettingsView.swift - Navigation title */

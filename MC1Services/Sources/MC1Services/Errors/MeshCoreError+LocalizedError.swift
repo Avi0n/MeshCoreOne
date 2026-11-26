@@ -44,6 +44,8 @@ extension MeshCoreError: @retroactive LocalizedError {
       "Session has not been started."
     case .featureDisabled:
       "This feature is disabled on the device."
+    case .preempted:
+      "The background request was preempted by a higher-priority operation."
     }
   }
 

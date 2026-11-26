@@ -13,6 +13,7 @@ public extension RemoteNodeService {
     rememberPassword: Bool,
     requireAdmin: Bool,
     pathLength: UInt8,
+    samePasswordExemption: Bool = false,
     onTimeoutKnown: (@Sendable (Int) async -> Void)?
   ) async throws -> RemoteNodeSessionDTO {
     guard contact.type == .sensor, radioID == contact.radioID else { throw RemoteNodeError.invalidResponse }
@@ -26,7 +27,12 @@ public extension RemoteNodeService {
     do {
       guard sensorConnectAttempts[contact.id] == attemptID, !isRetired else { throw RemoteNodeError.cancelled }
       let result = try await login(
-        sessionID: created.id, password: password, pathLength: pathLength, onTimeoutKnown: onTimeoutKnown
+        sessionID: created.id,
+        password: password,
+        priority: .interactive,
+        pathLength: pathLength,
+        samePasswordExemption: samePasswordExemption,
+        onTimeoutKnown: onTimeoutKnown
       )
       try Task.checkCancellation()
       guard sensorConnectAttempts[contact.id] == attemptID, !isRetired else { throw RemoteNodeError.cancelled }
@@ -35,10 +41,12 @@ public extension RemoteNodeService {
             updated.isSensor, updated.isConnected else { throw RemoteNodeError.notConnected }
       try Task.checkCancellation()
       guard sensorConnectAttempts[contact.id] == attemptID, !isRetired else { throw RemoteNodeError.cancelled }
-      if rememberPassword, let password {
-        try await keychainService.storePassword(password, forNodeKey: contact.publicKey)
-      } else if !rememberPassword {
-        try await keychainService.deletePassword(forNodeKey: contact.publicKey)
+      if !result.mayAnswerEarlierLogin {
+        if rememberPassword, let password {
+          try await keychainService.storePassword(password, forNodeKey: contact.publicKey)
+        } else if !rememberPassword {
+          try await keychainService.deletePassword(forNodeKey: contact.publicKey)
+        }
       }
       try Task.checkCancellation()
       guard sensorConnectAttempts[contact.id] == attemptID, !isRetired else { throw RemoteNodeError.cancelled }

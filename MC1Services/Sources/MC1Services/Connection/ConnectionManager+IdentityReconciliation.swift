@@ -21,6 +21,11 @@ extension ConnectionManager {
       await testIdentityAfterCommit?()
     #endif
     await transferRadioWiFiEvidence(from: receipt.originalRadioID, to: imported.radioID)
+    remapPendingRouteRestores(from: receipt.originalRadioID, to: imported.radioID)
+    try? await store.disconnectAllRemoteNodeSessions(radioID: receipt.originalRadioID)
+    if imported.radioID != receipt.originalRadioID {
+      try? await store.disconnectAllRemoteNodeSessions(radioID: imported.radioID)
+    }
     consumeIdentityReceipt(receipt)
     if receipt.originalPublicKey != selfInfo.publicKey {
       await dropStaleVContact(dataStore: store, radioID: receipt.originalRadioID, oldSelfPublicKey: receipt.originalPublicKey)

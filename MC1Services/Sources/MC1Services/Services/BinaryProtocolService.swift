@@ -129,9 +129,12 @@ public actor BinaryProtocolService {
   /// Request status from a remote node (blocking, waits for response)
   /// - Parameter publicKey: The remote node's full 32-byte public key
   /// - Returns: StatusResponse with device stats
-  public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
+  public func requestStatus(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> StatusResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "status") {
-      try await self.session.requestStatus(from: publicKey)
+      try await self.session.requestStatus(from: publicKey, priority: priority)
     }
   }
 
@@ -142,10 +145,11 @@ public actor BinaryProtocolService {
   /// - Returns: StatusResponse with device stats
   public func requestStatus(
     from publicKey: Data,
-    type: ContactType
+    type: ContactType,
+    priority: MeshRequestPriority
   ) async throws -> StatusResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "status") {
-      try await self.session.requestStatus(from: publicKey, type: type)
+      try await self.session.requestStatus(from: publicKey, type: type, priority: priority)
     }
   }
 
@@ -154,9 +158,12 @@ public actor BinaryProtocolService {
   /// Request telemetry from a remote node (blocking, waits for response)
   /// - Parameter publicKey: The remote node's public key (full or prefix)
   /// - Returns: TelemetryResponse with sensor data
-  public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
+  public func requestTelemetry(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> TelemetryResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "telemetry") {
-      try await self.session.requestTelemetry(from: publicKey)
+      try await self.session.requestTelemetry(from: publicKey, priority: priority)
     }
   }
 
@@ -179,7 +186,8 @@ public actor BinaryProtocolService {
     count: UInt8 = 255,
     offset: UInt16 = 0,
     orderBy: UInt8 = 0,
-    pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength
+    pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "neighbours") {
       try await self.session.requestNeighbours(
@@ -187,7 +195,8 @@ public actor BinaryProtocolService {
         count: count,
         offset: offset,
         orderBy: orderBy,
-        pubkeyPrefixLength: pubkeyPrefixLength
+        pubkeyPrefixLength: pubkeyPrefixLength,
+        priority: priority
       )
     }
   }
@@ -201,13 +210,15 @@ public actor BinaryProtocolService {
   public func fetchAllNeighbours(
     from publicKey: Data,
     orderBy: UInt8 = 0,
-    pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength
+    pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "neighbours") {
       try await self.session.fetchAllNeighbours(
         from: publicKey,
         orderBy: orderBy,
-        pubkeyPrefixLength: pubkeyPrefixLength
+        pubkeyPrefixLength: pubkeyPrefixLength,
+        priority: priority
       )
     }
   }
@@ -223,47 +234,42 @@ public actor BinaryProtocolService {
   public func requestMMA(
     from publicKey: Data,
     start: Date,
-    end: Date
+    end: Date,
+    priority: MeshRequestPriority
   ) async throws -> MMAResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "mma") {
-      try await self.session.requestMMA(from: publicKey, start: start, end: end)
+      try await self.session.requestMMA(from: publicKey, start: start, end: end, priority: priority)
     }
   }
 
   // MARK: - Direct-path flood recovery
 
-  /// On mesh timeout, calls `resetPath` and retries once when path fallback is on.
-  /// This path has no radio-scoped contact to check for flood routing.
+  /// Repairs via `attemptFloodFallback` on mesh timeout and restores the pre-fallback path if needed.
   private func performWithPathResetOnTimeout<T: Sendable>(
     publicKey: Data,
     operationName: String,
-    operation: () async throws -> T
+    operation: @Sendable () async throws -> T
   ) async throws -> T {
     do {
       return try await operation()
     } catch let error as MeshCoreError {
       guard case .timeout = error else { throw BinaryProtocolError.sessionError(error) }
-      guard RemoteFloodFallback.isEnabled(defaults: defaults) else {
-        throw BinaryProtocolError.sessionError(error)
-      }
-      logger.info(
-        "\(operationName): mesh timeout; resetting path to flood and retrying once"
-      )
       let firstTimeout = error
+      logger.info("\(operationName): mesh timeout; attempting flood fallback")
       do {
-        try await contactRadio.resetPath(radioID: radioID, publicKey: publicKey)
+        return try await contactRadio.attemptFloodFallback(
+          radioID: radioID,
+          publicKey: publicKey,
+          rethrowIfUnavailable: firstTimeout
+        ) {
+          try await operation()
+        }
       } catch is CancellationError {
         throw CancellationError()
-      } catch {
-        logger.warning(
-          "\(operationName): path reset failed (\(error.localizedDescription)); not retrying"
-        )
-        throw BinaryProtocolError.sessionError(firstTimeout)
-      }
-      do {
-        return try await operation()
       } catch let retryError as MeshCoreError {
         throw BinaryProtocolError.sessionError(retryError)
+      } catch {
+        throw BinaryProtocolError.sessionError(firstTimeout)
       }
     }
   }
@@ -273,9 +279,12 @@ public actor BinaryProtocolService {
   /// Request access control list from a remote node
   /// - Parameter publicKey: The remote node's public key
   /// - Returns: ACLResponse with permission entries
-  public func requestACL(from publicKey: Data) async throws -> ACLResponse {
+  public func requestACL(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> ACLResponse {
     try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "acl") {
-      try await self.session.requestACL(from: publicKey)
+      try await self.session.requestACL(from: publicKey, priority: priority)
     }
   }
 
@@ -286,19 +295,6 @@ public actor BinaryProtocolService {
   public func getSelfTelemetry() async throws -> TelemetryResponse {
     do {
       return try await session.getSelfTelemetry()
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
-    }
-  }
-
-  // MARK: - Path Discovery
-
-  /// Send path discovery request to a contact
-  /// - Parameter publicKey: The contact's public key
-  /// - Returns: MessageSentInfo with expected ACK code
-  public func sendPathDiscovery(to publicKey: Data) async throws -> MessageSentInfo {
-    do {
-      return try await session.sendPathDiscovery(to: publicKey)
     } catch let error as MeshCoreError {
       throw BinaryProtocolError.sessionError(error)
     }
