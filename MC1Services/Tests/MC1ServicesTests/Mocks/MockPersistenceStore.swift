@@ -1463,11 +1463,19 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - Channel Operations
 
+  private var fetchChannelsHold: (@Sendable () async -> Void)?
+
+  public func setFetchChannelsHold(_ hold: (@Sendable () async -> Void)?) {
+    fetchChannelsHold = hold
+  }
+
   public func fetchChannels(radioID: UUID) async throws -> [ChannelDTO] {
     if let error = stubbedFetchChannelError {
       throw error
     }
-    return channels.values.filter { $0.radioID == radioID }.sorted { $0.index < $1.index }
+    let snapshot = channels.values.filter { $0.radioID == radioID }.sorted { $0.index < $1.index }
+    await fetchChannelsHold?()
+    return snapshot
   }
 
   public func fetchChannel(radioID: UUID, index: UInt8) async throws -> ChannelDTO? {
