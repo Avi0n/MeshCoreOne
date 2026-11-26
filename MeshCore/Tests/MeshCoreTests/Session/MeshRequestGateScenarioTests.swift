@@ -682,7 +682,7 @@ struct MeshRequestGateScenarioTests {
   }
 
   @Test
-  func `queued exchange ignores pre-submission messageSent and stray routed response`() async throws {
+  func `queued exchange ignores messageSent and stray routed response dispatched before submission`() async throws {
     let harness = try await ScenarioHarness.make(configuration: .init(
       binaryRequestOverallTimeout: overallTimeout,
       binaryRequestRetransmitInterval: nil
@@ -713,11 +713,17 @@ struct MeshRequestGateScenarioTests {
       await harness.transport.submissionIsWaiting
     }
 
+    // The receive loop dispatches injected frames asynchronously. Release the write only after the
+    // dispatcher has run every filter on the stray frames, or they would race the submission.
+    let dispatchProbe = await harness.session.events()
     await harness.transport.simulateReceive(dmSentFrame)
     let strayStatusFrame = Data([ResponseCode.statusResponse.rawValue, 0])
       + Data(repeater.prefix(6))
       + statusFields(battery: strayBattery)
     await harness.transport.simulateReceive(strayStatusFrame)
+    for await event in dispatchProbe {
+      if case .statusResponse = event { break }
+    }
 
     await harness.transport.releaseHeldSubmission()
     try await harness.ack(companion, code: .sendStatusRequest)
