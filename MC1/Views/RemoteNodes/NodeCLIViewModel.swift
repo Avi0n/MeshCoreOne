@@ -8,7 +8,7 @@ final class NodeCLIViewModel {
   private static let maxOutputLines = 1000
   private static let maxHistoryEntries = 100
   private static let rebootTimeout = RemoteOperationTimeoutPolicy.fireAndForgetCLI
-  private static let defaultCommandTimeout: Duration = .seconds(10)
+  private static let defaultCommandTimeout = RemoteOperationTimeoutPolicy.defaultCLITimeout
 
   // MARK: - Terminal State
 

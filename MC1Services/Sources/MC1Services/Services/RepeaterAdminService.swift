@@ -213,7 +213,7 @@ public actor RepeaterAdminService {
   public func sendCommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await remoteNodeService.sendCLICommand(
       sessionID: sessionID,
@@ -227,7 +227,7 @@ public actor RepeaterAdminService {
   public func sendRawCommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,

@@ -21,6 +21,11 @@ public struct SessionConfiguration: Sendable {
   /// Firmware's estimate is outbound airtime×path; the return path needs headroom.
   public static let binaryRetransmitRTTHeadroom: TimeInterval = 2.0
 
+  static let loginRetransmitRTTMultiplier: TimeInterval = 1.25
+  static let loginFloodRetransmitFloor: TimeInterval = 10.0
+  static let loginMaxSends = 2
+  static let minimumUsefulResendTailRatio: TimeInterval = 0.5
+
   /// Maximum sends (initial + resends) for flood-routed or background mesh exchanges.
   static let floodOrBackgroundMaxSends = 2
 

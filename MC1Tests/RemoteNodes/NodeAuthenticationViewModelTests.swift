@@ -70,12 +70,12 @@ struct NodeAuthenticationViewModelTests {
     try await waitUntil("direct sendLogin sent") {
       await transport.sentData.filter { $0.first == CommandCode.sendLogin.rawValue }.count == 1
     }
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 15000))
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 25000))
     try await waitUntil("direct login timer parked") {
       viewModel.authSecondsRemaining != nil && clock.sleeperCount > 0
     }
     #expect(!viewModel.isWaitingForRadio)
-    clock.advance(by: .seconds(25))
+    clock.advance(by: .seconds(45))
 
     try await waitUntil("fallback snapshot getContactByKey sent") {
       await transport.sentData.filter { $0.first == CommandCode.getContactByKey.rawValue }.count == 1
@@ -93,11 +93,11 @@ struct NodeAuthenticationViewModelTests {
     }
     #expect(viewModel.isRetryingViaFlood)
     #expect(!viewModel.isWaitingForRadio)
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x05, 0x06, 0x07, 0x08]), suggestedTimeoutMs: 15000))
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x05, 0x06, 0x07, 0x08]), suggestedTimeoutMs: 25000))
     try await waitUntil("flood login timer parked") {
       viewModel.authSecondsRemaining != nil && clock.sleeperCount > 0
     }
-    clock.advance(by: .seconds(25))
+    clock.advance(by: .seconds(45))
 
     try await waitUntil("restore still-flood getContactByKey sent") {
       await transport.sentData.filter { $0.first == CommandCode.getContactByKey.rawValue }.count == 2
@@ -144,11 +144,11 @@ struct NodeAuthenticationViewModelTests {
     try await waitUntil("second direct sendLogin sent") {
       await transport.sentData.filter { $0.first == CommandCode.sendLogin.rawValue }.count == 3
     }
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x11, 0x12, 0x13, 0x14]), suggestedTimeoutMs: 15000))
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x11, 0x12, 0x13, 0x14]), suggestedTimeoutMs: 25000))
     try await waitUntil("second direct login timer parked") {
       viewModel.authSecondsRemaining != nil && clock.sleeperCount > 0
     }
-    clock.advance(by: .seconds(25))
+    clock.advance(by: .seconds(45))
 
     try await waitUntil("second fallback getContactByKey sent") {
       await transport.sentData.filter { $0.first == CommandCode.getContactByKey.rawValue }.count == 4

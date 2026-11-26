@@ -52,7 +52,7 @@ public actor RoomAdminService {
   public func sendCommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await remoteNodeService.sendCLICommand(
       sessionID: sessionID,
@@ -65,7 +65,7 @@ public actor RoomAdminService {
   public func sendRawCommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,

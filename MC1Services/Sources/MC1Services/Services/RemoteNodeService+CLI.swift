@@ -11,7 +11,7 @@ public extension RemoteNodeService {
   func sendCLICommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await performCLICommand(
       sessionID: sessionID,
@@ -25,7 +25,7 @@ public extension RemoteNodeService {
   func sendRawCLICommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     let response = try await performCLICommand(
       sessionID: sessionID,
@@ -118,7 +118,8 @@ public extension RemoteNodeService {
         acceptsAnyResponse: acceptsAnyResponse,
         timeout: timeout,
         ownerID: ownerID,
-        textType: .cliData
+        textType: .cliData,
+        allowFirmwareExpansion: false
       )
     }
 

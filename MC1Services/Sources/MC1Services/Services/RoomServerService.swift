@@ -557,7 +557,7 @@ public actor RoomServerService {
         radioID: radioID,
         publicKey: remoteSession.publicKey,
         priority: .interactive,
-        budget: { _ in RemoteOperationTimeoutPolicy.pathDiscoveryRoomSyncBudget }
+        budget: { RemoteOperationTimeoutPolicy.roomSyncPathDiscoveryBudget(for: $0) }
       )
       return result.outHopCount != nil
     } catch {

@@ -11,7 +11,8 @@ extension RemoteNodeService {
     acceptsAnyResponse: Bool,
     timeout: Duration,
     ownerID: UUID,
-    textType: MeshCore.TextType
+    textType: MeshCore.TextType,
+    allowFirmwareExpansion: Bool = true
   ) async throws -> String {
     try validateCLISlot(for: destinationPrefix, ownerID: ownerID)
     let command = String(decoding: command.utf8.drop(while: { $0 == Self.cliIgnoredSpace }), as: UTF8.self)
@@ -26,7 +27,8 @@ extension RemoteNodeService {
         let worker = Task { [self] in
           await runCLIExchange(
             publicKey: publicKey, prefix: destinationPrefix, command: command,
-            wirePrefix: wirePrefix, timeout: timeout, requestID: requestID, textType: textType
+            wirePrefix: wirePrefix, timeout: timeout, requestID: requestID, textType: textType,
+            allowFirmwareExpansion: allowFirmwareExpansion
           )
         }
         cliSlots[destinationPrefix]?.beginExchange(RemoteCLISlot.Request(
@@ -47,7 +49,8 @@ extension RemoteNodeService {
 
   private func runCLIExchange(
     publicKey: Data, prefix: Data, command: String, wirePrefix: String,
-    timeout: Duration, requestID: UUID, textType: MeshCore.TextType
+    timeout: Duration, requestID: UUID, textType: MeshCore.TextType,
+    allowFirmwareExpansion: Bool
   ) async {
     let sentInfo: MessageSentInfo
     do {
@@ -69,7 +72,11 @@ extension RemoteNodeService {
     }
 
     guard cliSlots[prefix]?.isCurrentRequest(requestID: requestID) == true else { return }
-    let effectiveTimeout = RemoteOperationTimeoutPolicy.cliTimeout(for: sentInfo, requestedTimeout: timeout)
+    let effectiveTimeout = RemoteOperationTimeoutPolicy.cliTimeout(
+      for: sentInfo,
+      requestedTimeout: timeout,
+      allowFirmwareExpansion: allowFirmwareExpansion
+    )
     let deadline = ContinuousClock.now.advanced(by: effectiveTimeout)
     while ContinuousClock.now < deadline {
       guard cliSlots[prefix]?.isCurrentRequest(requestID: requestID) == true else { return }

@@ -112,10 +112,8 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 4
   @Test
   func `preemption reports afterHandOff accurately and never preempts login discovery or keepAlive`() async throws {
-    // 4a: afterHandOff == true when background already handed frame off
     do {
       let harness = try await ScenarioHarness.make()
       let companion = FirmwarePendingSlotCompanion()
@@ -137,7 +135,6 @@ struct MeshRequestGateScenarioTests {
       await harness.session.stop()
     }
 
-    // 4b: afterHandOff == false when caught in beforeSend behind getMessage
     do {
       let harness = try await ScenarioHarness.make()
       let companion = FirmwarePendingSlotCompanion()
@@ -176,7 +173,6 @@ struct MeshRequestGateScenarioTests {
       await harness.session.stop()
     }
 
-    // 4c: background login, discoverPath, and keepAlive are never preempted
     do {
       let harness = try await ScenarioHarness.make(configuration: .init(
         binaryRequestOverallTimeout: overallTimeout,
@@ -245,17 +241,14 @@ struct MeshRequestGateScenarioTests {
     }
   }
 
-  /// Scenario 5
   @Test
-  func `flood sends at most twice, discoverPath sends once, direct keeps 2x est spacing`() async throws {
+  func `direct binary keeps 2x est spacing across multiple resends`() async throws {
     let harness = try await ScenarioHarness.make()
     let companion = FirmwarePendingSlotCompanion()
-    await companion.configureContact(repeater, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 1500)
     await companion.configureContact(other, route: 0, suggestedTimeoutMs: 1500)
 
-    // Flood binary: 2 sends max, ends at lastWrite + 2*est (3s + 3s = 6s)
-    let floodTask = Task {
-      try await harness.session.requestOwnerInfo(from: repeater, priority: .interactive)
+    let directTask = Task {
+      try await harness.session.requestOwnerInfo(from: other, priority: .interactive)
     }
     try await harness.ack(companion, code: .binaryRequest, count: 1)
     try await harness.waitUntilParked(for: .seconds(3))
@@ -263,37 +256,13 @@ struct MeshRequestGateScenarioTests {
     try await harness.ack(companion, code: .binaryRequest, count: 2)
     try await harness.waitUntilParked(for: .seconds(3))
     harness.clock.advance(by: .seconds(3))
-    await #expect(throws: MeshCoreError.self) { try await floodTask.value }
-    #expect(await harness.commands(.binaryRequest).count == 2)
-
-    // Discover path: single send with no resend
-    let discoveryTask = Task {
-      try await harness.session.discoverPath(to: other, priority: .interactive, budget: { _ in 10 })
-    }
-    try await harness.ack(companion, code: .pathDiscovery, count: 1)
-    try await harness.waitUntilParked(for: .seconds(10))
-    harness.clock.advance(by: .seconds(10))
-    await #expect(throws: MeshCoreError.self) { try await discoveryTask.value }
-    #expect(await harness.commands(.pathDiscovery).count == 1)
-
-    // Direct binary: keeps 2x est (3s) spacing across multiple resends
-    let directTask = Task {
-      try await harness.session.requestOwnerInfo(from: other, priority: .interactive)
-    }
     try await harness.ack(companion, code: .binaryRequest, count: 3)
-    try await harness.waitUntilParked(for: .seconds(3))
-    harness.clock.advance(by: .seconds(3))
-    try await harness.ack(companion, code: .binaryRequest, count: 4)
-    try await harness.waitUntilParked(for: .seconds(3))
-    harness.clock.advance(by: .seconds(3))
-    try await harness.ack(companion, code: .binaryRequest, count: 5)
     let directRecord = try #require(await companion.acceptedWrites.last)
     await companion.deliver(replyingTo: directRecord.id, body: Data("v1\nn\no".utf8), on: harness.transport)
     _ = try await directTask.value
     await harness.session.stop()
   }
 
-  /// Scenario 6
   @Test
   func `DM messageSent during binary RF wait does not enter tag set`() async throws {
     let harness = try await ScenarioHarness.make(configuration: .init(
@@ -318,7 +287,6 @@ struct MeshRequestGateScenarioTests {
     await harness.transport.simulateReceive(dmSent)
     _ = try await dmTask.value
 
-    // A binaryResponse carrying dmTag must be ignored by ownerTask.
     await harness.transport.simulateReceive(
       Data([ResponseCode.binaryResponse.rawValue, 0]) + dmTag + Data("bad\nbad\nbad".utf8)
     )
@@ -329,8 +297,6 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 7 is covered in MeshRequestGatePrototypeTests (`keep-alive waits at the gate without holding the host slot`),
-  /// plus Scenario 8 tests same-contact hold details.
   @Test
   func `keep-alive sets no same-contact hold`() async throws {
     let harness = try await ScenarioHarness.make()
@@ -342,27 +308,24 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 8 (multi-write login hold, cancel after transport hand-off before messageSent, max-merge hold)
   @Test
   func `multi-write login and pre-ack handoff cancellation set hold without truncation by shorter exchange`() async throws {
     let harness = try await ScenarioHarness.make()
     let companion = FirmwarePendingSlotCompanion()
-    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 2000) // 2*est = 4s
+    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 2000)
 
-    // Multi-write login success still sets hold
     let login = Task {
       try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 20 })
     }
     try await harness.ack(companion, code: .sendLogin, count: 1)
-    try await harness.waitUntilParked(for: .seconds(4))
-    harness.clock.advance(by: .seconds(4))
+    try await harness.waitUntilParked(for: .milliseconds(2500))
+    harness.clock.advance(by: .milliseconds(2500))
     try await harness.ack(companion, code: .sendLogin, count: 2)
     await companion.deliver(from: repeater, body: loginOK, on: harness.transport)
     _ = try await login.value
     #expect(await harness.session.meshRequestGate.hasActiveHold(for: repeater.prefix(4)))
 
-    // Non-held telemetry to repeater fails after 1s hold; must not shorten the 4s hold!
-    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 0) // 1s minimum hold
+    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 0)
     let telemetry = Task {
       try await harness.session.requestTelemetry(from: repeater, priority: .background)
     }
@@ -371,7 +334,6 @@ struct MeshRequestGateScenarioTests {
     telemetry.cancel()
     await #expect(throws: CancellationError.self) { try await telemetry.value }
 
-    // Status to repeater must still wait the remaining ~4s, not 1s!
     let status = Task {
       try await harness.session.requestStatus(from: repeater, priority: .interactive)
     }
@@ -383,7 +345,6 @@ struct MeshRequestGateScenarioTests {
     await companion.deliver(from: repeater, body: statusFields(battery: 3500), on: harness.transport)
     #expect(try await status.value.battery == 3500)
 
-    // Cancel after transport hand-off before messageSent sets hold
     await harness.transport.holdNextSend()
     let owner = Task {
       try await harness.session.requestOwnerInfo(from: other, priority: .interactive)
@@ -399,7 +360,6 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 9
   @Test
   func `lock order: keep-alive behind background resend and getMessage run cleanly`() async throws {
     let harness = try await ScenarioHarness.make()
@@ -434,7 +394,6 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 11
   @Test
   func `same-password exemption bypasses direct-login hold while status or different password waits`() async throws {
     let harness = try await ScenarioHarness.make(configuration: .init(
@@ -442,7 +401,7 @@ struct MeshRequestGateScenarioTests {
       binaryRequestRetransmitInterval: nil
     ))
     let companion = FirmwarePendingSlotCompanion()
-    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 2500) // 5s hold
+    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 2500)
 
     let directLogin = Task {
       try await harness.session.login(to: repeater, password: "secret", priority: .interactive, budget: { _ in 20 })
@@ -452,7 +411,6 @@ struct MeshRequestGateScenarioTests {
     harness.clock.advance(by: .seconds(20))
     await #expect(throws: MeshCoreError.self) { try await directLogin.value }
 
-    // Different password with samePasswordExemption waits
     let wrongPw = Task {
       try await harness.session.login(
         to: repeater,
@@ -468,7 +426,6 @@ struct MeshRequestGateScenarioTests {
     wrongPw.cancel()
     await #expect(throws: CancellationError.self) { try await wrongPw.value }
 
-    // Same password with samePasswordExemption bypasses hold immediately
     let floodLogin = Task {
       try await harness.session.login(
         to: repeater,
@@ -484,13 +441,11 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 12
   @Test
   func `flood exchange trims after final send only when suggestedTimeoutMs is nonzero`() async throws {
     let harness = try await ScenarioHarness.make()
     let companion = FirmwarePendingSlotCompanion()
 
-    // suggestedTimeoutMs > 0 -> ends at lastWrite + 2*est (3s + 3s = 6s)
     await companion.configureContact(repeater, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 1500)
     let trimmed = Task {
       try await harness.session.requestOwnerInfo(from: repeater, priority: .interactive)
@@ -503,7 +458,6 @@ struct MeshRequestGateScenarioTests {
     harness.clock.advance(by: .seconds(3))
     await #expect(throws: MeshCoreError.self) { try await trimmed.value }
 
-    // suggestedTimeoutMs == 0 -> keeps full 40s budget (1s + 39s = 40s)
     await companion.configureContact(other, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 0)
     let full = Task {
       try await harness.session.requestOwnerInfo(from: other, priority: .interactive)
@@ -518,7 +472,6 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 13
   @Test
   func `path discovery respects 10s vs 60s budget, sends once, and sets hold on timeout`() async throws {
     let harness = try await ScenarioHarness.make()
@@ -535,7 +488,6 @@ struct MeshRequestGateScenarioTests {
     #expect(await harness.commands(.pathDiscovery).count == 1)
     #expect(await harness.session.meshRequestGate.hasActiveHold(for: repeater.prefix(4)))
 
-    // Status to repeater waits out the 5s hold caused by timed-out path discovery
     let status = Task {
       try await harness.session.requestStatus(from: repeater, priority: .interactive)
     }
@@ -547,7 +499,6 @@ struct MeshRequestGateScenarioTests {
     await companion.deliver(from: repeater, body: statusFields(battery: 4100), on: harness.transport)
     #expect(try await status.value.battery == 4100)
 
-    // 60s budget
     let long = Task {
       try await harness.session.discoverPath(to: other, priority: .interactive, budget: { _ in 60 })
     }
@@ -565,7 +516,6 @@ struct MeshRequestGateScenarioTests {
     await harness.session.stop()
   }
 
-  /// Scenario 15
   @Test
   func `session stop wakes hold waiters with CancellationError and installs no post-stop hold`() async throws {
     let harness = try await ScenarioHarness.make()
@@ -592,7 +542,6 @@ struct MeshRequestGateScenarioTests {
     #expect(await !harness.session.meshRequestGate.hasAnyActiveHold)
   }
 
-  /// Scenario 16
   @Test
   func `350-contact sync holding host slot leaves droppedEventCount zero for admitted exchange`() async throws {
     let harness = try await ScenarioHarness.make(configuration: .init(
@@ -708,8 +657,8 @@ struct MeshRequestGateScenarioTests {
     }
     try await harness.ack(companion, code: .sendLogin, count: 1)
     let replyOne = try #require(await companion.acceptedWrites.last).id
-    try await harness.waitUntilParked(for: .seconds(4))
-    harness.clock.advance(by: .seconds(4))
+    try await harness.waitUntilParked(for: .milliseconds(2500))
+    harness.clock.advance(by: .milliseconds(2500))
     try await harness.ack(companion, code: .sendLogin, count: 2)
     let replyTwo = try #require(await companion.acceptedWrites.last).id
 
@@ -776,6 +725,76 @@ struct MeshRequestGateScenarioTests {
 
     let response = try await status.value
     #expect(response.battery == realBattery)
+    await harness.session.stop()
+  }
+
+  @Test
+  func `direct login resends once at 1.25x estimate and stops at two sends`() async throws {
+    let harness = try await ScenarioHarness.make()
+    let companion = FirmwarePendingSlotCompanion()
+    await companion.configureContact(repeater, route: 0, suggestedTimeoutMs: 6000)
+
+    let login = Task {
+      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 16 })
+    }
+    try await harness.ack(companion, code: .sendLogin, count: 1)
+    try await harness.waitUntilParked(for: .milliseconds(7500))
+    harness.clock.advance(by: .milliseconds(7500))
+    try await harness.ack(companion, code: .sendLogin, count: 2)
+    try await harness.waitUntilParked(for: .milliseconds(8500))
+    harness.clock.advance(by: .milliseconds(8500))
+    await #expect(throws: MeshCoreError.self) { try await login.value }
+    #expect(await harness.commands(.sendLogin).count == 2)
+
+    await companion.configureContact(other, route: 0, suggestedTimeoutMs: 0)
+    let zeroHint = Task {
+      try await harness.session.login(to: other, password: "pw", priority: .interactive, budget: { _ in 5 })
+    }
+    try await harness.ack(companion, code: .sendLogin, count: 3)
+    try await harness.waitUntilParked(for: .seconds(1))
+    harness.clock.advance(by: .seconds(1))
+    try await harness.ack(companion, code: .sendLogin, count: 4)
+    try await harness.waitUntilParked(for: .seconds(4))
+    harness.clock.advance(by: .seconds(4))
+    await #expect(throws: MeshCoreError.self) { try await zeroHint.value }
+    #expect(await harness.commands(.sendLogin).count == 4)
+    await harness.session.stop()
+  }
+
+  @Test
+  func `flood login enforces ten second resend floor`() async throws {
+    let harness = try await ScenarioHarness.make()
+    let companion = FirmwarePendingSlotCompanion()
+    await companion.configureContact(repeater, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 4000)
+
+    let login = Task {
+      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 20 })
+    }
+    try await harness.ack(companion, code: .sendLogin, count: 1)
+    try await harness.waitUntilParked(for: .seconds(10))
+    harness.clock.advance(by: .seconds(10))
+    try await harness.ack(companion, code: .sendLogin, count: 2)
+    await companion.deliver(from: repeater, body: loginOK, on: harness.transport)
+    #expect(try await login.value.succeeded)
+    await harness.session.stop()
+  }
+
+  @Test
+  func `login tail guard skips late resend without trimming final wait`() async throws {
+    let harness = try await ScenarioHarness.make()
+    let companion = FirmwarePendingSlotCompanion()
+    await companion.configureContact(repeater, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 8000)
+
+    let login = Task {
+      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 14 })
+    }
+    try await harness.ack(companion, code: .sendLogin, count: 1)
+    try await harness.waitUntilParked(for: .seconds(14))
+    harness.clock.advance(by: .seconds(10))
+    #expect(await harness.commands(.sendLogin).count == 1)
+    harness.clock.advance(by: .seconds(4))
+    await #expect(throws: MeshCoreError.self) { try await login.value }
+    #expect(await harness.commands(.sendLogin).count == 1)
     await harness.session.stop()
   }
 

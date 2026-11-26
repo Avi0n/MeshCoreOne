@@ -211,7 +211,7 @@ extension MeshCoreSession {
     guard sessionIsRunning, snapshot.replyMayBeInFlight, !succeeded || snapshot.sendCount > 1 else {
       return nil
     }
-    let duration = Duration.seconds(policy.spacing(suggestedTimeoutMs: snapshot.lastSuggestedTimeoutMs))
+    let duration = Duration.seconds(policy.holdDuration(suggestedTimeoutMs: snapshot.lastSuggestedTimeoutMs))
     return SameContactHoldRequest(duration: duration, loginPasswordDigest: loginPasswordDigest)
   }
 
@@ -361,15 +361,21 @@ extension MeshCoreSession {
     while !Task.isCancelled {
       let snapshot = tracker.snapshot()
       let maxSends = policy.maxSends(route: snapshot.route)
-      let spacing = policy.spacing(suggestedTimeoutMs: snapshot.lastSuggestedTimeoutMs)
+      let spacing = policy.resendSpacing(suggestedTimeoutMs: snapshot.lastSuggestedTimeoutMs, route: snapshot.route)
       let lastWrite = snapshot.lastWriteOffset ?? startOffset
+      let nextResend = lastWrite + .seconds(spacing)
+      let reachedSendLimit = snapshot.sendCount >= maxSends
 
-      if snapshot.sendCount >= maxSends {
-        let effectiveDeadline: Duration = if policy.shouldTrimAfterFinalSend(
+      if reachedSendLimit || !policy.hasUsefulTailAfterResend(
+        nextResend: nextResend,
+        deadline: overallDeadlineOffset,
+        spacing: spacing
+      ) {
+        let effectiveDeadline: Duration = if reachedSendLimit, policy.shouldTrimAfterFinalSend(
           route: snapshot.route,
           suggestedTimeoutMs: snapshot.lastSuggestedTimeoutMs
         ) {
-          min(overallDeadlineOffset, lastWrite + .seconds(spacing))
+          min(overallDeadlineOffset, nextResend)
         } else {
           overallDeadlineOffset
         }
@@ -385,7 +391,6 @@ extension MeshCoreSession {
         return sessionIsRunning ? .timedOut : .stopped
       }
 
-      let nextResend = lastWrite + .seconds(spacing)
       let sleepTarget = min(overallDeadlineOffset, nextResend)
       let sleepDuration = sleepTarget - elapsedFromStart()
       if sleepDuration > .zero {
