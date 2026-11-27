@@ -46,7 +46,7 @@ extension MeshCoreError {
     case .featureDisabled:
       L10n.Localizable.Error.MeshCore.featureDisabled
     case .preempted:
-      L10n.Localizable.Error.RemoteNode.cancelled
+      L10n.Localizable.Error.MeshCore.preempted
     }
   }
 

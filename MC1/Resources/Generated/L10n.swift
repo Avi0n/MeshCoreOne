@@ -2753,6 +2753,8 @@ public enum L10n {
         public static func parseError(_ p1: Any) -> String {
           return L10n.tr("Localizable", "error.meshCore.parseError", String(describing: p1), fallback: "Failed to parse device response: %@")
         }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Background request yielded to a higher-priority operation
+        public static let preempted = L10n.tr("Localizable", "error.meshCore.preempted", fallback: "The background request was preempted by a higher-priority operation.")
         /// Location: MeshCoreError+UserFacingMessage.swift - Session not started
         public static let sessionNotStarted = L10n.tr("Localizable", "error.meshCore.sessionNotStarted", fallback: "Session has not been started.")
         /// Location: MeshCoreError+UserFacingMessage.swift - Cryptographic signing failed - %@ is the failure reason
