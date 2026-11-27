@@ -258,6 +258,9 @@
 /* Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware */
 "error.meshCore.featureDisabled" = "设备上已禁用此功能。";
 
+/* TODO: translate - Background request yielded to a higher-priority operation */
+"error.meshCore.preempted" = "The background request was preempted by a higher-priority operation.";
+
 /* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported */
 "error.device.unsupportedCommand" = "设备固件不支持该命令。";
 

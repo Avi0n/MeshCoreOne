@@ -51,7 +51,6 @@ final class ContactDetailState {
 
   @ObservationIgnored private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
   @ObservationIgnored private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
-  @ObservationIgnored private var advertisementServiceProvider: @MainActor () -> AdvertisementService? = { nil }
   @ObservationIgnored private var notificationServiceProvider: @MainActor () -> NotificationService? = { nil }
   @ObservationIgnored private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
   @ObservationIgnored private var appStateProvider: @MainActor () -> AppState? = { nil }
@@ -87,10 +86,6 @@ final class ContactDetailState {
 
   var dataStore: PersistenceStore? {
     hasPresentationOwnership ? dataStoreProvider() : nil
-  }
-
-  var advertisementService: AdvertisementService? {
-    hasPresentationOwnership ? advertisementServiceProvider() : nil
   }
 
   var notificationService: NotificationService? {
@@ -148,13 +143,11 @@ final class ContactDetailState {
     let dependencies = Dependencies(
       contactService: { [weak appState] in appState?.services?.contactService },
       dataStore: { [weak appState] in appState?.services?.dataStore },
-      advertisements: { [weak appState] in appState?.services?.advertisementService },
       notifications: { [weak appState] in appState?.services?.notificationService },
       connectedDevice: { [weak appState] in appState?.connectedDevice }
     )
     contactServiceProvider = dependencies.contactService
     dataStoreProvider = dependencies.dataStore
-    advertisementServiceProvider = dependencies.advertisements
     notificationServiceProvider = dependencies.notifications
     connectedDeviceProvider = dependencies.connectedDevice
     pathViewModel.configure(
@@ -190,18 +183,6 @@ final class ContactDetailState {
         }
         guard accepts(context), isActive else { return }
         hasLoadedContact = true
-      }
-      guard let advertisements = advertisementService else { return }
-      for await event in advertisements.events() {
-        guard accepts(context), isActive else { return }
-        switch event {
-        case let .pathDiscoveryResponse(response) where response.matches(publicKey: currentContact.publicKey):
-          pathViewModel.handleDiscoveryResponse(hopCount: response.outHopCount)
-        case let .pathDiscoveryWriteFailed(response, error) where response.matches(publicKey: currentContact.publicKey):
-          pathViewModel.handleDiscoveryWriteFailure(error)
-        default:
-          break
-        }
       }
     }
   }

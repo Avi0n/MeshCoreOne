@@ -40,6 +40,10 @@ extension ConnectionManager {
     guard ownsRuntime(link) else { return false }
     if succeeded {
       guard await reconcileConnectedListeners(for: link), ownsRuntime(link) else { return false }
+      if !link.synthetic {
+        await drainPendingRouteRestores(for: link)
+        guard ownsRuntime(link) else { return false }
+      }
       link.usableSyncResult = syncResult
       transition(link, to: .ready)
       surfacedAuthFailureDeviceID = nil
@@ -108,6 +112,49 @@ extension ConnectionManager {
       }
     } catch {
       logger.warning("Failed to sync device time: \(error.localizedDescription)")
+    }
+  }
+
+  func recordPendingRouteRestore(_ restore: PendingRouteRestore) {
+    pendingRouteRestores[restore.radioID, default: [:]][restore.publicKey] = restore
+    let keyHex = restore.publicKey.prefix(3).uppercaseHexString()
+    logger.info("Deferred route restore recorded for radio \(restore.radioID) contact \(keyHex)")
+  }
+
+  func remapPendingRouteRestores(from oldRadioID: UUID, to newRadioID: UUID) {
+    guard oldRadioID != newRadioID,
+          let oldEntries = pendingRouteRestores.removeValue(forKey: oldRadioID),
+          !oldEntries.isEmpty else { return }
+    var target = pendingRouteRestores[newRadioID, default: [:]]
+    for (publicKey, entry) in oldEntries {
+      target[publicKey] = PendingRouteRestore(
+        radioID: newRadioID,
+        publicKey: entry.publicKey,
+        outPath: entry.outPath,
+        outPathLength: entry.outPathLength
+      )
+      let keyHex = publicKey.prefix(3).uppercaseHexString()
+      logger.info("Remapped deferred route restore for \(keyHex) from \(oldRadioID) to \(newRadioID)")
+    }
+    pendingRouteRestores[newRadioID] = target
+  }
+
+  func drainPendingRouteRestores(for link: ConnectionLink) async {
+    let radioID = link.device.radioID
+    guard let entries = pendingRouteRestores[radioID], !entries.isEmpty else { return }
+    for restore in Array(entries.values) {
+      guard ownsRuntime(link), !Task.isCancelled else { return }
+      let keyHex = restore.publicKey.prefix(3).uppercaseHexString()
+      let applied = await link.services.contactService.applyDeferredRouteRestore(restore)
+      if applied {
+        pendingRouteRestores[radioID]?.removeValue(forKey: restore.publicKey)
+        if pendingRouteRestores[radioID]?.isEmpty == true {
+          pendingRouteRestores.removeValue(forKey: radioID)
+        }
+        logger.info("Applied or cleared deferred route restore for \(keyHex)")
+      } else {
+        logger.warning("Deferred route restore retained for \(keyHex) after failed replay")
+      }
     }
   }
 }

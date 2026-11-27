@@ -113,6 +113,8 @@ targets:
       - path: MC1Services/Tests/MC1ServicesTests/Helpers/RadioWiFiFirmware.swift
     dependencies:
       - target: MC1
+      - package: MeshCore
+        product: MeshCoreTestSupport
     settings:
       base:
         INFOPLIST_FILE: MC1Tests/Info.plist

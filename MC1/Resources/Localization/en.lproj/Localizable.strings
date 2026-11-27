@@ -258,6 +258,9 @@
 /* Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware */
 "error.meshCore.featureDisabled" = "This feature is disabled on the device.";
 
+/* Location: MeshCoreError+UserFacingMessage.swift - Background request yielded to a higher-priority operation */
+"error.meshCore.preempted" = "The background request was preempted by a higher-priority operation.";
+
 /* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported */
 "error.device.unsupportedCommand" = "Command not supported by device firmware.";
 

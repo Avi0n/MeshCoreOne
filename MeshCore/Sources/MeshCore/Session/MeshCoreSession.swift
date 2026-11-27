@@ -79,6 +79,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   // MARK: - Properties
 
   let logger = Logger(subsystem: "MeshCore", category: "Session")
+  let gateLogger = Logger(subsystem: "MeshCore", category: "MeshRequestGate")
 
   let transport: any MeshTransport
   let configuration: SessionConfiguration
@@ -86,6 +87,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   let radioCLICorrelationScope: RadioCLICorrelationScope
   let dispatcher = EventDispatcher()
   let requestResponseSerializer = RequestResponseSerializer()
+  let meshRequestGate: MeshRequestGate
+  /// Password SHA256 digests of unconsumed login attempts per 4-byte contact prefix.
+  var unconsumedLoginDigests: [Data: Set<Data>] = [:]
 
   /// Serializes full and granular configuration writes through their cache refresh.
   /// This is separate from the nonreentrant serializer used by each wire exchange.
@@ -196,6 +200,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     self.transport = transport
     self.configuration = configuration
     self.clock = clock ?? ContinuousClock()
+    self.meshRequestGate = MeshRequestGate(clock: self.clock)
     self.radioCLICorrelationScope = radioCLICorrelationScope
   }
 
@@ -312,6 +317,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     }
     receiveTask?.cancel()
     receiveTask = nil
+    unconsumedLoginDigests.removeAll()
+    await meshRequestGate.stop()
     await dispatcher.finishAllSubscriptions()
     updateConnectionState(.disconnected)
     logger.info("MeshCore session stopped")
@@ -553,9 +560,21 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     }
 
     trackContactChanges(event: event)
+    await logUnacceptedPendingSlotReplyIfIdle(event)
     await dispatcher.dispatch(event)
     if case .channelInfo = event {
       dispatchedChannelInfoCountForTest += 1
+    }
+  }
+
+  private func logUnacceptedPendingSlotReplyIfIdle(_ event: MeshEvent) async {
+    switch event {
+    case .binaryResponse, .loginSuccess, .loginFailed, .statusResponse:
+      guard await !meshRequestGate.hasActiveHolder else { return }
+      let holdActive = await meshRequestGate.hasAnyActiveHold
+      gateLogger.debug("Unaccepted \(event.caseName) received with no active exchange (holdActive=\(holdActive))")
+    default:
+      break
     }
   }
 

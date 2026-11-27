@@ -2,6 +2,7 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 @testable import MeshCore
+import MeshCoreTestSupport
 import Observation
 import Testing
 
@@ -81,7 +82,6 @@ struct WatchlistRefreshCoordinatorTests {
       .init(publicKey: saved.publicKey, password: "secret", pathLength: saved.outPathLength),
       .init(publicKey: blank.publicKey, password: "", pathLength: 2),
     ])
-    #expect(await harness.session.resetPaths.isEmpty)
     #expect(harness.coordinator.failedContactIDs.isEmpty)
   }
 
@@ -183,27 +183,298 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `a login timeout on a stored route resets it and retries once by flood`() async throws {
+  func `status-first skips login for connected repeater and falls back to login on existing session on timeout`() async throws {
     let harness = try await Harness()
     defer { harness.coordinator.shutdown() }
-    let routed = harness.repeater(name: "Routed", byte: 0x36, pathLength: 1)
-    let stuck = harness.repeater(name: "Stuck", byte: 0x37, pathLength: 1)
-    try await harness.store.saveContact(routed)
-    try await harness.store.saveContact(stuck)
-    await harness.session.enqueueLoginTimeout()
-    await harness.session.enqueue(status: 3300, firmware: "1")
-    await harness.session.enqueueLoginTimeout()
-    await harness.session.enqueueLoginTimeout()
 
-    harness.coordinator.refresh([routed, stuck])
-    try await harness.releaseRemaining(count: 2)
+    let connected = harness.repeater(name: "Connected", byte: 0x36, pathLength: 1)
+    let staleSession = harness.repeater(name: "StaleSession", byte: 0x37, pathLength: 1)
+    try await harness.store.saveContact(connected)
+    try await harness.store.saveContact(staleSession)
 
-    #expect(await harness.session.logins.map(\.pathLength) == [
-      1, PacketBuilder.floodPathSentinel, 1, PacketBuilder.floodPathSentinel
+    let connectedDTO = RemoteNodeSessionDTO(
+      id: UUID(), radioID: harness.radioID, publicKey: connected.publicKey,
+      name: connected.name, role: .repeater, isConnected: true
+    )
+    let staleDTO = RemoteNodeSessionDTO(
+      id: UUID(), radioID: harness.radioID, publicKey: staleSession.publicKey,
+      name: staleSession.name, role: .repeater, isConnected: true
+    )
+    await harness.session.setConnectedSession(connectedDTO, for: connected.publicKey)
+    await harness.session.setConnectedSession(staleDTO, for: staleSession.publicKey)
+
+    await harness.session.enqueueStatusResponse(3400)
+    await harness.session.enqueueOwnerResponse("1.9.0")
+    await harness.session.enqueueStatusTimeout()
+    await harness.session.enqueueLoginOnly()
+    await harness.session.enqueueStatusResponse(3500)
+    await harness.session.enqueueOwnerResponse("1.9.1")
+
+    harness.coordinator.refresh([connected, staleSession])
+    try await harness.releaseRemaining(count: 5)
+
+    #expect(await harness.session.createSessionCount == 0)
+    #expect(await harness.session.loginSessionIDs == [staleDTO.id])
+    #expect(await harness.session.logins == [
+      .init(publicKey: staleSession.publicKey, password: "", pathLength: 1),
     ])
-    #expect(await harness.session.resetPaths == [routed.publicKey, stuck.publicKey])
-    #expect(harness.coordinator.batteryReadings[routed.id]?.millivolts == 3300)
-    #expect(harness.coordinator.timedOutContactIDs == [stuck.id])
+    #expect(harness.coordinator.batteryReadings[connected.id]?.millivolts == 3400)
+    #expect(harness.coordinator.batteryReadings[staleSession.id]?.millivolts == 3500)
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+  }
+
+  @Test
+  func `exponential backoff skips auto refresh and allows manual refresh, resetting on reply`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let target = harness.repeater(name: "Ridge", byte: 0x62, firmware: "1.8.0")
+    try await harness.store.saveContact(target)
+
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([target])
+    try await waitUntil("walk 1 ends") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.backoffDelay(for: target.id) == NodeSnapshotPolicy.minimumInterval)
+
+    harness.now = harness.now.addingTimeInterval(NodeSnapshotPolicy.minimumInterval - 1)
+    harness.coordinator.refreshStale([target])
+    #expect(!harness.coordinator.isRefreshing)
+
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([target])
+    try await waitUntil("walk 2 ends") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.backoffDelay(for: target.id) == NodeSnapshotPolicy.minimumInterval * 2)
+
+    harness.now = harness.now.addingTimeInterval(NodeSnapshotPolicy.minimumInterval)
+    harness.coordinator.refreshStale([target])
+    #expect(!harness.coordinator.isRefreshing)
+
+    harness.now = harness.now.addingTimeInterval(NodeSnapshotPolicy.minimumInterval + 1)
+    await harness.session.enqueue(status: 3800, firmware: "1.8.0")
+    harness.coordinator.refreshStale([target])
+    try await harness.releaseRemaining(count: 2)
+    #expect(harness.coordinator.backoffDelay(for: target.id) == nil)
+    #expect(harness.coordinator.batteryReadings[target.id]?.millivolts == 3800)
+  }
+
+  @Test
+  func `owner info is checked once per app run when firmware version is already known`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let known = harness.repeater(name: "Known", byte: 0x63, firmware: "1.7.0")
+    try await harness.store.saveContact(known)
+
+    await harness.session.enqueue(status: 3500, firmware: "1.8.0")
+    harness.coordinator.refresh([known])
+    try await harness.releaseRemaining(count: 2)
+    #expect(await harness.session.calls.map(\.kind) == [.status, .owner])
+
+    await harness.session.enqueueStatusOnly(status: 3600, firmwareLevel: 2)
+    harness.coordinator.refresh([known])
+    try await harness.releaseRemaining(count: 1, from: 2)
+    #expect(await harness.session.calls.map(\.kind) == [.status, .owner, .status])
+  }
+
+  @Test
+  func `preemption re-queues before hand-off without limit, caps post-hand-off at one, and keeps completed status`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let beforeHandOff = harness.repeater(name: "Before", byte: 0x64, firmware: "1.8.0")
+    let afterHandOffSkipped = harness.repeater(name: "TwiceAfter", byte: 0x65, firmware: "1.8.0")
+    let ownerPreempted = harness.repeater(name: "OwnerPreempt", byte: 0x66)
+    try await harness.store.saveContact(beforeHandOff)
+    try await harness.store.saveContact(afterHandOffSkipped)
+    try await harness.store.saveContact(ownerPreempted)
+
+    await harness.session.enqueueLoginOnly()
+    await harness.session.enqueuePreemptedStatus(afterHandOff: false)
+    await harness.session.enqueueLoginOnly()
+    await harness.session.enqueuePreemptedStatus(afterHandOff: false)
+    await harness.session.enqueue(status: 3900, firmware: "1.8.0")
+    harness.coordinator.refresh([beforeHandOff])
+    try await harness.releaseRemaining(count: 4)
+    #expect(harness.coordinator.batteryReadings[beforeHandOff.id]?.millivolts == 3900)
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+    #expect(harness.coordinator.timedOutContactIDs.isEmpty)
+    #expect(harness.coordinator.backoffDelay(for: beforeHandOff.id) == nil)
+
+    await harness.session.enqueueLoginOnly()
+    await harness.session.enqueuePreemptedStatus(afterHandOff: true)
+    await harness.session.enqueuePreemptedStatus(afterHandOff: true)
+    harness.coordinator.refresh([afterHandOffSkipped])
+    try await harness.releaseRemaining(count: 2, from: 4)
+    #expect(harness.coordinator.batteryReadings[afterHandOffSkipped.id] == nil)
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+    #expect(harness.coordinator.timedOutContactIDs.isEmpty)
+    #expect(harness.coordinator.backoffDelay(for: afterHandOffSkipped.id) == nil)
+
+    await harness.session.enqueueLoginOnly()
+    await harness.session.enqueueStatusResponse(3750)
+    await harness.session.enqueuePreemptedOwner(afterHandOff: true)
+    await harness.session.enqueueOwnerResponse("1.9.2")
+    harness.coordinator.refresh([ownerPreempted])
+    try await harness.releaseRemaining(count: 3, from: 6)
+    let callsForOwnerPreempted = await harness.session.calls.filter { $0.publicKey == ownerPreempted.publicKey }.map(\.kind)
+    #expect(callsForOwnerPreempted == [.status, .owner, .owner])
+    #expect(harness.coordinator.batteryReadings[ownerPreempted.id]?.millivolts == 3750)
+    #expect(try await harness.store.fetchContact(id: ownerPreempted.id)?.myNodeFirmwareVersion == "1.9.2")
+  }
+
+  @Test
+  func `flood-routed repeater gets at most two status writes and no resetPath`() async throws {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 5,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 40,
+        binaryRequestRetransmitInterval: 10
+      ),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    defer { Task { await session.stop() } }
+
+    let radioID = UUID()
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let services = ServiceContainer(session: session, dataStore: store, radioID: radioID)
+    let key = Data(repeating: 0x35, count: 32)
+    let contact = ContactDTO(from: Contact(
+      radioID: radioID, publicKey: key, name: "Flood", typeRawValue: ContactType.repeater.rawValue,
+      outPathLength: PacketBuilder.floodPathSentinel, lastHeardTimestamp: 40,
+      isMyNode: true, myNodeFirmwareVersion: "1.8.0"
+    ))
+    try await store.saveContact(contact)
+    let connected = RemoteNodeSessionDTO(
+      id: UUID(), radioID: radioID, publicKey: key, name: "Flood", role: .repeater, isConnected: true
+    )
+    try await store.saveRemoteNodeSessionDTO(connected)
+
+    let coordinator = WatchlistRefreshCoordinator()
+    coordinator.configure(
+      store: store,
+      now: { Date(timeIntervalSince1970: 1_700_002_200) },
+      onContactsChanged: {},
+      dependencies: WatchlistRefreshCoordinator.Dependencies(
+        operations: { WatchlistRefreshCoordinator.Operations(services: services) },
+        radioID: { radioID },
+        connectionState: { .ready },
+        sessionIdentity: { ObjectIdentifier(session) },
+        connectionStates: { AsyncStream { $0.finish() } }
+      )
+    )
+
+    coordinator.refresh([contact])
+    try await waitUntil("first flood status sent") {
+      await transport.sentData.filter { $0.first == CommandCode.sendStatusRequest.rawValue }.count == 1
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x21, 0x22, 0x23, 0x24]), suggestedTimeoutMs: 6000))
+    try await waitUntil("flood status parked") { clock.nextSleepDuration == .seconds(12) }
+    clock.advance(by: .seconds(12))
+
+    try await waitUntil("second flood status sent") {
+      await transport.sentData.filter { $0.first == CommandCode.sendStatusRequest.rawValue }.count == 2
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0x25, 0x26, 0x27, 0x28]), suggestedTimeoutMs: 6000))
+    try await waitUntil("flood status resend parked") { clock.nextSleepDuration == .seconds(12) }
+    clock.advance(by: .seconds(35))
+
+    let statusWrites = await transport.sentData.filter { $0.first == CommandCode.sendStatusRequest.rawValue }.count
+    let resetWrites = await transport.sentData.filter { $0.first == CommandCode.resetPath.rawValue }.count
+    #expect(statusWrites == 2)
+    #expect(resetWrites == 0)
+    coordinator.shutdown()
+  }
+
+  @Test
+  func `background status queued past 45s gets no write before admission and records no failure or backoff`() async throws {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 5,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 60,
+        binaryRequestRetransmitInterval: nil
+      ),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    defer { Task { await session.stop() } }
+
+    let radioID = UUID()
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let services = ServiceContainer(session: session, dataStore: store, radioID: radioID)
+    let otherKey = Data(repeating: 0x41, count: 32)
+    let watchlistKey = Data(repeating: 0x42, count: 32)
+    let contact = ContactDTO(from: Contact(
+      radioID: radioID, publicKey: watchlistKey, name: "Back", typeRawValue: ContactType.repeater.rawValue,
+      outPathLength: PacketBuilder.floodPathSentinel, lastHeardTimestamp: 40,
+      isMyNode: true, myNodeFirmwareVersion: "1.8.0"
+    ))
+    try await store.saveContact(contact)
+    try await store.saveRemoteNodeSessionDTO(RemoteNodeSessionDTO(
+      id: UUID(), radioID: radioID, publicKey: watchlistKey, name: "Back", role: .repeater, isConnected: true
+    ))
+
+    let coordinator = WatchlistRefreshCoordinator()
+    coordinator.configure(
+      store: store,
+      now: { Date(timeIntervalSince1970: 1_700_002_300) },
+      onContactsChanged: {},
+      dependencies: WatchlistRefreshCoordinator.Dependencies(
+        operations: { WatchlistRefreshCoordinator.Operations(services: services) },
+        radioID: { radioID },
+        connectionState: { .ready },
+        sessionIdentity: { ObjectIdentifier(session) },
+        connectionStates: { AsyncStream { $0.finish() } }
+      )
+    )
+    defer { coordinator.shutdown() }
+
+    let interactiveTask = Task {
+      try await services.binaryProtocolService.requestTelemetry(from: otherKey, priority: .interactive)
+    }
+    try await waitUntil("interactive getSelfTelemetry sent") {
+      await transport.sentData.contains { $0.first == CommandCode.getSelfTelemetry.rawValue }
+    }
+    let interactiveTag = Data([0x91, 0x92, 0x93, 0x94])
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: interactiveTag))
+    try await waitUntil("interactive parked") { clock.nextSleepDuration == .seconds(60) }
+
+    coordinator.refresh([contact])
+    await Task.yield()
+    clock.advance(by: .seconds(46))
+    await Task.yield()
+
+    #expect(await transport.sentData.allSatisfy { $0.first != CommandCode.sendStatusRequest.rawValue })
+
+    var telemetryPacket = Data([ResponseCode.binaryResponse.rawValue, 0x00])
+    telemetryPacket.append(interactiveTag)
+    await transport.simulateReceive(telemetryPacket)
+    _ = try await interactiveTask.value
+
+    try await waitUntil("background status admitted and written") {
+      await transport.sentData.contains { $0.first == CommandCode.sendStatusRequest.rawValue }
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0xA1, 0xA2, 0xA3, 0xA4])))
+    await transport.simulateReceive(
+      makeStatusResponsePacket(publicKeyPrefix: Data(watchlistKey.prefix(6)), battery: 3650)
+    )
+    try await waitUntil("ownerInfo binaryRequest sent") {
+      await transport.sentData.filter { $0.first == CommandCode.binaryRequest.rawValue }.count == 1
+    }
+    let ownerTag = Data([0xB1, 0xB2, 0xB3, 0xB4])
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: ownerTag))
+    await transport.simulateReceive(makeOwnerInfoPacket(tag: ownerTag, firmware: "1.8.0"))
+
+    try await waitUntil("walk completed") { !coordinator.isRefreshing }
+    #expect(coordinator.batteryReadings[contact.id]?.millivolts == 3650)
+    #expect(coordinator.failedContactIDs.isEmpty)
+    #expect(coordinator.timedOutContactIDs.isEmpty)
+    #expect(coordinator.backoffDelay(for: contact.id) == nil)
   }
 
   @Test
@@ -576,7 +847,7 @@ private final class Harness {
   let store: PersistenceStore
   let session: ScriptedRemote
   let coordinator = WatchlistRefreshCoordinator()
-  let now = Date()
+  var now = Date()
   var contactChanges = 0
   var state: DeviceConnectionState = .ready
   var currentRadioID: UUID
@@ -593,7 +864,7 @@ private final class Harness {
     yield = continuation
     coordinator.configure(
       store: store,
-      now: { [now] in now },
+      now: { [weak self] in self?.now ?? .now },
       onContactsChanged: { [weak self] in self?.contactChanges += 1 },
       dependencies: WatchlistRefreshCoordinator.Dependencies(
         operations: { [weak self] in self?.currentRemote.operations },
@@ -691,9 +962,11 @@ private actor ScriptedRemote {
   private var held: [CheckedContinuation<Void, Never>] = []
   private var passwords: [Data: String] = [:]
   private var sessionKeys: [UUID: Data] = [:]
+  private var connectedSessions: [Data: RemoteNodeSessionDTO] = [:]
   private(set) var calls: [Call] = []
   private(set) var logins: [Login] = []
-  private(set) var resetPaths: [Data] = []
+  private(set) var loginSessionIDs: [UUID] = []
+  private(set) var createSessionCount = 0
   private(set) var entered = 0
   private(set) var maxInFlight = 0
   private var inFlight = 0
@@ -701,9 +974,9 @@ private actor ScriptedRemote {
   nonisolated var operations: WatchlistRefreshCoordinator.Operations {
     WatchlistRefreshCoordinator.Operations(
       savedPassword: { await self.password(for: $0) },
+      connectedSession: { await self.connectedSession(forPrefix: $0) },
       createSession: { await self.session(for: $0) },
       logIn: { try await self.logIn(sessionID: $0, password: $1, pathLength: $2) },
-      resetPath: { await self.resetPath($0) },
       requestStatus: { try await self.requestStatus(sessionID: $0) },
       requestOwnerInfo: { try await self.requestOwnerInfo(sessionID: $0) }
     )
@@ -711,6 +984,14 @@ private actor ScriptedRemote {
 
   func setSavedPassword(_ password: String, for publicKey: Data) {
     passwords[publicKey] = password
+  }
+
+  func setConnectedSession(_ session: RemoteNodeSessionDTO?, for publicKey: Data) {
+    let prefix = Data(publicKey.prefix(6))
+    connectedSessions[prefix] = session
+    if let session {
+      sessionKeys[session.id] = session.publicKey
+    }
   }
 
   func enqueue(status millivolts: Int, firmware: String) {
@@ -738,6 +1019,30 @@ private actor ScriptedRemote {
     loginOutcomes.append(.failure(RemoteNodeError.timeout))
   }
 
+  func enqueueLoginOnly(firmwareLevel: UInt8 = 2) {
+    loginOutcomes.append(.success(firmwareLevel))
+  }
+
+  func enqueueStatusResponse(_ millivolts: Int) {
+    statusOutcomes.append(.success(Self.status(millivolts)))
+  }
+
+  func enqueueStatusTimeout() {
+    statusOutcomes.append(.failure(RemoteNodeError.timeout))
+  }
+
+  func enqueueOwnerResponse(_ firmware: String) {
+    ownerOutcomes.append(.success(OwnerInfoResponse(firmwareVersion: firmware, nodeName: "Node", ownerInfo: "")))
+  }
+
+  func enqueuePreemptedStatus(afterHandOff: Bool) {
+    statusOutcomes.append(.failure(MeshCoreError.preempted(afterHandOff: afterHandOff)))
+  }
+
+  func enqueuePreemptedOwner(afterHandOff: Bool) {
+    ownerOutcomes.append(.failure(MeshCoreError.preempted(afterHandOff: afterHandOff)))
+  }
+
   func enqueueStatusOnly(status millivolts: Int, firmwareLevel: UInt8) {
     loginOutcomes.append(.success(firmwareLevel))
     statusOutcomes.append(.success(Self.status(millivolts)))
@@ -752,7 +1057,12 @@ private actor ScriptedRemote {
     passwords[contact.publicKey]
   }
 
+  private func connectedSession(forPrefix prefix: Data) -> RemoteNodeSessionDTO? {
+    connectedSessions[prefix]
+  }
+
   private func session(for contact: ContactDTO) -> RemoteNodeSessionDTO {
+    createSessionCount += 1
     let id = sessionKeys.first { $0.value == contact.publicKey }?.key ?? UUID()
     sessionKeys[id] = contact.publicKey
     return RemoteNodeSessionDTO(
@@ -763,15 +1073,12 @@ private actor ScriptedRemote {
   private func logIn(sessionID: UUID, password: String, pathLength: UInt8) throws -> LoginResult {
     let key = sessionKeys[sessionID] ?? Data()
     logins.append(Login(publicKey: key, password: password, pathLength: pathLength))
+    loginSessionIDs.append(sessionID)
     let level = try loginOutcomes.isEmpty ? Self.currentFirmwareLevel : loginOutcomes.removeFirst().get()
     return LoginResult(
       success: true, isAdmin: false, aclPermissions: nil, publicKeyPrefix: Data(key.prefix(6)),
       firmwareLevel: level
     )
-  }
-
-  private func resetPath(_ contact: ContactDTO) {
-    resetPaths.append(contact.publicKey)
   }
 
   private func requestStatus(sessionID: UUID) async throws -> StatusResponse {
@@ -860,10 +1167,10 @@ private func makeSelfInfoPacket() -> Data {
   return Data([ResponseCode.selfInfo.rawValue]) + payload
 }
 
-private func makeMessageSentPacket(expectedAck: Data) -> Data {
+private func makeMessageSentPacket(expectedAck: Data, suggestedTimeoutMs: UInt32 = 5000) -> Data {
   var packet = Data([ResponseCode.messageSent.rawValue, 0])
   packet.append(expectedAck)
-  packet.append(contentsOf: withUnsafeBytes(of: UInt32(5000).littleEndian) { Array($0) })
+  packet.append(contentsOf: withUnsafeBytes(of: suggestedTimeoutMs.littleEndian) { Array($0) })
   return packet
 }
 

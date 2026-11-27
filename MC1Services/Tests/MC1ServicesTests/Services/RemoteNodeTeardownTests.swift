@@ -6,19 +6,22 @@ import Testing
 @Suite("RemoteNodeService teardown")
 struct RemoteNodeTeardownTests {
   @Test
-  func `stopAllKeepAlives resumes a parked login continuation`() async throws {
+  func `retire stops in-flight login from persisting connected state`() async throws {
     let radioID = UUID()
     let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
 
     let session = MockMeshCoreSession()
-    await session.setSendLoginResults([.success(MessageSentInfo(
-      route: 0,
-      expectedAck: Data([1, 2, 3, 4]),
-      suggestedTimeoutMs: 30000
-    ))])
-
     let remoteSession = RemoteNodeSessionDTO.testSession(radioID: radioID)
     try await dataStore.saveRemoteNodeSessionDTO(remoteSession)
+    let prefix = Data(remoteSession.publicKey.prefix(6))
+    await session.setStubbedLoginResults([
+      .success(LoginExchangeResult(
+        info: LoginInfo(permissions: 0, isAdmin: true, publicKeyPrefix: prefix),
+        mayAnswerEarlierLogin: false
+      )),
+    ])
+    let gate = SimpleGate()
+    await session.setSendLoginHold { await gate.wait() }
 
     let service = RemoteNodeService(
       session: session,
@@ -27,25 +30,19 @@ struct RemoteNodeTeardownTests {
     )
 
     let loginTask = Task {
-      try await service.login(sessionID: remoteSession.id, password: "test-password")
+      try await service.login(sessionID: remoteSession.id, password: "test-password", priority: .interactive)
+    }
+    try await waitUntil("login reached mock session") {
+      await session.loginInvocations.count == 1
     }
 
-    // Wait until the continuation is registered before tearing down.
-    try await waitUntil("login continuation was never parked") {
-      let sent = await session.sendLoginInvocations.count == 1
-      let pending = await service.pendingLoginCount
-      return sent && pending == 1
-    }
+    await service.retire()
+    await gate.release()
 
-    await service.stopAllKeepAlives()
-
-    await #expect {
+    await #expect(throws: RemoteNodeError.self) {
       _ = try await loginTask.value
-    } throws: { error in
-      guard let error = error as? RemoteNodeError, case .cancelled = error else { return false }
-      return true
     }
-    #expect(await service.pendingLoginCount == 0)
+    #expect(try await dataStore.fetchRemoteNodeSession(id: remoteSession.id)?.isConnected == false)
   }
 
   @Test
@@ -82,5 +79,21 @@ struct RemoteNodeTeardownTests {
     try await waitUntil("keep-alive task must not keep the service alive") {
       weakService == nil
     }
+  }
+}
+
+private actor SimpleGate {
+  private var continuation: CheckedContinuation<Void, Never>?
+  private var released = false
+
+  func wait() async {
+    guard !released else { return }
+    await withCheckedContinuation { continuation = $0 }
+  }
+
+  func release() {
+    released = true
+    continuation?.resume()
+    continuation = nil
   }
 }

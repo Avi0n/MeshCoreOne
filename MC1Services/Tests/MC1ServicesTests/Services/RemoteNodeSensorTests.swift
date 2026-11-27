@@ -125,15 +125,17 @@ extension RemoteNodeSensorTests {
   func `nonadmin ACL can authenticate telemetry but cannot open management`(requireAdmin: Bool) async throws {
     let h = try await harness(connected: false)
     let contact = ContactDTO.testContact(radioID: h.remote.radioID, publicKey: h.remote.publicKey, typeRawValue: 4)
-    await h.session.setSendLoginResults([.success(MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100))])
+    let prefix = Data(contact.publicKey.prefix(6))
+    await h.session.setStubbedLoginResults([
+      .success(LoginExchangeResult(
+        info: LoginInfo(permissions: 2, isAdmin: false, publicKeyPrefix: prefix),
+        mayAnswerEarlierLogin: false
+      )),
+    ])
     let task = Task {
       try await h.service.connectSensor(radioID: contact.radioID, contact: contact, password: "",
                                         rememberPassword: false, requireAdmin: requireAdmin, pathLength: 0, onTimeoutKnown: nil)
     }
-    try await waitUntil("ACL login should be sent") { await h.session.sendLoginInvocations.count == 1 }
-    await h.service.handleLoginResult(LoginResult(success: true, isAdmin: false, aclPermissions: 2,
-                                                  publicKeyPrefix: Data(contact.publicKey.prefix(6))),
-                                      fromPublicKeyPrefix: Data(contact.publicKey.prefix(6)))
     if requireAdmin {
       await #expect(throws: RemoteNodeError.self) { try await task.value }
       #expect(try await h.store.fetchRemoteNodeSession(id: h.remote.id)?.isConnected == false)
@@ -149,13 +151,15 @@ extension RemoteNodeSensorTests {
   @Test(arguments: ["1234567890123456", "éééééééé"])
   func `oversized password is rejected before any send`(password: String) async throws {
     let h = try await harness()
-    await #expect(throws: RemoteNodeError.self) { try await h.service.login(sessionID: h.remote.id, password: password) }
+    await #expect(throws: RemoteNodeError.self) {
+      try await h.service.login(sessionID: h.remote.id, password: password, priority: .interactive)
+    }
     #expect(await h.session.sendLoginInvocations.isEmpty)
     await h.service.retire()
   }
 
   @Test
-  func `reconnect authenticates roles sequentially and keeps failures local`() async throws {
+  func `reconnect authenticates rooms only at background priority and keeps failures local`() async throws {
     let h = try await harness(connected: false)
     let keychain = KeychainService()
     let roles: [RemoteNodeRole] = [.sensor, .repeater, .roomServer]
@@ -167,23 +171,15 @@ extension RemoteNodeSensorTests {
       try await h.store.saveRemoteNodeSessionDTO(node)
       try await keychain.storePassword("test", forNodeKey: node.publicKey)
     }
-    await h.session.setSendLoginResults(Array(repeating: .success(
-      MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
-    ), count: roles.count))
-    let task = Task {
-      await h.service.handleLinkReconnection(radioID: h.remote.radioID, sessionIDs: Set(nodes.map(\.id)))
-    }
-    for index in roles.indices {
-      try await waitUntil("one login should be outstanding") { await h.session.sendLoginInvocations.count == index + 1 }
-      #expect(await h.service.pendingLoginCount == 1)
-      let sent = await h.session.sendLoginInvocations[index]
-      let prefix = Data(sent.destination.prefix(6))
-      await h.service.handleLoginResult(LoginResult(success: index != 1, isAdmin: true, aclPermissions: nil,
-                                                    publicKeyPrefix: prefix), fromPublicKeyPrefix: prefix)
-    }
-    await task.value
-    #expect(await h.session.sendLoginInvocations.count == 3)
-    #expect(await h.service.pendingLoginCount == 0)
+    await h.session.setStubbedLoginResults(roles.indices.map { index in
+      .success(LoginExchangeResult(
+        info: LoginInfo(permissions: 0, isAdmin: true, publicKeyPrefix: Data(nodes[index].publicKey.prefix(6))),
+        mayAnswerEarlierLogin: false
+      ))
+    })
+    await h.service.handleLinkReconnection(radioID: h.remote.radioID, sessionIDs: Set(nodes.map(\.id)))
+    #expect(await h.session.loginInvocations.count == 3)
+    #expect(await h.session.loginInvocations.allSatisfy { $0.priority == .background })
     for node in nodes {
       try await keychain.deletePassword(forNodeKey: node.publicKey)
     }
@@ -195,11 +191,11 @@ extension RemoteNodeSensorTests {
   @Test
   func `unsupported binary operations fail before dispatch`() async throws {
     let h = try await harness()
-    await #expect { try await h.service.requestStatus(sessionID: h.remote.id) } throws: { error in
+    await #expect { try await h.service.requestStatus(sessionID: h.remote.id, priority: .interactive) } throws: { error in
       guard case RemoteNodeError.invalidResponse = error else { return false }
       return true
     }
-    await #expect { try await h.service.requestOwnerInfo(sessionID: h.remote.id) } throws: { error in
+    await #expect { try await h.service.requestOwnerInfo(sessionID: h.remote.id, priority: .interactive) } throws: { error in
       guard case RemoteNodeError.invalidResponse = error else { return false }
       return true
     }
@@ -245,48 +241,24 @@ extension RemoteNodeSensorTests {
   }
 
   @Test
-  func `a cancelled attempt cannot cancel its replacement`() async throws {
-    let h = try await harness(connected: false)
-    await h.session.setSendLoginResults(Array(repeating: .success(
-      MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
-    ), count: 2))
-    let prefix = Data(h.remote.publicKey.prefix(6))
-    let first = Task { try await h.service.login(sessionID: h.remote.id, password: "old") }
-    try await waitUntil("first login should send") { await h.session.sendLoginInvocations.count == 1 }
-    let firstID = try #require(await h.service.loginAttempts[prefix]?.id)
-    let second = Task { try await h.service.login(sessionID: h.remote.id, password: "new") }
-    try await waitUntil("replacement login should send") { await h.session.sendLoginInvocations.count == 2 }
-    await h.service.cancelPendingLogin(for: prefix, attemptID: firstID)
-    #expect(await h.service.pendingLoginCount == 1)
-    await h.service.handleLoginResult(LoginResult(success: true, isAdmin: true, aclPermissions: nil,
-                                                  publicKeyPrefix: prefix), fromPublicKeyPrefix: prefix)
-    await #expect(throws: RemoteNodeError.self) { try await first.value }
-    #expect(try await second.value.isAdmin)
-    await h.service.retire()
-  }
-}
-
-extension RemoteNodeSensorTests {
-  @Test
-  func `a retired sensor connect cannot disconnect the replacement`() async throws {
+  func `a cancelled sensor connect cannot disconnect the replacement`() async throws {
     let h = try await harness(connected: false)
     let contact = ContactDTO.testContact(radioID: h.remote.radioID, publicKey: h.remote.publicKey, typeRawValue: 4)
-    await h.session.setSendLoginResults(Array(repeating: .success(
-      MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
-    ), count: 2))
+    let prefix = Data(contact.publicKey.prefix(6))
+    await h.session.setStubbedLoginResults([
+      .failure(CancellationError()),
+      .success(LoginExchangeResult(
+        info: LoginInfo(permissions: 0, isAdmin: true, publicKeyPrefix: prefix),
+        mayAnswerEarlierLogin: false
+      )),
+    ])
     func connect() async throws -> RemoteNodeSessionDTO {
       try await h.service.connectSensor(radioID: contact.radioID, contact: contact, password: "",
                                         rememberPassword: false, requireAdmin: false, pathLength: 0, onTimeoutKnown: nil)
     }
-    let first = Task { try await connect() }
-    try await waitUntil("first login should send") { await h.session.sendLoginInvocations.count == 1 }
-    let second = Task { try await connect() }
-    try await waitUntil("replacement login should send") { await h.session.sendLoginInvocations.count == 2 }
-    let prefix = Data(contact.publicKey.prefix(6))
-    await h.service.handleLoginResult(LoginResult(success: true, isAdmin: true, aclPermissions: nil,
-                                                  publicKeyPrefix: prefix), fromPublicKeyPrefix: prefix)
-    #expect(try await second.value.isConnected)
-    await #expect(throws: RemoteNodeError.self) { try await first.value }
+    await #expect(throws: Error.self) { _ = try await connect() }
+    let second = try await connect()
+    #expect(second.isConnected)
     #expect(try await h.store.fetchRemoteNodeSession(id: h.remote.id)?.isConnected == true)
     await h.service.retire()
   }

@@ -35,6 +35,7 @@ public actor RoomServerService {
 
   private let session: any RemoteAccessSessionOps
   private let remoteNodeService: RemoteNodeService
+  private let contactService: ContactService?
   private let dataStore: PersistenceStore
   private let textRulesPreference: @Sendable () async -> TextRulesPreference?
   private let radioID: UUID
@@ -65,6 +66,7 @@ public actor RoomServerService {
   init(
     session: any RemoteAccessSessionOps,
     remoteNodeService: RemoteNodeService,
+    contactService: ContactService? = nil,
     dataStore: PersistenceStore,
     radioID: UUID,
     plainTextSendGate: PlainTextSendGate? = nil,
@@ -73,6 +75,7 @@ public actor RoomServerService {
   ) {
     self.session = session
     self.remoteNodeService = remoteNodeService
+    self.contactService = contactService
     self.dataStore = dataStore
     self.radioID = radioID
     self.plainTextSendGate = plainTextSendGate
@@ -121,6 +124,7 @@ public actor RoomServerService {
     password: String?,
     rememberPassword: Bool = true,
     pathLength: UInt8 = 0,
+    samePasswordExemption: Bool = false,
     onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
   ) async throws -> RemoteNodeSessionDTO {
     let remoteSession = try await remoteNodeService.createSession(
@@ -129,16 +133,25 @@ public actor RoomServerService {
     )
 
     // Login to the room
-    _ = try await remoteNodeService.login(
+    let result = try await remoteNodeService.login(
       sessionID: remoteSession.id,
       password: password,
+      priority: .interactive,
       pathLength: pathLength,
+      samePasswordExemption: samePasswordExemption,
       onTimeoutKnown: onTimeoutKnown
     )
 
-    // Store password only after successful login
-    if let password, rememberPassword {
-      try await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
+    if !result.mayAnswerEarlierLogin {
+      if let password, rememberPassword {
+        try await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
+      } else if !rememberPassword {
+        do {
+          try await remoteNodeService.deletePassword(forContact: contact)
+        } catch {
+          logger.warning("Failed to delete saved password: \(error)")
+        }
+      }
     }
 
     // Attempt additional history sync if needed (non-blocking)
@@ -172,6 +185,7 @@ public actor RoomServerService {
     // Re-authenticate to the room
     _ = try await remoteNodeService.login(
       sessionID: sessionID,
+      priority: .interactive,
       pathLength: pathLength
     )
 
@@ -527,36 +541,28 @@ public actor RoomServerService {
   }
 
   /// Discover path and wait for direct route.
-  private func discoverPathAndWait(sessionID: UUID, timeout: Duration = .seconds(10)) async throws -> Bool {
+  private func discoverPathAndWait(sessionID: UUID) async throws -> Bool {
+    guard let contactService else { return false }
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
           let contact = try await dataStore.findContactByPublicKey(remoteSession.publicKey) else {
       return false
     }
 
-    // Already direct?
     if !contact.isFloodRouted {
       return true
     }
 
-    // Trigger path discovery via MeshCore session
     do {
-      _ = try await session.sendPathDiscovery(to: remoteSession.publicKey)
+      let result = try await contactService.discoverPath(
+        radioID: radioID,
+        publicKey: remoteSession.publicKey,
+        priority: .interactive,
+        budget: { RemoteOperationTimeoutPolicy.roomSyncPathDiscoveryBudget(for: $0) }
+      )
+      return result.outHopCount != nil
     } catch {
-      logger.warning("Path discovery send failed: \(error)")
+      logger.warning("Path discovery failed: \(error)")
       return false
     }
-
-    // Wait for result
-    let deadline = ContinuousClock.now + timeout
-    while ContinuousClock.now < deadline {
-      try await Task.sleep(for: .milliseconds(500))
-
-      if let updated = try await dataStore.findContactByPublicKey(remoteSession.publicKey),
-         !updated.isFloodRouted {
-        return true
-      }
-    }
-
-    return false
   }
 }

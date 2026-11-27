@@ -2753,6 +2753,8 @@ public enum L10n {
         public static func parseError(_ p1: Any) -> String {
           return L10n.tr("Localizable", "error.meshCore.parseError", String(describing: p1), fallback: "Failed to parse device response: %@")
         }
+        /// Location: MeshCoreError+UserFacingMessage.swift - Background request yielded to a higher-priority operation
+        public static let preempted = L10n.tr("Localizable", "error.meshCore.preempted", fallback: "The background request was preempted by a higher-priority operation.")
         /// Location: MeshCoreError+UserFacingMessage.swift - Session not started
         public static let sessionNotStarted = L10n.tr("Localizable", "error.meshCore.sessionNotStarted", fallback: "Session has not been started.")
         /// Location: MeshCoreError+UserFacingMessage.swift - Cryptographic signing failed - %@ is the failure reason
@@ -3561,6 +3563,8 @@ public enum L10n {
         public static let name = L10n.tr("RemoteNodes", "remoteNodes.auth.name", fallback: "Name")
         /// Location: NodeAuthenticationSheet.swift - Node details section header
         public static let nodeDetails = L10n.tr("RemoteNodes", "remoteNodes.auth.nodeDetails", fallback: "Node Details")
+        /// Location: NodeAuthenticationSheet.swift - Error shown when authentication times out without a reply
+        public static let noReply = L10n.tr("RemoteNodes", "remoteNodes.auth.noReply", fallback: "No reply. Check the password, or the node may be out of range.")
         /// Location: NodeAuthenticationSheet.swift - Path section footer when no route is set
         public static let noRouteFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.noRouteFooter", fallback: "No known route to this node. The network will find a path automatically.")
         /// Location: NodeAuthenticationSheet.swift - Label when no route is set
@@ -3601,6 +3605,8 @@ public enum L10n {
         public static let typeRoom = L10n.tr("RemoteNodes", "remoteNodes.auth.typeRoom", fallback: "Room")
         /// Sensor
         public static let typeSensor = L10n.tr("RemoteNodes", "remoteNodes.auth.typeSensor", fallback: "Sensor")
+        /// Location: NodeAuthenticationSheet.swift - Status shown while waiting for the radio to accept a login request
+        public static let waitingForRadio = L10n.tr("RemoteNodes", "remoteNodes.auth.waitingForRadio", fallback: "Waiting for the radio…")
       }
       public enum History {
         /// Location: NodeStatusHistoryView.swift - Time range picker

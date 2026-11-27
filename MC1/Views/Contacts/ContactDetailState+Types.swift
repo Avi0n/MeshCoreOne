@@ -48,7 +48,6 @@ extension ContactDetailState {
   struct Dependencies {
     var contactService: @MainActor () -> ContactService?
     var dataStore: @MainActor () -> PersistenceStore?
-    var advertisements: @MainActor () -> AdvertisementService?
     var notifications: @MainActor () -> NotificationService?
     var connectedDevice: @MainActor () -> DeviceDTO?
   }

@@ -11,7 +11,7 @@ public extension RemoteNodeService {
   func sendCLICommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await performCLICommand(
       sessionID: sessionID,
@@ -25,7 +25,7 @@ public extension RemoteNodeService {
   func sendRawCLICommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     let response = try await performCLICommand(
       sessionID: sessionID,
@@ -89,11 +89,24 @@ public extension RemoteNodeService {
         await disconnect(sessionID: sessionID)
         return ""
       }
-      return try await performCLIExchange(
-        publicKey: remoteSession.publicKey, destinationPrefix: destinationPrefix,
-        command: command, acceptsAnyResponse: true, timeout: timeout,
-        ownerID: ownerID, textType: .cliData
-      )
+      return try await performWithDirectPathFloodRecovery(
+        radioID: remoteSession.radioID,
+        publicKey: remoteSession.publicKey,
+        isSensor: true,
+        isRoom: false,
+        isReadOnlyQuery: CLIResponse.isReadOnlyQuery(command),
+        operationName: "sensorCLI"
+      ) {
+        try await self.performCLIExchange(
+          publicKey: remoteSession.publicKey,
+          destinationPrefix: destinationPrefix,
+          command: command,
+          acceptsAnyResponse: true,
+          timeout: timeout,
+          ownerID: ownerID,
+          textType: .cliData
+        )
+      }
     }
 
     // A no-reply command is sent once. Path reset and resend would repeat it.
@@ -105,13 +118,17 @@ public extension RemoteNodeService {
         acceptsAnyResponse: acceptsAnyResponse,
         timeout: timeout,
         ownerID: ownerID,
-        textType: .cliData
+        textType: .cliData,
+        allowFirmwareExpansion: false
       )
     }
 
     return try await performWithDirectPathFloodRecovery(
       radioID: remoteSession.radioID,
       publicKey: remoteSession.publicKey,
+      isSensor: false,
+      isRoom: remoteSession.isRoom,
+      isReadOnlyQuery: CLIResponse.isReadOnlyQuery(command),
       operationName: "remoteCLI"
     ) {
       try await self.performCLIExchange(

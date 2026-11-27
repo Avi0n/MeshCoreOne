@@ -45,6 +45,8 @@ extension MeshCoreError {
       L10n.Localizable.Error.MeshCore.sessionNotStarted
     case .featureDisabled:
       L10n.Localizable.Error.MeshCore.featureDisabled
+    case .preempted:
+      L10n.Localizable.Error.MeshCore.preempted
     }
   }
 

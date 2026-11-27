@@ -186,7 +186,7 @@ final class RepeaterSettingsViewModel {
     isLoadingNodeInfo = true
     defer { isLoadingNodeInfo = false }
     do {
-      let response = try await repeaterAdminService.requestOwnerInfo(sessionID: session.id)
+      let response = try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, priority: .interactive)
       helper.setNodeInfo(
         firmwareVersion: response.firmwareVersion,
         name: response.nodeName,

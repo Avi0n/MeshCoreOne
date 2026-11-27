@@ -10,13 +10,35 @@ struct BinaryProtocolPathResetTests {
 
   private final class RecordingContactRadio: ContactRadioOwning, @unchecked Sendable {
     private let keys = OSAllocatedUnfairLock(initialState: [Data]())
+    private let fallbackKeys = OSAllocatedUnfairLock(initialState: [Data]())
+    private let allowFallback: Bool
+
+    init(allowFallback: Bool = true) {
+      self.allowFallback = allowFallback
+    }
 
     var resetPathPublicKeys: [Data] {
       keys.withLock { $0 }
     }
 
+    var attemptFloodFallbackKeys: [Data] {
+      fallbackKeys.withLock { $0 }
+    }
+
     func resetPath(radioID: UUID, publicKey: Data) async throws {
       keys.withLock { $0.append(publicKey) }
+    }
+
+    func attemptFloodFallback<T: Sendable>(
+      radioID: UUID,
+      publicKey: Data,
+      rethrowIfUnavailable callerError: Error,
+      operation: @Sendable () async throws -> T
+    ) async throws -> T {
+      fallbackKeys.withLock { $0.append(publicKey) }
+      guard allowFallback else { throw callerError }
+      keys.withLock { $0.append(publicKey) }
+      return try await operation()
     }
 
     func healAbsentRadioContact(radioID: UUID, publicKey: Data) async throws -> Bool {
@@ -41,7 +63,7 @@ struct BinaryProtocolPathResetTests {
       defaults.set(fallbackEnabled, forKey: AppStorageKey.remoteFloodFallback.rawValue)
     }
     let session = MockMeshCoreSession()
-    let radio = RecordingContactRadio()
+    let radio = RecordingContactRadio(allowFallback: fallbackEnabled ?? true)
     let service = BinaryProtocolService(
       session: session,
       radioID: UUID(),
@@ -61,7 +83,7 @@ struct BinaryProtocolPathResetTests {
     ])
 
     await #expect(throws: BinaryProtocolError.self) {
-      _ = try await harness.service.requestTelemetry(from: Self.publicKey)
+      _ = try await harness.service.requestTelemetry(from: Self.publicKey, priority: .interactive)
     }
     #expect(harness.radio.resetPathPublicKeys == [Self.publicKey])
     #expect(await harness.session.stubbedRequestTelemetryResults.isEmpty)
@@ -77,7 +99,7 @@ struct BinaryProtocolPathResetTests {
     ])
 
     await #expect(throws: BinaryProtocolError.self) {
-      _ = try await harness.service.requestTelemetry(from: Self.publicKey)
+      _ = try await harness.service.requestTelemetry(from: Self.publicKey, priority: .interactive)
     }
     #expect(harness.radio.resetPathPublicKeys.isEmpty)
     #expect(await harness.session.stubbedRequestTelemetryResults.count == 1)

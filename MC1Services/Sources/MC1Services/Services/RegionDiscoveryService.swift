@@ -119,10 +119,12 @@ public enum RegionDiscoveryService {
               target: meshContact,
               radioID: radioID
             ) { resolved in
-              try await session.requestRegions(from: resolved)
+              try await session.requestRegionsDirect(from: resolved, priority: .interactive)
             }
             return .regions(regions)
           } catch let MeshCoreError.deviceError(code) where code == tableFullErrorCode {
+            return .tableFull
+          } catch let ContactServiceError.sessionError(.deviceError(code)) where code == tableFullErrorCode {
             return .tableFull
           } catch {
             return .otherFailure

@@ -7,66 +7,50 @@ public extension MeshCoreSession {
   // MARK: - Status Requests
 
   /// Requests status information from a remote node via `CMD_SEND_STATUS_REQ`.
-  ///
-  /// Raw public-key status requests use the repeater status layout.
-  /// For room servers, prefer ``requestStatus(from: MeshContact)`` or
-  /// ``requestStatus(from:type:)`` so the correct status layout is selected.
-  ///
-  /// - Parameter publicKey: The full 32-byte public key of the remote node.
-  /// - Returns: A status response containing battery, uptime, and other metrics.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within the timeout period.
-  ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
-  ///           ``MeshCoreError/invalidResponse`` if an unexpected response is received.
-  func requestStatus(from publicKey: Data) async throws -> StatusResponse {
+  func requestStatus(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> StatusResponse {
     try requireFullPublicKey(publicKey, operation: "requestStatus")
-    return try await withSerializedBinaryRequest { [self] in
-      try await performStatusRequest(from: publicKey, layout: .repeater)
-    }
+    return try await performStatusRequest(from: publicKey, layout: .repeater, priority: priority)
   }
 
   /// Requests status information from a remote node via `CMD_SEND_STATUS_REQ`.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - type: The target node type used to choose the correct firmware status layout.
-  /// - Returns: A status response containing battery, uptime, and other metrics.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within the timeout period.
-  ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
-  ///           ``MeshCoreError/invalidResponse`` if an unexpected response is received.
   func requestStatus(
     from publicKey: Data,
-    type: ContactType
+    type: ContactType,
+    priority: MeshRequestPriority
   ) async throws -> StatusResponse {
     try requireFullPublicKey(publicKey, operation: "requestStatus")
     let layout: StatusResponse.Layout = type == .room ? .roomServer : .repeater
-    return try await withSerializedBinaryRequest { [self] in
-      try await performStatusRequest(from: publicKey, layout: layout)
-    }
+    return try await performStatusRequest(from: publicKey, layout: layout, priority: priority)
   }
 
   /// Requests status information from a remote contact using its contact type to
   /// select the correct firmware status layout.
-  ///
-  /// - Parameter contact: The remote contact to query.
-  /// - Returns: A status response containing battery, uptime, and other metrics.
-  /// - Throws: ``MeshCoreError`` if the request fails.
-  func requestStatus(from contact: MeshContact) async throws -> StatusResponse {
-    try await requestStatus(from: contact.publicKey, type: contact.type)
+  func requestStatus(
+    from contact: MeshContact,
+    priority: MeshRequestPriority
+  ) async throws -> StatusResponse {
+    try await requestStatus(from: contact.publicKey, type: contact.type, priority: priority)
   }
 
-  /// Internal implementation of status request, called within serialization.
-  ///
-  /// Uses `CMD_SEND_STATUS_REQ` so firmware pushes `STATUS_RESPONSE` (0x87)
-  /// matched by public-key prefix. `parseFromBinaryResponse` is the tag-matched fallback.
   private func performStatusRequest(
     from publicKey: Data,
-    layout: StatusResponse.Layout
+    layout: StatusResponse.Layout,
+    priority: MeshRequestPriority
   ) async throws -> StatusResponse {
     let publicKeyPrefix = Data(publicKey.prefix(6))
-    return try await performBinaryExchange(
+    let spec = MeshExchangeSpec<StatusResponse>(
       request: PacketBuilder.sendStatusRequest(to: publicKey),
-      to: publicKey,
+      publicKey: publicKey,
+      kind: .status,
       operation: "Status",
+      acceptsBinaryResponse: true,
+      routedEventFilter: { event in
+        if case .statusResponse = event { return true }
+        return false
+      },
       matchRoutedEvent: { event in
         guard case let .statusResponse(response) = event,
               response.publicKeyPrefix == publicKeyPrefix else { return nil }
@@ -74,14 +58,21 @@ public extension MeshCoreSession {
           return Self.roomServerStatus(fromRepeaterLayout: response)
         }
         return response
-      }
-    ) { payload, _ in
-      Parsers.StatusResponse.parseFromBinaryResponse(
-        payload,
-        publicKeyPrefix: publicKeyPrefix,
-        layout: layout
-      )
-    }
+      },
+      parseBinaryResponse: { payload, _ in
+        Parsers.StatusResponse.parseFromBinaryResponse(
+          payload,
+          publicKeyPrefix: publicKeyPrefix,
+          layout: layout
+        )
+      },
+      budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
+      onTimeoutKnown: nil,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
 
   /// Maps a repeater-layout status push into room-server counters when the
@@ -114,408 +105,109 @@ public extension MeshCoreSession {
   }
 
   /// Requests status information from a remote node.
-  ///
-  /// - Parameter destination: The destination (contact or public key).
-  /// - Returns: Status response from the remote node.
-  /// - Throws: ``MeshCoreError`` on failure.
-  func requestStatus(from destination: Destination) async throws -> StatusResponse {
+  func requestStatus(
+    from destination: Destination,
+    priority: MeshRequestPriority
+  ) async throws -> StatusResponse {
     switch destination {
     case let .contact(contact):
-      return try await requestStatus(from: contact)
+      return try await requestStatus(from: contact, priority: priority)
     case .data, .hexString:
       let publicKey = try destination.fullPublicKey()
-      return try await requestStatus(from: publicKey)
+      return try await requestStatus(from: publicKey, priority: priority)
     }
   }
 
-  // MARK: - Binary Protocol Commands
+  // MARK: - Telemetry
 
   /// Requests telemetry data from a remote node via `CMD_SEND_TELEMETRY_REQ`.
-  ///
-  /// Firmware pushes `TELEMETRY_RESPONSE` (0x8B) matched by response tag.
-  /// `parseFromBinaryResponse` is the tag-matched fallback.
-  ///
-  /// - Parameter publicKey: The full 32-byte public key of the remote node.
-  /// - Returns: Telemetry response containing sensor data and device status.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
-  ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
-  ///           ``MeshCoreError/invalidResponse`` if unexpected response received.
-  func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
+  func requestTelemetry(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> TelemetryResponse {
     try requireFullPublicKey(publicKey, operation: "requestTelemetry")
-    return try await withSerializedBinaryRequest { [self] in
-      try await performTelemetryRequest(from: publicKey)
-    }
-  }
-
-  /// Binary exchanges settle host replies before releasing serialization.
-  /// Unwrap the RF result afterward so an RF timeout does not mark host replies uncertain.
-  internal func withSerializedBinaryRequest<Response: Sendable>(
-    _ operation: @escaping @Sendable () async throws -> Response
-  ) async throws -> Response {
-    let outcome: Result<Response, Error> = try await requestResponseSerializer.withSerialization {
-      do {
-        return try await .success(operation())
-      } catch {
-        return .failure(error)
-      }
-    }
-    return try outcome.get()
-  }
-
-  /// Send `request` and resolve the first matching `.binaryResponse` or
-  /// `matchRoutedEvent` hit. Retransmits the same frame until a reply arrives or
-  /// `binaryRequestOverallTimeout` elapses (`nil` retransmit interval disables
-  /// resends). From firmware v14 (1.18.0) a reply to a replaced tag still arrives
-  /// as `.binaryResponse`, so the waiter accepts any tag from its own `messageSent`
-  /// events. Routed pubkey matchers (status) ignore tags. Spacing is
-  /// `max(floor, suggestedTimeoutMs × binaryRetransmitRTTHeadroom)`.
-  ///
-  /// - Parameters:
-  ///   - request: The fully built request frame to send.
-  ///   - publicKey: The destination node's public key; its 6-byte prefix labels log lines.
-  ///   - operation: Request name for logging (e.g. "Status").
-  ///   - matchRoutedEvent: Optional matcher for a response that arrives as an
-  ///     already-routed typed event instead of a raw `.binaryResponse`.
-  ///   - parseResponse: Parses the matched `.binaryResponse` payload (with its tag).
-  ///     Returning `nil` surfaces ``MeshCoreError/parseError`` with payload size.
-  internal func performBinaryExchange<Response: Sendable>(
-    request: Data,
-    to publicKey: Data,
-    operation: String,
-    matchRoutedEvent: (@Sendable (MeshEvent) -> Response?)? = nil,
-    parseResponse: @escaping @Sendable (_ payload: Data, _ tag: Data) throws -> Response?
-  ) async throws -> Response {
-    let prefixHex = publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
-    let startTime = ContinuousClock.now
-    let overallTimeout = configuration.binaryRequestOverallTimeout
-    let retransmitFloor = configuration.binaryRequestRetransmitInterval
-    let state = BinaryExchangeState(minimumSeconds: retransmitFloor ?? 0)
-
-    let floorDesc = retransmitFloor.map { String(format: "%.1f", $0) } ?? "off"
-    logger.info(
-      "\(operation) request to \(prefixHex): sending (overall=\(String(format: "%.1f", overallTimeout))s, retransmitFloor=\(floorDesc)s)"
-    )
-
-    // The host reply stream survives RF completion and cancellation of the RF listener.
-    let (hostID, hostReplies) = await dispatcher.subscribeTracked { event in
-      switch event {
-      case .messageSent, .error: true
-      default: false
-      }
-    }
-    let (rfID, rfEvents) = await dispatcher.subscribeTracked()
-    let (progress, updates) = AsyncStream.makeStream(of: Int.self, bufferingPolicy: .bufferingNewest(1))
-    let hostCollector = Task {
-      var received = 0
-      for await _ in hostReplies {
-        received += 1
-        updates.yield(received)
-      }
-      updates.finish()
-      return received
-    }
-
-    do {
-      try await sendSessionData(request)
-    } catch {
-      await dispatcher.finishSubscription(id: rfID)
-      await dispatcher.finishSubscription(id: hostID)
-      _ = await hostCollector.value
-      throw error
-    }
-
-    let outcome: Result<Response, Error>
-    let waitForLateHostReplies: Bool
-    do {
-      outcome = try await .success(waitForBinaryResponse(
-        request: request, events: rfEvents, state: state, prefixHex: prefixHex,
-        operation: operation, startTime: startTime, matchRoutedEvent: matchRoutedEvent, parseResponse: parseResponse
-      ))
-      waitForLateHostReplies = true
-    } catch MeshCoreError.timeout {
-      outcome = .failure(MeshCoreError.timeout)
-      waitForLateHostReplies = false
-    } catch {
-      outcome = .failure(error)
-      waitForLateHostReplies = true
-    }
-
-    await dispatcher.finishSubscription(id: rfID)
-    await settleBinaryHostReplies(
-      progress, collector: hostCollector, id: hostID, expectedCount: state.submittedCount,
-      waitForLateReplies: waitForLateHostReplies && sessionIsRunning
-    )
-    return try outcome.get()
-  }
-
-  private func waitForBinaryResponse<Response: Sendable>(
-    request: Data,
-    events: AsyncStream<MeshEvent>,
-    state: BinaryExchangeState,
-    prefixHex: String,
-    operation: String,
-    startTime: ContinuousClock.Instant,
-    matchRoutedEvent: (@Sendable (MeshEvent) -> Response?)?,
-    parseResponse: @escaping @Sendable (_ payload: Data, _ tag: Data) throws -> Response?
-  ) async throws -> Response {
-    let overallTimeout = configuration.binaryRequestOverallTimeout
-    return try await withThrowingTaskGroup(of: BinaryExchangeSignal<Response>.self) { group in
-      group.addTask { [self, logger] in
-        // From firmware v14 a reply to a replaced tag still arrives, so keep every tag this exchange sent.
-        var sentTags: Set<Data> = []
-        var acceptedMessageSent = false
-        var sendCount = 1
-
-        for await event in events {
-          if Task.isCancelled { return .idle }
-
-          switch event {
-          case let .messageSent(info):
-            sentTags.insert(info.expectedAck)
-            acceptedMessageSent = true
-            await state.applySuggestedTimeoutMs(info.suggestedTimeoutMs)
-            let tagHex = info.expectedAck.map { String(format: "%02x", $0) }.joined()
-            logger.info(
-              "\(operation) request to \(prefixHex): messageSent #\(sendCount) tag=\(tagHex) suggestedTimeoutMs=\(info.suggestedTimeoutMs)"
-            )
-            sendCount += 1
-
-          case let .error(code):
-            // Device errors after a live messageSent must not abort the wait
-            // (retransmit can fail while an earlier attempt is still answerable).
-            if !acceptedMessageSent {
-              throw MeshCoreError.deviceError(code: code ?? 0)
-            }
-            logger.warning(
-              "\(operation) request to \(prefixHex): device error \(code ?? 0) after messageSent; keeping wait"
-            )
-            continue
-
-          case let .binaryResponse(tag, responseData):
-            guard sentTags.contains(tag) else { continue }
-
-            guard let response = try parseResponse(responseData, tag) else {
-              let preview = responseData.prefix(32).hexString
-              logger.warning(
-                "\(operation) request to \(prefixHex): binary response parse failed (\(responseData.count) bytes, prefix=\(preview))"
-              )
-              throw MeshCoreError.parseError(
-                "\(operation) binary response unparseable (\(responseData.count) bytes)"
-              )
-            }
-            let elapsed = ContinuousClock.now - startTime
-            logger.info("\(operation) request to \(prefixHex): response received in \(elapsed)")
-            return .response(response)
-
-          default:
-            if let routed = matchRoutedEvent?(event) {
-              let elapsed = ContinuousClock.now - startTime
-              logger.info("\(operation) request to \(prefixHex): routed response received in \(elapsed)")
-              return .response(routed)
-            }
-            continue
-          }
-        }
-        if await !self.sessionIsRunning {
-          return .stopped
-        }
-        return .idle
-      }
-
-      group.addTask { [self, logger, clock = self.clock] in
-        try await clock.sleep(for: .seconds(overallTimeout))
-        if await !self.sessionIsRunning {
-          return .stopped
-        }
-        let elapsed = ContinuousClock.now - startTime
-        logger.warning("\(operation) request to \(prefixHex): timed out after \(elapsed)")
-        return .timedOut
-      }
-
-      if configuration.binaryRequestRetransmitInterval != nil {
-        group.addTask { [self, logger, clock = self.clock] in
-          var attempt = 1
-          while !Task.isCancelled {
-            let delay = await state.waitForInterval()
-            do {
-              try await clock.sleep(for: .seconds(delay))
-            } catch is CancellationError {
-              return .idle
-            }
-            guard !Task.isCancelled else { break }
-            guard await self.sessionIsRunning else { return .stopped }
-            attempt += 1
-            let interval = await state.currentSeconds()
-            logger.info(
-              "\(operation) request to \(prefixHex): retransmit #\(attempt) (interval=\(String(format: "%.1f", interval))s)"
-            )
-            do {
-              try await self.submitBinaryRetry(request)
-              await state.recordSubmission()
-            } catch is CancellationError {
-              return .idle
-            } catch {
-              logger.warning(
-                "\(operation) request to \(prefixHex): retransmit send failed (\(error.localizedDescription)); continuing"
-              )
-            }
-          }
-          return .idle
-        }
-      }
-
-      do {
-        while let signal = try await group.next() {
-          switch signal {
-          case let .response(response):
-            group.cancelAll()
-            // Drain so a late retransmit send error cannot surface after success.
-            while await (try? group.next()) != nil {}
-            return response
-          case .timedOut:
-            group.cancelAll()
-            throw MeshCoreError.timeout
-          case .stopped:
-            group.cancelAll()
-            throw CancellationError()
-          case .idle:
-            continue
-          }
-        }
-      } catch {
-        group.cancelAll()
-        throw error
-      }
-      if !sessionIsRunning {
-        throw CancellationError()
-      }
-      throw MeshCoreError.timeout
-    }
-  }
-
-  /// Once admitted on the session actor, the write outlives cancellation of the RF wait.
-  private func submitBinaryRetry(_ request: Data) async throws {
-    try Task.checkCancellation()
-    try await Task { try await sendSessionData(request) }.value
-  }
-
-  /// Drain one host reply per submitted request, even if an earlier attempt answered over RF.
-  private func settleBinaryHostReplies(
-    _ progress: AsyncStream<Int>,
-    collector: Task<Int, Never>,
-    id: UUID,
-    expectedCount: Int,
-    waitForLateReplies: Bool
-  ) async {
-    if waitForLateReplies {
-      let timeout = configuration.defaultTimeout
-      await withTaskGroup(of: Void.self) { group in
-        group.addTask { [clock, dispatcher] in
-          do {
-            try await clock.sleep(for: .seconds(timeout))
-          } catch {
-            return
-          }
-          await dispatcher.finishSubscription(id: id)
-        }
-        for await received in progress {
-          if received >= expectedCount { break }
-        }
-        group.cancelAll()
-      }
-    }
-
-    // At the RF deadline, account for buffered replies without extending that deadline.
-    await dispatcher.finishSubscription(id: id)
-    if await collector.value < expectedCount {
-      await requestResponseSerializer.noteUncertainResponseHistory()
-    }
-  }
-
-  /// Internal implementation of telemetry request, called within serialization.
-  private func performTelemetryRequest(from publicKey: Data) async throws -> TelemetryResponse {
     let publicKeyPrefix = Data(publicKey.prefix(6))
-    // CMD_SEND_TELEMETRY_REQ frame: [0x27][3 reserved zeros][pubkey32]. Firmware
-    // zeros the reserved mask so ~payload[1] grants full env permissions (guests
-    // remain clamped to base telemetry on the repeater).
-    return try await performBinaryExchange(
+    let spec = MeshExchangeSpec<TelemetryResponse>(
       request: PacketBuilder.getSelfTelemetry(destination: publicKey),
-      to: publicKey,
+      publicKey: publicKey,
+      kind: .telemetry,
       operation: "Telemetry",
+      acceptsBinaryResponse: true,
+      routedEventFilter: { event in
+        if case .telemetryResponse = event { return true }
+        return false
+      },
       matchRoutedEvent: { event in
         guard case let .telemetryResponse(response) = event,
               response.publicKeyPrefix == publicKeyPrefix else { return nil }
         return response
-      }
-    ) { payload, _ in
-      Parsers.TelemetryResponse.parseFromBinaryResponse(payload, publicKeyPrefix: publicKeyPrefix)
-    }
+      },
+      parseBinaryResponse: { payload, _ in
+        Parsers.TelemetryResponse.parseFromBinaryResponse(payload, publicKeyPrefix: publicKeyPrefix)
+      },
+      budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
+      onTimeoutKnown: nil,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
 
   /// Requests telemetry data from a destination.
-  ///
-  /// - Parameter destination: The destination (contact or public key).
-  /// - Returns: Telemetry response from the remote node.
-  /// - Throws: ``MeshCoreError`` on failure.
-  func requestTelemetry(from destination: Destination) async throws -> TelemetryResponse {
+  func requestTelemetry(
+    from destination: Destination,
+    priority: MeshRequestPriority
+  ) async throws -> TelemetryResponse {
     let publicKey = try destination.fullPublicKey()
-    return try await requestTelemetry(from: publicKey)
+    return try await requestTelemetry(from: publicKey, priority: priority)
   }
 
   // MARK: - Owner Info
 
   /// Requests owner information from a repeater using binary protocol.
-  ///
-  /// - Parameter publicKey: The full 32-byte public key of the repeater.
-  /// - Returns: An ``OwnerInfoResponse`` containing firmware version, node name, and owner info.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
-  func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
+  func requestOwnerInfo(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> OwnerInfoResponse {
     try requireFullPublicKey(publicKey, operation: "requestOwnerInfo")
-    return try await withSerializedBinaryRequest { [self] in
-      try await performOwnerInfoRequest(from: publicKey)
-    }
+    let spec = MeshExchangeSpec<OwnerInfoResponse>(
+      request: PacketBuilder.binaryRequest(to: publicKey, type: .ownerInfo),
+      publicKey: publicKey,
+      kind: .binary,
+      operation: "Owner info",
+      acceptsBinaryResponse: true,
+      routedEventFilter: { _ in false },
+      matchRoutedEvent: nil,
+      parseBinaryResponse: { payload, _ in
+        // UTF-8 "<firmware_ver>\n<node_name>\n<owner_info>"; stop at 0x00 to strip encryption padding.
+        let text = String(data: payload.prefix { $0 != 0 }, encoding: .utf8) ?? ""
+        let components = text.split(separator: "\n", maxSplits: 2, omittingEmptySubsequences: false)
+        return OwnerInfoResponse(
+          firmwareVersion: components.count >= 1 ? String(components[0]) : "",
+          nodeName: components.count >= 2 ? String(components[1]) : "",
+          ownerInfo: components.count >= 3 ? String(components[2]) : ""
+        )
+      },
+      budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
+      onTimeoutKnown: nil,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
 
-  /// Internal implementation of owner info request, called within serialization.
-  private func performOwnerInfoRequest(from publicKey: Data) async throws -> OwnerInfoResponse {
-    try await performBinaryExchange(
-      request: PacketBuilder.binaryRequest(to: publicKey, type: .ownerInfo),
-      to: publicKey,
-      operation: "Owner info"
-    ) { payload, _ in
-      // Response is UTF-8: "<firmware_ver>\n<node_name>\n<owner_info>".
-      // Stop at the first NUL so encryption padding stays out of the text.
-      let text = String(data: payload.prefix { $0 != 0 }, encoding: .utf8) ?? ""
-      let components = text.split(separator: "\n", maxSplits: 2, omittingEmptySubsequences: false)
-      return OwnerInfoResponse(
-        firmwareVersion: components.count >= 1 ? String(components[0]) : "",
-        nodeName: components.count >= 2 ? String(components[1]) : "",
-        ownerInfo: components.count >= 3 ? String(components[2]) : ""
-      )
-    }
-  }
+  // MARK: - MMA
 
   /// Requests Min-Max-Average (MMA) data for a time range.
-  ///
-  /// Retrieves aggregated sensor data statistics from a remote node.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - start: Exclusive start of the time range.
-  ///   - end: Inclusive end of the time range. Bounds use whole seconds ago,
-  ///          truncated toward zero; future dates are clamped to zero.
-  /// - Returns: MMA response containing aggregated statistics.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
-  ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
-  func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
+  func requestMMA(
+    from publicKey: Data,
+    start: Date,
+    end: Date,
+    priority: MeshRequestPriority
+  ) async throws -> MMAResponse {
     try requireFullPublicKey(publicKey, operation: "requestMMA")
-    return try await withSerializedBinaryRequest { [self] in
-      try await performMMARequest(from: publicKey, start: start, end: end)
-    }
-  }
-
-  /// Internal implementation of MMA request, called within serialization.
-  private func performMMARequest(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
     let now = Date()
     func secondsAgo(_ date: Date) -> UInt32 {
       let seconds = now.timeIntervalSince(date)
@@ -532,87 +224,76 @@ public extension MeshCoreSession {
     payload.append(contentsOf: [0, 0])
 
     let publicKeyPrefix = Data(publicKey.prefix(6))
-    return try await performBinaryExchange(
+    let spec = MeshExchangeSpec<MMAResponse>(
       request: PacketBuilder.binaryRequest(to: publicKey, type: .mma, payload: payload),
-      to: publicKey,
-      operation: "MMA"
-    ) { payload, tag in
-      let serverClockSize = MemoryLayout<UInt32>.size
-      guard payload.count >= serverClockSize else { return nil }
-      return MMAResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, data: MMAParser.parse(Data(payload.dropFirst(serverClockSize))))
-    }
+      publicKey: publicKey,
+      kind: .binary,
+      operation: "MMA",
+      acceptsBinaryResponse: true,
+      routedEventFilter: { _ in false },
+      matchRoutedEvent: nil,
+      parseBinaryResponse: { payload, tag in
+        let serverClockSize = MemoryLayout<UInt32>.size
+        guard payload.count >= serverClockSize else { return nil }
+        return MMAResponse(
+          publicKeyPrefix: publicKeyPrefix,
+          tag: tag,
+          data: MMAParser.parse(Data(payload.dropFirst(serverClockSize)))
+        )
+      },
+      budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
+      onTimeoutKnown: nil,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
+
+  // MARK: - ACL
 
   /// Requests the Access Control List (ACL) from a remote node.
-  ///
-  /// Retrieves the list of authorized public keys for administrative access.
-  ///
-  /// - Parameter publicKey: The full 32-byte public key of the remote node.
-  /// - Returns: ACL response containing authorized public keys.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
-  ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
-  func requestACL(from publicKey: Data) async throws -> ACLResponse {
+  func requestACL(
+    from publicKey: Data,
+    priority: MeshRequestPriority
+  ) async throws -> ACLResponse {
     try requireFullPublicKey(publicKey, operation: "requestACL")
-    return try await withSerializedBinaryRequest { [self] in
-      try await performACLRequest(from: publicKey)
-    }
-  }
-
-  /// Internal implementation of ACL request, called within serialization.
-  private func performACLRequest(from publicKey: Data) async throws -> ACLResponse {
     let payload = Data([0, 0])
     let publicKeyPrefix = Data(publicKey.prefix(6))
-    return try await performBinaryExchange(
+    let spec = MeshExchangeSpec<ACLResponse>(
       request: PacketBuilder.binaryRequest(to: publicKey, type: .acl, payload: payload),
-      to: publicKey,
-      operation: "ACL"
-    ) { payload, tag in
-      ACLResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, entries: ACLParser.parse(payload))
-    }
+      publicKey: publicKey,
+      kind: .binary,
+      operation: "ACL",
+      acceptsBinaryResponse: true,
+      routedEventFilter: { _ in false },
+      matchRoutedEvent: nil,
+      parseBinaryResponse: { payload, tag in
+        ACLResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, entries: ACLParser.parse(payload))
+      },
+      budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
+      onTimeoutKnown: nil,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
 
+  // MARK: - Neighbours
+
   /// Requests the neighbor list from a remote node.
-  ///
-  /// Retrieves information about nodes that the remote device can directly communicate with.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - count: Maximum number of neighbors to return (default 255).
-  ///   - offset: Starting offset for pagination (default 0).
-  ///   - orderBy: Sort order (0 = by RSSI, default).
-  ///   - pubkeyPrefixLength: Length of public key prefix to include (default 4).
-  /// - Returns: Neighbors response containing list of adjacent nodes.
-  /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
-  ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
   func requestNeighbours(
     from publicKey: Data,
     count: UInt8 = 255,
     offset: UInt16 = 0,
     orderBy: UInt8 = 0,
-    pubkeyPrefixLength: UInt8 = 4
+    pubkeyPrefixLength: UInt8 = 4,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     try requireFullPublicKey(publicKey, operation: "requestNeighbours")
-    return try await withSerializedBinaryRequest { [self] in
-      try await performNeighboursRequest(
-        from: publicKey,
-        count: count,
-        offset: offset,
-        orderBy: orderBy,
-        pubkeyPrefixLength: pubkeyPrefixLength
-      )
-    }
-  }
-
-  /// Internal implementation of neighbours request, called within serialization.
-  private func performNeighboursRequest(
-    from publicKey: Data,
-    count: UInt8,
-    offset: UInt16,
-    orderBy: UInt8,
-    pubkeyPrefixLength: UInt8
-  ) async throws -> NeighboursResponse {
     var payload = Data()
-    payload.append(0) // version
+    payload.append(0)
     payload.append(count)
     payload.append(contentsOf: withUnsafeBytes(of: offset.littleEndian) { Array($0) })
     payload.append(orderBy)
@@ -622,35 +303,37 @@ public extension MeshCoreSession {
 
     let publicKeyPrefix = Data(publicKey.prefix(6))
     let prefixLength = Int(pubkeyPrefixLength)
-    return try await performBinaryExchange(
+    let spec = MeshExchangeSpec<NeighboursResponse>(
       request: PacketBuilder.binaryRequest(to: publicKey, type: .neighbours, payload: payload),
-      to: publicKey,
-      operation: "Neighbours"
-    ) { payload, tag in
-      NeighboursParser.parse(
-        payload,
-        publicKeyPrefix: publicKeyPrefix,
-        tag: tag,
-        prefixLength: prefixLength
-      )
-    }
+      publicKey: publicKey,
+      kind: .binary,
+      operation: "Neighbours",
+      acceptsBinaryResponse: true,
+      routedEventFilter: { _ in false },
+      matchRoutedEvent: nil,
+      parseBinaryResponse: { payload, tag in
+        NeighboursParser.parse(
+          payload,
+          publicKeyPrefix: publicKeyPrefix,
+          tag: tag,
+          prefixLength: prefixLength
+        )
+      },
+      budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
+      onTimeoutKnown: nil,
+      loginPasswordDigest: nil,
+      samePasswordExemption: false,
+      onUnconsumedExit: nil
+    )
+    return try await performMeshExchange(spec, priority: priority)
   }
 
   /// Fetches all neighbors from a remote node with automatic pagination.
-  ///
-  /// This is a convenience method that automatically handles pagination to retrieve
-  /// the complete neighbor list, making multiple requests if necessary.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - orderBy: Sort order (0 = by RSSI, default).
-  ///   - pubkeyPrefixLength: Length of public key prefix to include (default 4).
-  /// - Returns: Complete neighbors response with all neighbors.
-  /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/invalidResponse`` on failure.
   func fetchAllNeighbours(
     from publicKey: Data,
     orderBy: UInt8 = 0,
-    pubkeyPrefixLength: UInt8 = 4
+    pubkeyPrefixLength: UInt8 = 4,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     try await NeighboursResponse.collectingAllPages { offset in
       if offset > 0 { try await clock.sleep(for: NeighboursResponse.interPageDelay) }
@@ -659,82 +342,9 @@ public extension MeshCoreSession {
         count: 255,
         offset: offset,
         orderBy: orderBy,
-        pubkeyPrefixLength: pubkeyPrefixLength
+        pubkeyPrefixLength: pubkeyPrefixLength,
+        priority: priority
       )
-    }
-  }
-}
-
-/// Task-group signal for `performBinaryExchange` (file scope: nested enums are
-/// not allowed inside generic methods).
-private enum BinaryExchangeSignal<Response: Sendable>: Sendable {
-  case response(Response)
-  case timedOut
-  /// `session.stop` ended the exchange. Callers must not publish a timeout.
-  case stopped
-  /// Cancelled retransmit loop or ended event stream; not a terminal result.
-  case idle
-}
-
-/// Tracks submitted writes and adjusts retry spacing from `messageSent` to allow a full return trip.
-private actor BinaryExchangeState {
-  /// The first write completed before the retransmit loop starts.
-  private(set) var submittedCount = 1
-
-  private var seconds: TimeInterval
-  private var hasSuggested = false
-  private var waiters: [CheckedContinuation<TimeInterval, Never>] = []
-
-  init(minimumSeconds: TimeInterval) {
-    self.seconds = minimumSeconds
-  }
-
-  func applySuggestedTimeoutMs(_ ms: UInt32) {
-    let suggested = TimeInterval(ms) / SessionConfiguration.millisecondsPerSecond
-    let withHeadroom = suggested * SessionConfiguration.binaryRetransmitRTTHeadroom
-    if withHeadroom > seconds {
-      seconds = withHeadroom
-    }
-    hasSuggested = true
-    let ready = waiters
-    waiters.removeAll()
-    for waiter in ready {
-      waiter.resume(returning: seconds)
-    }
-  }
-
-  /// Resolves with the live interval once firmware has suggested an RTT.
-  /// Falls back to the configured floor if cancelled before `messageSent`.
-  func waitForInterval() async -> TimeInterval {
-    if hasSuggested || Task.isCancelled {
-      return seconds
-    }
-    return await withTaskCancellationHandler {
-      await withCheckedContinuation { continuation in
-        if hasSuggested {
-          continuation.resume(returning: seconds)
-        } else {
-          waiters.append(continuation)
-        }
-      }
-    } onCancel: {
-      Task { await self.resumeWaitersWithFloor() }
-    }
-  }
-
-  func recordSubmission() {
-    submittedCount += 1
-  }
-
-  func currentSeconds() -> TimeInterval {
-    seconds
-  }
-
-  private func resumeWaitersWithFloor() {
-    let ready = waiters
-    waiters.removeAll()
-    for waiter in ready {
-      waiter.resume(returning: seconds)
     }
   }
 }

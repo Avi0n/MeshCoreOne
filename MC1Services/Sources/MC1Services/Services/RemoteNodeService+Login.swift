@@ -8,15 +8,12 @@ public extension RemoteNodeService {
 
   /// Login to a remote node.
   /// Works for sensors, repeaters, and room servers.
-  /// - Parameters:
-  ///   - sessionID: The remote session ID.
-  ///   - password: Optional password (uses stored password if nil).
-  ///   - pathLength: Path length hint for timeout calculation.
-  ///   - onTimeoutKnown: Optional callback invoked with timeout in seconds once firmware responds.
   func login(
     sessionID: UUID,
     password: String? = nil,
+    priority: MeshRequestPriority,
     pathLength: UInt8 = 0,
+    samePasswordExemption: Bool = false,
     onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
   ) async throws -> LoginResult {
     try Task.checkCancellation()
@@ -25,7 +22,6 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
-    // Get password from parameter or keychain
     let pwd: String
     if let password {
       pwd = password
@@ -38,121 +34,100 @@ public extension RemoteNodeService {
     guard pwd.utf8.count <= ProtocolLimits.maxRemotePasswordBytes else { throw RemoteNodeError.invalidPasswordLength }
     try Task.checkCancellation()
     guard !isRetired else { throw RemoteNodeError.notConnected }
-    let prefix = Data(remoteSession.publicKey.prefix(loginPublicKeyPrefixLength))
-    cancelPendingLogin(for: prefix)
-    let attempt = RemoteLoginAttempt(sessionID: sessionID)
-    let attemptID = attempt.id
-    loginAttempts[prefix] = attempt
-    defer {
-      if loginAttempts[prefix]?.id == attemptID { loginAttempts[prefix] = nil }
-    }
 
-    let targetType: CommandAuditLogger.Target = CommandAuditLogger.target(for: remoteSession.role)
+    let prefix = Data(remoteSession.publicKey.prefix(loginPublicKeyPrefixLength))
+    let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
+    let targetType = CommandAuditLogger.target(for: remoteSession.role)
     await auditLogger.logLoginRequest(target: targetType, publicKey: remoteSession.publicKey, pathLength: pathLength)
 
-    let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-    logger.info("login: registering pending login for prefix \(prefixHex)")
-    return try await withTaskCancellationHandler {
-      try await withCheckedThrowingContinuation { continuation in
-        guard !Task.isCancelled, loginAttempts[prefix]?.id == attemptID, !isRetired else {
-          continuation.resume(throwing: RemoteNodeError.cancelled)
-          return
-        }
-        // Registration and worker installation share one actor turn so a reply can claim either send phase.
-        let worker = Task { [self] in
-          await runLoginAttempt(
-            remoteSession, password: pwd, prefix: prefix, attemptID: attemptID,
-            pathLength: pathLength, onTimeoutKnown: onTimeoutKnown
-          )
-        }
-        loginAttempts[prefix]?.beginSubmission(continuation: continuation, worker: worker)
-      }
-    } onCancel: { [weak self] in
-      Task { [weak self] in
-        await self?.cancelPendingLogin(for: prefix, attemptID: attemptID)
-      }
-    }
-  }
-
-  private func runLoginAttempt(
-    _ remoteSession: RemoteNodeSessionDTO, password: String, prefix: Data, attemptID: UUID,
-    pathLength: UInt8, onTimeoutKnown: (@Sendable (Int) async -> Void)?
-  ) async {
-    let sentInfo: MessageSentInfo
+    let exchange: LoginExchangeResult
     do {
-      sentInfo = try await sendLoginHealingIfNeeded(
-        publicKey: remoteSession.publicKey, radioID: remoteSession.radioID, password: password
+      exchange = try await loginHealingIfNeeded(
+        publicKey: remoteSession.publicKey,
+        radioID: remoteSession.radioID,
+        password: pwd,
+        priority: priority,
+        pathLength: pathLength,
+        samePasswordExemption: samePasswordExemption,
+        onTimeoutKnown: onTimeoutKnown.map { callback in
+          { @Sendable seconds in
+            let roundedSeconds = max(1, Int(seconds.rounded(.up)))
+            await callback(roundedSeconds)
+          }
+        }
       )
-    } catch {
-      guard !Task.isCancelled, !isRetired else { return }
-      let rnError = (error as? RemoteNodeError)
-        ?? .sessionError(error as? MeshCoreError ?? .connectionLost(underlying: error))
-      claimLoginCompletion(for: prefix, attemptID: attemptID)?.continuation.resume(throwing: rnError)
-      return
-    }
-
-    guard !Task.isCancelled, loginAttempts[prefix]?.id == attemptID, !isRetired,
-          loginAttempts[prefix]?.didSubmit() == true else { return }
-    let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-    let timeout = RemoteOperationTimeoutPolicy.loginTimeout(for: sentInfo, pathLength: pathLength)
-    logger.info("login: send succeeded, starting \(timeout) timeout for prefix \(prefixHex)")
-
-    if let onTimeoutKnown {
-      let timeoutSeconds = max(1, Int(timeInterval(for: timeout).rounded(.up)))
-      await onTimeoutKnown(timeoutSeconds)
-    }
-    guard !Task.isCancelled, loginAttempts[prefix]?.id == attemptID, !isRetired,
-          loginAttempts[prefix]?.isAwaitingResult == true else { return }
-
-    let deadline = ContinuousClock.now.advanced(by: timeout)
-    let retransmitInterval = max(
-      RemoteOperationTimeoutPolicy.loginRetransmitInterval,
-      .milliseconds(Int(sentInfo.suggestedTimeoutMs))
-    )
-    var retransmitCount = 0
-    while !Task.isCancelled {
-      let remaining = deadline - ContinuousClock.now
-      guard remaining > .zero else { break }
-      let sleepFor = remaining < retransmitInterval ? remaining : retransmitInterval
-      try? await Task.sleep(for: sleepFor)
-      guard !Task.isCancelled, loginAttempts[prefix]?.id == attemptID, !isRetired,
-            loginAttempts[prefix]?.isAwaitingResult == true else { return }
-      if ContinuousClock.now >= deadline { break }
-      retransmitCount += 1
-      do {
-        logger.info("login: retransmit #\(retransmitCount) for \(prefixHex)")
-        _ = try await session.sendLogin(to: remoteSession.publicKey, password: password)
-      } catch is CancellationError {
-        return
-      } catch {
-        logger.warning("login: retransmit #\(retransmitCount) failed for \(prefixHex): \(error.localizedDescription)")
+    } catch is CancellationError {
+      throw CancellationError()
+    } catch let error as MeshCoreError {
+      if case .timeout = error {
+        logger.warning("Login timeout for session \(remoteSession.id), prefix \(prefixHex)")
+        throw RemoteNodeError.timeout
       }
+      throw RemoteNodeError.sessionError(error)
     }
 
-    guard !Task.isCancelled, !isRetired else { return }
-    if let completion = claimLoginCompletion(for: prefix, attemptID: attemptID) {
-      logger.warning("Login timeout after \(timeout) for session \(remoteSession.id), prefix \(prefixHex)")
-      completion.continuation.resume(throwing: RemoteNodeError.timeout)
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
+    guard let info = exchange.info, exchange.succeeded else {
+      await auditLogger.logLoginFailed(target: targetType, publicKey: prefix, reason: "authentication failed")
+      throw RemoteNodeError.loginFailed("authentication failed")
     }
+
+    await auditLogger.logLoginSuccess(target: targetType, publicKey: prefix, isAdmin: info.isAdmin)
+    let result = LoginResult(
+      success: true,
+      isAdmin: info.isAdmin,
+      aclPermissions: info.permissions,
+      publicKeyPrefix: info.publicKeyPrefix,
+      serverTime: info.serverTime,
+      firmwareLevel: info.firmwareLevel,
+      mayAnswerEarlierLogin: exchange.mayAnswerEarlierLogin
+    )
+
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
+    try await dataStore.updateRemoteNodeSessionConnection(
+      id: remoteSession.id,
+      isConnected: true,
+      permissionLevel: result.permissionLevel(for: remoteSession.role)
+    )
+    if Task.isCancelled || isRetired {
+      try? await dataStore.markSessionDisconnected(remoteSession.id)
+      if Task.isCancelled {
+        throw CancellationError()
+      }
+      throw RemoteNodeError.notConnected
+    }
+
+    eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: true))
+    if remoteSession.isRoom { keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval }
+    return result
   }
 
-  private func claimLoginCompletion(for prefix: Data, attemptID: UUID? = nil) -> RemoteLoginAttempt.Completion? {
-    if let attemptID, loginAttempts[prefix]?.id != attemptID { return nil }
-    return loginAttempts[prefix]?.claimCompletion()
-  }
-
-  /// Sends the login; if the radio reports the contact is missing from its table, pushes the local
-  /// copy (flood-routed) and retries once. A contact can be in the app database but absent on the
-  /// radio after a backup restore or a radio swap, which the firmware answers with notFound (0x02).
-  /// The parked login continuation is covered here by the session commands' own timeouts, not the
-  /// login timeout, which only starts after this returns.
-  internal func sendLoginHealingIfNeeded(
+  /// Sends login via `MeshCoreSession.login`; if the radio reports `notFound` on the first write,
+  /// pushes the local contact with flood routing and retries once.
+  internal func loginHealingIfNeeded(
     publicKey: Data,
     radioID: UUID,
-    password: String
-  ) async throws -> MessageSentInfo {
+    password: String,
+    priority: MeshRequestPriority = .interactive,
+    pathLength: UInt8 = 0,
+    samePasswordExemption: Bool = false,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)? = nil
+  ) async throws -> LoginExchangeResult {
+    let budget: @Sendable (MessageSentInfo) -> TimeInterval = { sentInfo in
+      let duration = RemoteOperationTimeoutPolicy.loginTimeout(for: sentInfo, pathLength: pathLength)
+      return Self.timeInterval(for: duration)
+    }
     do {
-      return try await session.sendLogin(to: publicKey, password: password)
+      return try await session.login(
+        to: publicKey,
+        password: password,
+        priority: priority,
+        budget: budget,
+        onTimeoutKnown: onTimeoutKnown,
+        samePasswordExemption: samePasswordExemption
+      )
     } catch let error as MeshCoreError {
       guard case let .deviceError(code) = error, code == ProtocolError.notFound.rawValue else {
         throw error
@@ -161,7 +136,14 @@ public extension RemoteNodeService {
       try await addLocalContactToRadio(publicKey: publicKey, radioID: radioID)
       // Bounded to a single retry: a second notFound after a successful add is a firmware
       // inconsistency, left to propagate rather than loop.
-      return try await session.sendLogin(to: publicKey, password: password)
+      return try await session.login(
+        to: publicKey,
+        password: password,
+        priority: priority,
+        budget: budget,
+        onTimeoutKnown: onTimeoutKnown,
+        samePasswordExemption: samePasswordExemption
+      )
     }
   }
 
@@ -188,54 +170,6 @@ public extension RemoteNodeService {
     }
     if healed {
       logger.info("Re-added missing contact to radio during login")
-    }
-  }
-
-  /// Handle login result push from device.
-  internal func handleLoginResult(_ result: LoginResult, fromPublicKeyPrefix: Data) async {
-    guard fromPublicKeyPrefix.count >= loginPublicKeyPrefixLength else {
-      logger.warning("Login result has invalid prefix length: \(fromPublicKeyPrefix.count)")
-      return
-    }
-
-    let prefix = Data(fromPublicKeyPrefix.prefix(loginPublicKeyPrefixLength))
-    let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-    let pendingKeys = loginAttempts.filter(\.value.isAwaitingResult).keys.map { $0.map { String(format: "%02x", $0) }.joined() }
-    logger.info("handleLoginResult: looking for prefix \(prefixHex), pending keys: \(pendingKeys)")
-    guard let completion = claimLoginCompletion(for: prefix) else {
-      logger.warning("Login result with no pending request. Prefix: \(prefixHex)")
-      return
-    }
-    logger.info("handleLoginResult: found continuation for prefix \(prefixHex)")
-
-    do {
-      guard !isRetired else { throw RemoteNodeError.cancelled }
-      guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: completion.sessionID) else {
-        throw RemoteNodeError.sessionNotFound
-      }
-      guard loginAttempts[prefix]?.id == completion.attemptID, !isRetired else { throw RemoteNodeError.cancelled }
-      let target = CommandAuditLogger.target(for: remoteSession.role)
-      guard result.success else {
-        await auditLogger.logLoginFailed(target: target, publicKey: prefix, reason: "authentication failed")
-        throw RemoteNodeError.loginFailed("authentication failed")
-      }
-      await auditLogger.logLoginSuccess(target: target, publicKey: prefix, isAdmin: result.isAdmin)
-      guard loginAttempts[prefix]?.id == completion.attemptID, !isRetired else { throw RemoteNodeError.cancelled }
-      try await dataStore.updateRemoteNodeSessionConnection(
-        id: remoteSession.id,
-        isConnected: true,
-        permissionLevel: result.permissionLevel(for: remoteSession.role)
-      )
-      guard loginAttempts[prefix]?.id == completion.attemptID, !isRetired else {
-        // A cancelled store turn may already have committed; retire it unless a new login owns the row.
-        if loginAttempts[prefix] == nil { try? await dataStore.markSessionDisconnected(remoteSession.id) }
-        throw RemoteNodeError.cancelled
-      }
-      eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: true))
-      if remoteSession.isRoom { keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval }
-      completion.continuation.resume(returning: result)
-    } catch {
-      completion.continuation.resume(throwing: error)
     }
   }
 }

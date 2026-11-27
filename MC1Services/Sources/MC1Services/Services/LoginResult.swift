@@ -9,6 +9,9 @@ public struct LoginResult: Sendable {
   public let serverTime: Date?
   /// The remote node's `FIRMWARE_VER_LEVEL`, if the response carried it.
   public let firmwareLevel: UInt8?
+  /// True when an earlier unconsumed login to the same contact used a different password,
+  /// so this reply might belong to that earlier attempt rather than proving the current password.
+  public let mayAnswerEarlierLogin: Bool
 
   public init(
     success: Bool,
@@ -16,7 +19,8 @@ public struct LoginResult: Sendable {
     aclPermissions: UInt8?,
     publicKeyPrefix: Data,
     serverTime: Date? = nil,
-    firmwareLevel: UInt8? = nil
+    firmwareLevel: UInt8? = nil,
+    mayAnswerEarlierLogin: Bool = false
   ) {
     self.success = success
     self.isAdmin = isAdmin
@@ -24,6 +28,7 @@ public struct LoginResult: Sendable {
     self.publicKeyPrefix = publicKeyPrefix
     self.serverTime = serverTime
     self.firmwareLevel = firmwareLevel
+    self.mayAnswerEarlierLogin = mayAnswerEarlierLogin
   }
 
   public func permissionLevel(for role: RemoteNodeRole) -> RoomPermissionLevel {

@@ -17,6 +17,7 @@ public actor RemoteNodeService {
   // MARK: - Properties
 
   let session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps
+  let clock: any Clock<Duration>
   let dataStore: any PersistenceStoreProtocol
   let keychainService: KeychainService
   let contactRadioOwner: ContactRadioOwner
@@ -28,8 +29,6 @@ public actor RemoteNodeService {
   let auditLogger = CommandAuditLogger()
 
   var isRetired = false
-  /// Login ownership keyed by the public key prefix carried in login responses.
-  var loginAttempts: [Data: RemoteLoginAttempt] = [:]
   var sensorConnectAttempts: [UUID: UUID] = [:]
 
   /// CLI slot ownership and FIFO admission keyed by the response's public key prefix.
@@ -106,6 +105,7 @@ public actor RemoteNodeService {
 
   init(
     session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps,
+    clock: any Clock<Duration> = ContinuousClock(),
     dataStore: any PersistenceStoreProtocol,
     keychainService: KeychainService,
     contactRadioOwner: ContactRadioOwner = ContactRadioOwner(),
@@ -115,6 +115,7 @@ public actor RemoteNodeService {
     defaults: UserDefaults = .standard
   ) {
     self.session = session
+    self.clock = clock
     self.dataStore = dataStore
     self.keychainService = keychainService
     self.contactRadioOwner = contactRadioOwner
@@ -133,7 +134,6 @@ public actor RemoteNodeService {
 
   // MARK: - Event Monitoring
 
-  /// Start monitoring MeshCore events for login results
   public func startEventMonitoring() {
     guard !isRetired else { return }
     eventMonitorTask?.cancel()
@@ -142,11 +142,7 @@ public actor RemoteNodeService {
       guard let self else { return }
       let filter = EventFilter { event in
         switch event {
-        case .loginSuccess, .loginFailed:
-          true
         case let .contactMessageReceived(info) where info.textType == cliResponseTextType:
-          true
-        case .statusResponse, .telemetryResponse, .neighboursResponse, .binaryResponse:
           true
         default:
           false
@@ -171,38 +167,9 @@ public actor RemoteNodeService {
 
   /// Handle incoming MeshCore event
   private func handleEvent(_ event: MeshEvent) async {
-    switch event {
-    case let .loginSuccess(info):
-      let prefixHex = info.publicKeyPrefix.map { String(format: "%02x", $0) }.joined()
-      logger.info("loginSuccess received for prefix \(prefixHex)")
-      let result = LoginResult(
-        success: true,
-        isAdmin: info.isAdmin,
-        aclPermissions: info.permissions,
-        publicKeyPrefix: info.publicKeyPrefix,
-        serverTime: info.serverTime,
-        firmwareLevel: info.firmwareLevel
-      )
-      await handleLoginResult(result, fromPublicKeyPrefix: info.publicKeyPrefix)
-
-    case let .loginFailed(publicKeyPrefix):
-      if let prefix = publicKeyPrefix {
-        let result = LoginResult(
-          success: false,
-          isAdmin: false,
-          aclPermissions: nil,
-          publicKeyPrefix: prefix
-        )
-        await handleLoginResult(result, fromPublicKeyPrefix: prefix)
-      }
-
-    case let .contactMessageReceived(message):
-      if message.textType == cliResponseTextType {
-        handleCLIResponse(message)
-      }
-
-    default:
-      break
+    if case let .contactMessageReceived(message) = event,
+       message.textType == cliResponseTextType {
+      handleCLIResponse(message)
     }
   }
 
@@ -212,16 +179,9 @@ public actor RemoteNodeService {
     return String(format: "%02X%@", cliPrefixCounter, String(CLIResponse.echoPrefixSeparator))
   }
 
-  func timeInterval(for duration: Duration) -> TimeInterval {
+  static func timeInterval(for duration: Duration) -> TimeInterval {
     let (seconds, attoseconds) = duration.components
     return TimeInterval(seconds) + TimeInterval(attoseconds) / 1e18
-  }
-
-  func cancelPendingLogin(for prefix: Data, attemptID: UUID? = nil) {
-    if let attemptID, loginAttempts[prefix]?.id != attemptID { return }
-    guard var attempt = loginAttempts.removeValue(forKey: prefix) else { return }
-    // A claimed result owns its continuation until persistence settles; removal only revokes its authority.
-    attempt.claimCompletion()?.continuation.resume(throwing: RemoteNodeError.cancelled)
   }
 
   // MARK: - Session Management
@@ -327,17 +287,12 @@ public actor RemoteNodeService {
 
   // MARK: - Cleanup
 
-  /// Stop all keep-alive timers and resume any parked login continuations (call on app termination)
   public func stopAllKeepAlives() {
     for task in keepAliveTasks.values {
       task.cancel()
       retiredKeepAliveTasks.append(task)
     }
     keepAliveTasks.removeAll()
-
-    for prefix in Array(loginAttempts.keys) {
-      cancelPendingLogin(for: prefix)
-    }
   }
 
   func beginRetirement() {
@@ -369,10 +324,5 @@ public actor RemoteNodeService {
     }
     retirementTask = drain
     await drain.value
-  }
-
-  /// Number of login continuations currently parked. Exposed for teardown tests.
-  var pendingLoginCount: Int {
-    loginAttempts.values.count(where: \.isAwaitingResult)
   }
 }

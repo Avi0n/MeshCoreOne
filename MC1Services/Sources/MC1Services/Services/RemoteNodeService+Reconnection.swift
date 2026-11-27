@@ -10,7 +10,8 @@ public extension RemoteNodeService {
     await stopEventMonitoring()
     let connectedSessions: [RemoteNodeSessionDTO]
     do {
-      connectedSessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID).filter(\.isConnected)
+      connectedSessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+        .filter { $0.isConnected && $0.isRoom }
     } catch {
       logger.error("Failed to fetch connected sessions for Link disconnection: \(error)")
       return []
@@ -66,7 +67,7 @@ public extension RemoteNodeService {
       guard !Task.isCancelled, !isRetired else { return }
       let previousPermission = remoteSession.permissionLevel
       do {
-        let result = try await login(sessionID: remoteSession.id)
+        let result = try await login(sessionID: remoteSession.id, priority: .background)
         guard !Task.isCancelled, !isRetired else { return }
         let permission = result.permissionLevel(for: remoteSession.role)
         if permission < previousPermission {

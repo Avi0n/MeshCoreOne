@@ -149,6 +149,18 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Error to throw from resetPath
   public var stubbedResetPathError: Error?
+  /// When true, `resetPath` clears the seeded radio contact to flood before throwing `stubbedResetPathError`.
+  public var stubbedResetPathWritesFloodBeforeError = false
+
+  public func setStubbedResetPathWritesFloodBeforeError(_ value: Bool) {
+    stubbedResetPathWritesFloodBeforeError = value
+  }
+
+  public var stubbedDiscoverPathResults: [Result<PathInfo, Error>] = []
+
+  public func setStubbedDiscoverPathResults(_ results: [Result<PathInfo, Error>]) {
+    stubbedDiscoverPathResults = results
+  }
 
   /// Result to return from sendPathDiscovery
   public var stubbedSendPathDiscoveryResult: Result<MessageSentInfo, Error> = .success(
@@ -226,6 +238,13 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     queuedMessageResults = results
   }
 
+  /// Results to return from successive `login` calls, consumed FIFO.
+  public var stubbedLoginResults: [Result<LoginExchangeResult, Error>] = []
+
+  public func setStubbedLoginResults(_ results: [Result<LoginExchangeResult, Error>]) {
+    stubbedLoginResults = results
+  }
+
   /// Results to return from successive `sendLogin` calls, consumed FIFO.
   public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
   private var sendLoginHold: (@Sendable () async throws -> Void)?
@@ -299,6 +318,18 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     public let password: String
   }
 
+  public struct LoginInvocation: Sendable, Equatable {
+    public let destination: Data
+    public let password: String
+    public let priority: MeshRequestPriority
+    public let samePasswordExemption: Bool
+  }
+
+  public struct DiscoverPathInvocation: Sendable, Equatable {
+    public let destination: Data
+    public let priority: MeshRequestPriority
+  }
+
   public struct SendCommandInvocation: Sendable, Equatable {
     public let destination: Data
     public let command: String
@@ -323,11 +354,16 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public private(set) var getContactPublicKeys: [Data] = []
   public private(set) var addContactInvocations: [AddContactInvocation] = []
   public private(set) var sendLoginInvocations: [SendLoginInvocation] = []
+  public private(set) var loginInvocations: [LoginInvocation] = []
   public private(set) var completedSendLoginCount = 0
   public private(set) var sendCommandInvocations: [SendCommandInvocation] = []
   public private(set) var removeContactPublicKeys: [Data] = []
   public private(set) var resetPathPublicKeys: [Data] = []
   public private(set) var sendPathDiscoveryDestinations: [Data] = []
+  public private(set) var discoverPathInvocations: [DiscoverPathInvocation] = []
+  public private(set) var requestStatusPriorities: [MeshRequestPriority] = []
+  public private(set) var requestTelemetryPriorities: [MeshRequestPriority] = []
+  public private(set) var requestOwnerInfoPriorities: [MeshRequestPriority] = []
   public private(set) var getChannelIndices: [UInt8] = []
   public private(set) var setChannelInvocations: [SetChannelInvocation] = []
   public private(set) var waitForEventInvocations: [WaitForEventInvocation] = []
@@ -443,6 +479,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   }
 
   /// Sets the contact returned by `getContact` for a specific public key.
+  public func setStubbedResetPathError(_ error: Error?) {
+    stubbedResetPathError = error
+  }
+
   public func setStubbedContact(_ contact: MeshContact?, for publicKey: Data) {
     stubbedContactsByKey[publicKey] = contact
   }
@@ -700,6 +740,22 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public func resetPath(publicKey: Data) async throws {
     resetPathPublicKeys.append(publicKey)
     if let error = stubbedResetPathError {
+      if stubbedResetPathWritesFloodBeforeError, let existing = radioContacts[publicKey] {
+        radioContacts[publicKey] = MeshContact(
+          id: existing.id,
+          publicKey: existing.publicKey,
+          type: existing.type,
+          typeRawValue: existing.typeRawValue,
+          flags: existing.flags,
+          outPathLength: PacketBuilder.floodPathSentinel,
+          outPath: Data(),
+          advertisedName: existing.advertisedName,
+          lastAdvertisement: existing.lastAdvertisement,
+          latitude: existing.latitude,
+          longitude: existing.longitude,
+          lastModified: existing.lastModified
+        )
+      }
       throw error
     }
     if let existing = radioContacts[publicKey] {
@@ -720,11 +776,27 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     }
   }
 
-  public func sendPathDiscovery(to destination: Data) async throws -> MessageSentInfo {
+  public func discoverPath(
+    to destination: Data,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> PathInfo {
     sendPathDiscoveryDestinations.append(destination)
+    discoverPathInvocations.append(DiscoverPathInvocation(destination: destination, priority: priority))
+    if !stubbedDiscoverPathResults.isEmpty {
+      let result = stubbedDiscoverPathResults.removeFirst()
+      switch result {
+      case let .success(pathInfo):
+        return pathInfo
+      case let .failure(error):
+        throw error
+      }
+    }
     switch stubbedSendPathDiscoveryResult {
     case let .success(info):
-      return info
+      await onTimeoutKnown?(budget(info))
+      throw MeshCoreError.timeout
     case let .failure(error):
       throw error
     }
@@ -880,11 +952,16 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     getContactPublicKeys = []
     addContactInvocations = []
     sendLoginInvocations = []
+    loginInvocations = []
     completedSendLoginCount = 0
     sendCommandInvocations = []
     removeContactPublicKeys = []
     resetPathPublicKeys = []
     sendPathDiscoveryDestinations = []
+    discoverPathInvocations = []
+    requestStatusPriorities = []
+    requestTelemetryPriorities = []
+    requestOwnerInfoPriorities = []
     getChannelIndices = []
     setChannelInvocations = []
     waitForEventInvocations = []
@@ -897,15 +974,40 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 // MARK: - RemoteAccessSessionOps
 
 extension MockMeshCoreSession: RemoteAccessSessionOps {
-  public func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
+  public func login(
+    to destination: Data,
+    password: String,
+    priority: MeshRequestPriority,
+    budget: @escaping @Sendable (MessageSentInfo) -> TimeInterval,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?,
+    samePasswordExemption: Bool
+  ) async throws -> LoginExchangeResult {
     sendLoginInvocations.append(SendLoginInvocation(destination: destination, password: password))
+    loginInvocations.append(LoginInvocation(
+      destination: destination,
+      password: password,
+      priority: priority,
+      samePasswordExemption: samePasswordExemption
+    ))
     defer { completedSendLoginCount += 1 }
-    guard !stubbedSendLoginResults.isEmpty else { throw NotStubbed.method("sendLogin") }
-    let result = stubbedSendLoginResults.removeFirst()
     try await sendLoginHold?()
-    switch result {
-    case let .success(info): return info
-    case let .failure(error): throw error
+    if !stubbedLoginResults.isEmpty {
+      let result = stubbedLoginResults.removeFirst()
+      switch result {
+      case let .success(outcome):
+        return outcome
+      case let .failure(error):
+        throw error
+      }
+    }
+    guard !stubbedSendLoginResults.isEmpty else { throw NotStubbed.method("login") }
+    let sentResult = stubbedSendLoginResults.removeFirst()
+    switch sentResult {
+    case let .success(info):
+      await onTimeoutKnown?(budget(info))
+      throw MeshCoreError.timeout
+    case let .failure(error):
+      throw error
     }
   }
 
@@ -936,7 +1038,8 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     throw NotStubbed.method("sendKeepAlive")
   }
 
-  public func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
+  public func requestOwnerInfo(from publicKey: Data, priority: MeshRequestPriority) async throws -> OwnerInfoResponse {
+    requestOwnerInfoPriorities.append(priority)
     if !stubbedRequestOwnerInfoResults.isEmpty {
       switch stubbedRequestOwnerInfoResults.removeFirst() {
       case let .success(response): return response
@@ -949,11 +1052,12 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     }
   }
 
-  public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
-    try await requestStatus(from: publicKey, type: .repeater)
+  public func requestStatus(from publicKey: Data, priority: MeshRequestPriority) async throws -> StatusResponse {
+    try await requestStatus(from: publicKey, type: .repeater, priority: priority)
   }
 
-  public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
+  public func requestStatus(from publicKey: Data, type: ContactType, priority: MeshRequestPriority) async throws -> StatusResponse {
+    requestStatusPriorities.append(priority)
     if !stubbedRequestStatusResults.isEmpty {
       switch stubbedRequestStatusResults.removeFirst() {
       case let .success(response): return response
@@ -966,7 +1070,8 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     }
   }
 
-  public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
+  public func requestTelemetry(from publicKey: Data, priority: MeshRequestPriority) async throws -> TelemetryResponse {
+    requestTelemetryPriorities.append(priority)
     if !stubbedRequestTelemetryResults.isEmpty {
       switch stubbedRequestTelemetryResults.removeFirst() {
       case let .success(response): return response
@@ -982,16 +1087,22 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   public func fetchAllNeighbours(
     from publicKey: Data,
     orderBy: UInt8,
-    pubkeyPrefixLength: UInt8
+    pubkeyPrefixLength: UInt8,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     throw NotStubbed.method("fetchAllNeighbours")
   }
 
-  public func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
+  public func requestMMA(
+    from publicKey: Data,
+    start: Date,
+    end: Date,
+    priority: MeshRequestPriority
+  ) async throws -> MMAResponse {
     throw NotStubbed.method("requestMMA")
   }
 
-  public func requestACL(from publicKey: Data) async throws -> ACLResponse {
+  public func requestACL(from publicKey: Data, priority: MeshRequestPriority) async throws -> ACLResponse {
     throw NotStubbed.method("requestACL")
   }
 
@@ -1013,7 +1124,8 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     count: UInt8,
     offset: UInt16,
     orderBy: UInt8,
-    pubkeyPrefixLength: UInt8
+    pubkeyPrefixLength: UInt8,
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     throw NotStubbed.method("requestNeighbours")
   }

@@ -10,6 +10,7 @@ public actor RoomAdminService {
 
   private let remoteNodeService: RemoteNodeService
   private let dataStore: any PersistenceStoreProtocol
+  private let radioID: UUID
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomAdmin")
   private let auditLogger = CommandAuditLogger()
 
@@ -21,24 +22,26 @@ public actor RoomAdminService {
 
   public init(
     remoteNodeService: RemoteNodeService,
-    dataStore: any PersistenceStoreProtocol
+    dataStore: any PersistenceStoreProtocol,
+    radioID: UUID
   ) {
     self.remoteNodeService = remoteNodeService
     self.dataStore = dataStore
+    self.radioID = radioID
   }
 
   // MARK: - Status
 
   /// Request status from a room server.
-  public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
-    try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
+  public func requestStatus(sessionID: UUID, priority: MeshRequestPriority) async throws -> StatusResponse {
+    try await remoteNodeService.requestStatus(sessionID: sessionID, priority: priority)
   }
 
   // MARK: - Telemetry
 
   /// Request telemetry from a room server.
-  public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
-    try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
+  public func requestTelemetry(sessionID: UUID, priority: MeshRequestPriority) async throws -> TelemetryResponse {
+    try await remoteNodeService.requestTelemetry(sessionID: sessionID, priority: priority)
   }
 
   // MARK: - CLI Commands
@@ -49,7 +52,7 @@ public actor RoomAdminService {
   public func sendCommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await remoteNodeService.sendCLICommand(
       sessionID: sessionID,
@@ -62,7 +65,7 @@ public actor RoomAdminService {
   public func sendRawCommand(
     sessionID: UUID,
     command: String,
-    timeout: Duration = .seconds(10)
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout
   ) async throws -> String {
     try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,
@@ -79,9 +82,8 @@ public actor RoomAdminService {
     return sessions.filter(\.isRoom)
   }
 
-  /// Check if a contact is a known room with an active session.
   public func getConnectedSession(publicKeyPrefix: Data) async throws -> RemoteNodeSessionDTO? {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSessionByPrefix(publicKeyPrefix),
+    guard let remoteSession = try await dataStore.fetchRemoteNodeSession(radioID: radioID, publicKeyPrefix: publicKeyPrefix),
           remoteSession.isRoom, remoteSession.isConnected else {
       return nil
     }

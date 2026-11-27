@@ -822,7 +822,7 @@ struct ProtocolBugFixTests {
 
     let publicKey = Data(repeating: 0x31, count: 32)
     let statusTask = Task {
-      try await session.requestStatus(from: publicKey)
+      try await session.requestStatus(from: publicKey, priority: .interactive)
     }
 
     try await waitUntil("transport should have sent status request") {
@@ -857,7 +857,7 @@ struct ProtocolBugFixTests {
 
     let shortKey = Data(repeating: 0x31, count: 6)
     do {
-      _ = try await session.requestNeighbours(from: shortKey)
+      _ = try await session.requestNeighbours(from: shortKey, priority: .interactive)
       Issue.record("Expected requestNeighbours(from:) to throw for a short key")
     } catch let error as MeshCoreError {
       guard case .invalidInput = error else {

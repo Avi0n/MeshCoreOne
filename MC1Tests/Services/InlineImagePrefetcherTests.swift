@@ -650,6 +650,12 @@ private actor StubDataStore: PersistenceStoreProtocol {
     nil
   }
 
+  func fetchRemoteNodeSession(radioID: UUID, publicKeyPrefix: Data) async throws -> RemoteNodeSessionDTO? {
+    nil
+  }
+
+  func disconnectAllRemoteNodeSessions(radioID: UUID) async throws {}
+
   func markSessionDisconnected(_ sessionID: UUID) async throws {}
   func markRoomSessionConnected(_ sessionID: UUID) async throws -> Bool {
     false

@@ -51,7 +51,7 @@ final class NodeTelemetryViewModel {
       operation: { [binaryProtocolService, publicKey] _ in
         // Map session timeout so the section shows telemetry-specific copy.
         do {
-          return try await binaryProtocolService.requestTelemetry(from: publicKey)
+          return try await binaryProtocolService.requestTelemetry(from: publicKey, priority: .interactive)
         } catch BinaryProtocolError.sessionError(MeshCoreError.timeout) {
           throw RemoteNodeError.timeout
         }

@@ -60,16 +60,23 @@ extension ConnectionManager {
       deviceID: deviceID, radioID: canonicalExisting?.radioID ?? existing?.radioID ?? UUID(), selfInfo: selfInfo,
       capabilities: capabilities, autoAddConfig: config, existingDevice: canonicalExisting ?? existing
     ))
+    let previousPublicKey = (canonicalExisting ?? existing)?.publicKey
     let bluetoothPeripheralID = attempt.target.deviceID
     let registration = enqueueMetadata { store in
       let device = try await store.registerConnectionDevice(observation, bluetoothPeripheralID: bluetoothPeripheralID)
+      if let previousPublicKey, previousPublicKey != selfInfo.publicKey {
+        try await store.disconnectAllRemoteNodeSessions(radioID: device.radioID)
+      }
       try await store.backfillTextRulesIdentities(radioID: device.radioID)
       return device
     }
     let device = try await registration.value
     attempt.identity = ConnectionDeviceIdentity(device)
     try requireAttemptOwnership(request, attempt)
-    if membershipBatch?.radioID != device.radioID { membershipBatch = nil }
+    if membershipBatch?.radioID != device.radioID
+      || (previousPublicKey != nil && previousPublicKey != selfInfo.publicKey) {
+      membershipBatch = nil
+    }
     let ranges = await capabilities.clientRepeat ? ((try? resource.session.getRepeatFreq()) ?? []) : []
     try requireAttemptOwnership(request, attempt)
     let container = try await buildServiceContainer(
@@ -91,7 +98,10 @@ extension ConnectionManager {
       appStateProvider: appStateProvider, connectionStateEvents: connectionStateEvents,
       initialConnectionState: .connected, radioWiFiState: wifiState,
       notificationService: notificationServiceForTesting(), ackEvents: attempt.ackEvents,
-      textRulesPreference: { [weak self] in await self?.textRulesPreference }
+      textRulesPreference: { [weak self] in await self?.textRulesPreference },
+      onDeferredRouteRestore: { [weak self] restore in
+        await self?.recordPendingRouteRestore(restore)
+      }
     )
     attempt.preparedServices = container
     await wireCleanChannelSyncCallback(on: container)

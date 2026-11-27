@@ -1104,8 +1104,9 @@ struct CLIToolViewModelLocalCommandsTests {
   private func makeAdminService() -> RepeaterAdminService {
     let session = MeshCoreSession(transport: MockTransport())
     let store = ParkingContactStore()
-    let remoteNode = RemoteNodeService(session: session, dataStore: store, keychainService: KeychainService())
-    return RepeaterAdminService(session: session, remoteNodeService: remoteNode, dataStore: store)
+    let radioID = UUID()
+    let remoteNode = RemoteNodeService(session: session, dataStore: store, keychainService: KeychainService(), radioID: radioID)
+    return RepeaterAdminService(session: session, remoteNodeService: remoteNode, dataStore: store, radioID: radioID)
   }
 
   private func run(_ viewModel: CLIToolViewModel, _ line: String) async {

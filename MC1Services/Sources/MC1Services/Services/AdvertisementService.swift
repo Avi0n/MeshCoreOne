@@ -213,7 +213,7 @@ public actor AdvertisementService {
       guard let self else { return }
       let filter = EventFilter { event in
         switch event {
-        case .advertisement, .newContact, .pathUpdate, .pathResponse,
+        case .advertisement, .newContact, .pathUpdate,
              .traceData, .contactDeleted, .contactsFull:
           true
         case let .rxLogData(log) where log.payloadType == .trace:
@@ -467,9 +467,6 @@ public actor AdvertisementService {
 
     case let .pathUpdate(publicKey):
       await handlePathUpdatedEvent(publicKey: publicKey, radioID: radioID)
-
-    case let .pathResponse(result):
-      await handlePathDiscoveryResponse(result: result, radioID: radioID)
 
     case let .traceData(traceInfo):
       await handleTraceData(traceInfo: traceInfo, radioID: radioID)
@@ -747,63 +744,6 @@ public actor AdvertisementService {
 
   /// A decodable out path is written with `setPath` before success is reported.
   /// The phone row changes only after the radio accepts, and a reserved length byte is not written.
-  private func handlePathDiscoveryResponse(result: PathInfo, radioID: UUID) async {
-    // Chunk debug output using the hash size each direction declares on
-    // the wire so mode-skew between firmware and the cached device record
-    // can't smear hop boundaries in the log.
-    let outHashSize = decodePathLen(result.outPathLength)?.hashSize ?? 1
-    let inHashSize = decodePathLen(result.inPathLength)?.hashSize ?? 1
-    let outHops = stride(from: 0, to: result.outPath.count, by: outHashSize).map { start in
-      result.outPath[start..<min(start + outHashSize, result.outPath.count)].uppercaseHexString()
-    }
-    let inHops = stride(from: 0, to: result.inPath.count, by: inHashSize).map { start in
-      result.inPath[start..<min(start + inHashSize, result.inPath.count)].uppercaseHexString()
-    }
-    let pubKeyHex = result.publicKeyPrefix.prefix(3).uppercaseHexString()
-    let outDisplay = outHops.isEmpty ? "direct" : outHops.joined(separator: " → ")
-    let inDisplay = inHops.isEmpty ? "direct" : inHops.joined(separator: " → ")
-    logger.info("Path discovery for \(pubKeyHex)... - Out: \(outHops.count) hops (\(outDisplay)), In: \(inHops.count) hops (\(inDisplay))")
-
-    do {
-      if let contact = try await dataStore.fetchContact(radioID: radioID, publicKeyPrefix: result.publicKeyPrefix) {
-        do {
-          _ = try await dataStore.touchContactHeard(
-            radioID: radioID,
-            publicKey: contact.publicKey,
-            at: Date()
-          )
-        } catch {
-          logger.error(
-            "Path response lastHeard stamp failed: \(error.localizedDescription)"
-          )
-        }
-
-        if result.outHopCount != nil {
-          do {
-            try await contactService.setPath(
-              radioID: radioID,
-              publicKey: contact.publicKey,
-              path: result.outPath,
-              pathLength: result.outPathLength
-            )
-          } catch {
-            logger.error("Path discovery radio write failed: \(error.localizedDescription)")
-            let serviceError = error as? ContactServiceError ?? .sendFailed
-            eventBroadcaster.yield(.pathDiscoveryWriteFailed(result, serviceError))
-            return
-          }
-        }
-      } else if result.outHopCount != nil {
-        eventBroadcaster.yield(.pathDiscoveryWriteFailed(result, .contactNotFound))
-        return
-      }
-
-      eventBroadcaster.yield(.pathDiscoveryResponse(result))
-    } catch {
-      logger.error("Error handling path discovery response: \(error.localizedDescription)")
-    }
-  }
-
   /// Handle trace data response
   private func handleTraceData(traceInfo: TraceInfo, radioID: UUID) async {
     logger.info("Received trace data: tag=\(traceInfo.tag), hops=\(traceInfo.path.count)")

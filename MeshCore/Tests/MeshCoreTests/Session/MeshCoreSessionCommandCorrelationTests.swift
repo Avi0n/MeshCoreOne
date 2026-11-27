@@ -664,7 +664,7 @@ struct MeshCoreSessionCommandCorrelationTests {
 
     let target = Data(repeating: 0x31, count: 32)
     let statusTask = Task {
-      try await session.requestStatus(from: target)
+      try await session.requestStatus(from: target, priority: .interactive)
     }
 
     try await waitUntil("requestStatus should be sent") {
@@ -699,7 +699,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let expectedAck = Data([0xAA, 0xBB, 0xCC, 0xDD])
 
     let statusTask = Task {
-      try await session.requestStatus(from: target, type: .room)
+      try await session.requestStatus(from: target, type: .room, priority: .interactive)
     }
 
     try await waitUntil("requestStatus should be sent") {
@@ -753,7 +753,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let secondTag = Data([0x55, 0x66, 0x77, 0x88])
 
     let statusTask = Task {
-      try await session.requestStatus(from: target)
+      try await session.requestStatus(from: target, priority: .interactive)
     }
 
     try await waitUntil("first status request should be sent") {
@@ -796,10 +796,12 @@ struct MeshCoreSessionCommandCorrelationTests {
 
     let target = Data(repeating: 0x31, count: 32)
     let requestFrame = PacketBuilder.sendStatusRequest(to: target)
-    let status = Task { try await session.requestStatus(from: target) }
+    let status = Task { try await session.requestStatus(from: target, priority: .interactive) }
     try await waitUntil("initial status request") { await transport.sentData.count == 2 }
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([1, 2, 3, 4]), timeoutMs: 50))
-    try await waitUntil("retry timer starts") { clock.sleeperCount == 2 }
+    try await waitUntil("retry timer starts") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(0.1)
+    }
     await transport.holdNextSend()
     clock.advanceToNextSleep()
     try await waitUntil("status retry is submitted and its write is pending") { await transport.sendIsWaiting }
@@ -857,14 +859,17 @@ struct MeshCoreSessionCommandCorrelationTests {
     defer { Task { await session.stop() } }
 
     let target = Data(repeating: 0x31, count: 32)
-    let telemetry = Task { try await session.requestTelemetry(from: target) }
-    try await waitUntil("telemetry is submitted and waiting") {
-      await transport.sentData.count == 2 && clock.nextSleepDuration == .seconds(1)
+    let telemetry = Task { try await session.requestTelemetry(from: target, priority: .interactive) }
+    try await waitUntil("telemetry is submitted and waiting for host reply") {
+      await transport.sentData.count == 2 && clock.sleeperCount == 1
     }
     if hostReplied {
       await session.dispatchForTesting(.messageSent(MessageSentInfo(
         route: 1, expectedAck: Data([1, 2, 3, 4]), suggestedTimeoutMs: 500
       )))
+      try await waitUntil("telemetry RF deadline parks on test clock") {
+        clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(1)
+      }
     }
     clock.advanceToNextSleep()
     await #expect {
@@ -933,7 +938,9 @@ struct MeshCoreSessionCommandCorrelationTests {
     try await startSession(session, transport: transport)
 
     let tag = Data([0x11, 0x22, 0x33, 0x44])
-    let request = Task { try await session.requestOwnerInfo(from: Data(repeating: 0x31, count: 32)) }
+    let request = Task {
+      try await session.requestOwnerInfo(from: Data(repeating: 0x31, count: 32), priority: .interactive)
+    }
     try await waitUntil("owner info request should be sent") {
       await transport.sentData.count == 2
     }
@@ -978,7 +985,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let firstPayload = Data([0xA1])
 
     let telemetryTask = Task {
-      try await session.requestTelemetry(from: target)
+      try await session.requestTelemetry(from: target, priority: .interactive)
     }
 
     try await waitUntil("first telemetry request should be sent") {
@@ -1016,7 +1023,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let acceptedPayload = Data([0xA1])
 
     let telemetryTask = Task {
-      try await session.requestTelemetry(from: target)
+      try await session.requestTelemetry(from: target, priority: .interactive)
     }
 
     try await waitUntil("telemetry request should be sent") {
@@ -1052,7 +1059,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let acceptedPayload = Data([0xA1])
 
     let telemetryTask = Task {
-      try await session.requestTelemetry(from: target)
+      try await session.requestTelemetry(from: target, priority: .interactive)
     }
 
     try await waitUntil("telemetry request should be sent") {
@@ -1091,19 +1098,22 @@ struct MeshCoreSessionCommandCorrelationTests {
 
     let target = Data(repeating: 0x31, count: 32)
     let statusTask = Task {
-      try await session.requestStatus(from: target)
+      try await session.requestStatus(from: target, priority: .interactive)
     }
 
     try await waitUntil("requestStatus should be sent") {
-      await transport.sentData.count == 2
-    }
-    try await waitUntil("overall budget should park on the test clock") {
-      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(overallTimeout)
+      await transport.sentData.count == 2 && clock.sleeperCount == 1
     }
     await transport.simulateReceive(
       makeMessageSentPacket(expectedAck: Data([0x01, 0x02, 0x03, 0x04]), timeoutMs: 50)
     )
     try await fireNextRetransmit(on: clock, transport: transport, minimumSentCount: 3)
+    await transport.simulateReceive(
+      makeMessageSentPacket(expectedAck: Data([0x05, 0x06, 0x07, 0x08]), timeoutMs: 50)
+    )
+    try await waitUntil("final budget timer should park on test clock") {
+      clock.sleeperCount == 1 && (clock.nextSleepDuration ?? .seconds(commandTimeout)) < .seconds(commandTimeout)
+    }
     clock.advance(by: .seconds(overallTimeout))
 
     let error = await #expect(throws: MeshCoreError.self) {
@@ -1130,7 +1140,7 @@ struct MeshCoreSessionCommandCorrelationTests {
 
     let target = Data(repeating: 0x31, count: 32)
     let telemetryTask = Task {
-      try await session.requestTelemetry(from: target)
+      try await session.requestTelemetry(from: target, priority: .interactive)
     }
 
     try await waitUntil("requestTelemetry should be sent") {
@@ -1275,14 +1285,13 @@ struct MeshCoreSessionCommandCorrelationTests {
       await transport.sentData.count == 2
     }
 
-    // Binary request must wait behind the text command, not run concurrently.
     let target = Data(repeating: 0x31, count: 32)
     let statusTask = Task {
-      try await session.requestStatus(from: target)
+      try await session.requestStatus(from: target, priority: .interactive)
     }
 
-    try await waitUntil("the next command should wait on the serializer") {
-      await session.requestResponseSerializer.waiterCountForTest == 1
+    try await waitUntil("the next command should wait on the gate") {
+      await session.meshRequestGate.queuedWaiterCount == 1
     }
     #expect(await transport.sentData.count == 2, "binary request must not send while a text command is in flight")
 
@@ -1340,7 +1349,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let secondTarget = Data(repeating: 0x42, count: 32)
 
     let statusTask = Task {
-      try await session.requestStatus(from: firstTarget)
+      try await session.requestStatus(from: firstTarget, priority: .interactive)
     }
     try await waitUntil("first binary request should be sent") {
       await transport.sentData.count == 2
@@ -1348,11 +1357,11 @@ struct MeshCoreSessionCommandCorrelationTests {
     #expect(await transport.sentData.last == PacketBuilder.sendStatusRequest(to: firstTarget))
 
     let telemetryTask = Task {
-      try await session.requestTelemetry(from: secondTarget)
+      try await session.requestTelemetry(from: secondTarget, priority: .interactive)
     }
 
-    try await waitUntil("the next command should wait on the serializer") {
-      await session.requestResponseSerializer.waiterCountForTest == 1
+    try await waitUntil("the next command should wait on the gate") {
+      await session.meshRequestGate.queuedWaiterCount == 1
     }
     #expect(await transport.sentData.count == 2)
 
@@ -1449,22 +1458,28 @@ struct MeshCoreSessionCommandCorrelationTests {
     let statusAck = Data([0xAA, 0xBB, 0xCC, 0xDD])
     let messageAck = Data([0x11, 0x22, 0x33, 0x44])
 
-    // Binary request goes first and owns the in-flight exchange.
-    let statusTask = Task { try await session.requestStatus(from: statusTarget, type: .room) }
+    let statusTask = Task { try await session.requestStatus(from: statusTarget, type: .room, priority: .interactive) }
     try await waitUntil("requestStatus should be sent") {
       await transport.sentData.count == 2
     }
 
-    // Unicast send issued while the binary request is outstanding.
     let messageTask = Task { try await session.sendMessage(to: messageTarget, text: "hi") }
 
-    // Confirm the sender is queued before any messageSent lands.
     try await waitUntil("the next command should wait on the serializer") {
       await session.requestResponseSerializer.waiterCountForTest == 1
     }
 
-    // The status request's own messageSent + dedicated STATUS_RESPONSE.
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: statusAck))
+
+    try await waitUntil("sendMessage should send while status waits on RF") {
+      await transport.sentData.count == 3
+    }
+
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: messageAck))
+
+    let info = try await messageTask.value
+    #expect(info.expectedAck == messageAck, "sendMessage must not consume the binary request's messageSent")
+
     await transport.simulateReceive(
       makeStatusResponsePacket(
         publicKeyPrefix: Data(statusTarget.prefix(6)),
@@ -1476,16 +1491,6 @@ struct MeshCoreSessionCommandCorrelationTests {
 
     let status = try await statusTask.value
     #expect(status.battery == 1234)
-
-    try await waitUntil("sendMessage should be sent") {
-      await transport.sentData.count == 3
-    }
-
-    // The unicast send's own messageSent.
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: messageAck))
-
-    let info = try await messageTask.value
-    #expect(info.expectedAck == messageAck, "sendMessage must not consume the binary request's messageSent")
     await session.stop()
   }
 
@@ -1570,7 +1575,7 @@ private func fireNextRetransmit(
   minimumSentCount: Int
 ) async throws {
   try await waitUntil("retransmit timer should park on the test clock") {
-    clock.sleeperCount == 2
+    clock.sleeperCount == 1 && (clock.nextSleepDuration ?? .seconds(commandTimeout)) < .seconds(commandTimeout)
   }
   clock.advanceToNextSleep()
   try await waitUntil("request should retransmit") {

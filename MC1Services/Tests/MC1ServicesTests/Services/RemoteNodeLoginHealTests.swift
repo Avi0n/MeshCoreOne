@@ -25,15 +25,19 @@ struct RemoteNodeLoginHealTests {
     try await dataStore.saveContact(contact)
 
     let session = MockMeshCoreSession()
-    await session.setSendLoginResults([
+    let prefix = Data(Self.publicKey.prefix(6))
+    await session.setStubbedLoginResults([
       .failure(MeshCoreError.deviceError(code: ProtocolError.notFound.rawValue)),
-      .success(MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000))
+      .success(LoginExchangeResult(
+        info: LoginInfo(permissions: 0, isAdmin: true, publicKeyPrefix: prefix),
+        mayAnswerEarlierLogin: false
+      )),
     ])
 
     let wired = WiredLoginService(session: session, dataStore: dataStore)
     let service = wired.service
 
-    _ = try await service.sendLoginHealingIfNeeded(
+    _ = try await service.loginHealingIfNeeded(
       publicKey: Self.publicKey,
       radioID: radioID,
       password: ""
@@ -67,15 +71,19 @@ struct RemoteNodeLoginHealTests {
     try await dataStore.saveContact(contact)
 
     let session = MockMeshCoreSession()
-    await session.setSendLoginResults([
+    let prefix = Data(Self.publicKey.prefix(6))
+    await session.setStubbedLoginResults([
       .failure(MeshCoreError.deviceError(code: ProtocolError.notFound.rawValue)),
-      .success(MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000))
+      .success(LoginExchangeResult(
+        info: LoginInfo(permissions: 0, isAdmin: true, publicKeyPrefix: prefix),
+        mayAnswerEarlierLogin: false
+      )),
     ])
 
     let wired = WiredLoginService(session: session, dataStore: dataStore)
     let service = wired.service
 
-    _ = try await service.sendLoginHealingIfNeeded(
+    _ = try await service.loginHealingIfNeeded(
       publicKey: Self.publicKey,
       radioID: radioID,
       password: ""
@@ -107,7 +115,7 @@ struct RemoteNodeLoginHealTests {
     let service = wired.service
 
     let thrown = await #expect(throws: MeshCoreError.self) {
-      _ = try await service.sendLoginHealingIfNeeded(
+      _ = try await service.loginHealingIfNeeded(
         publicKey: Self.publicKey,
         radioID: radioID,
         password: ""
@@ -143,7 +151,7 @@ struct RemoteNodeLoginHealTests {
     let service = wired.service
 
     let thrown = await #expect(throws: MeshCoreError.self) {
-      _ = try await service.sendLoginHealingIfNeeded(
+      _ = try await service.loginHealingIfNeeded(
         publicKey: Self.publicKey,
         radioID: radioID,
         password: ""
@@ -180,7 +188,7 @@ struct RemoteNodeLoginHealTests {
     let service = wired.service
 
     let thrown = await #expect(throws: RemoteNodeError.self) {
-      _ = try await service.sendLoginHealingIfNeeded(
+      _ = try await service.loginHealingIfNeeded(
         publicKey: Self.publicKey,
         radioID: radioID,
         password: ""
@@ -209,7 +217,7 @@ struct RemoteNodeLoginHealTests {
     let service = wired.service
 
     let thrown = await #expect(throws: RemoteNodeError.self) {
-      _ = try await service.sendLoginHealingIfNeeded(
+      _ = try await service.loginHealingIfNeeded(
         publicKey: Self.publicKey,
         radioID: radioID,
         password: ""
@@ -249,7 +257,7 @@ struct RemoteNodeLoginHealTests {
     let service = wired.service
 
     let thrown = await #expect(throws: RemoteNodeError.self) {
-      _ = try await service.login(sessionID: remoteSession.id, password: "")
+      _ = try await service.login(sessionID: remoteSession.id, password: "", priority: .interactive)
     }
     guard case .radioContactsFull = thrown else {
       Issue.record("expected radioContactsFull to propagate unwrapped, got \(String(describing: thrown))")

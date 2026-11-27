@@ -170,6 +170,7 @@ extension MeshCoreSession {
     _ data: Data,
     timeout: TimeInterval? = nil,
     beforeSend: @escaping @Sendable () throws -> Void = {},
+    onSubmitted: @escaping @Sendable () -> Void = {},
     identityImport: Bool = false,
     matching matcher: @escaping @Sendable (MeshEvent) -> ResponseDisposition<T>
   ) async throws -> T {
@@ -184,7 +185,13 @@ extension MeshCoreSession {
 
     do {
       try await sendSessionData(
-        data, beforeSend: beforeSend, identityImport: identityImport, notifyingSubmitted: { window.begin() }
+        data,
+        beforeSend: beforeSend,
+        identityImport: identityImport,
+        notifyingSubmitted: {
+          window.begin()
+          onSubmitted()
+        }
       )
 
       return try await withThrowingTaskGroup(of: T?.self) { group in

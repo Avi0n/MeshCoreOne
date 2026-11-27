@@ -35,6 +35,28 @@ public extension PersistenceStore {
     return sessions.first { $0.publicKey.prefix(6) == prefix }.map { RemoteNodeSessionDTO(from: $0) }
   }
 
+  func fetchRemoteNodeSession(radioID: UUID, publicKeyPrefix prefix: Data) throws -> RemoteNodeSessionDTO? {
+    let targetRadioID = radioID
+    let predicate = #Predicate<RemoteNodeSession> { session in
+      session.radioID == targetRadioID
+    }
+    let sessions = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    return sessions.first { $0.publicKey.prefix(6) == prefix }.map { RemoteNodeSessionDTO(from: $0) }
+  }
+
+  /// Preserves permission levels while marking each session disconnected.
+  func disconnectAllRemoteNodeSessions(radioID: UUID) throws {
+    let targetRadioID = radioID
+    let predicate = #Predicate<RemoteNodeSession> { session in
+      session.radioID == targetRadioID
+    }
+    let sessions = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    for session in sessions where session.isConnected {
+      session.isConnected = false
+    }
+    try modelContext.save()
+  }
+
   /// Fetch all connected sessions for re-authentication after BLE reconnection
   func fetchConnectedRemoteNodeSessions() throws -> [RemoteNodeSessionDTO] {
     let predicate = #Predicate<RemoteNodeSession> { session in
