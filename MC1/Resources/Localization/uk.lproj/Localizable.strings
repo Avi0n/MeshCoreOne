@@ -262,8 +262,8 @@
 /* Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware */
 "error.meshCore.featureDisabled" = "Цю функцію вимкнено на пристрої.";
 
-/* TODO: translate - Background request yielded to a higher-priority operation */
-"error.meshCore.preempted" = "The background request was preempted by a higher-priority operation.";
+/* Background request yielded to a higher-priority operation */
+"error.meshCore.preempted" = "Фоновий запит зупинено, оскільки важливіша операція потребувала рації.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported */
 "error.device.unsupportedCommand" = "Команда не підтримується прошивкою пристрою.";

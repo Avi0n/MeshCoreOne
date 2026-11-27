@@ -228,11 +228,11 @@
 /* Row failure after a refresh request */
 "contacts.watchlist.couldNotRefresh" = "Não foi possível atualizar";
 
-/* TODO: translate - Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
-"contacts.watchlist.couldNotFetchBattery" = "Couldn't fetch battery";
+/* Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
+"contacts.watchlist.couldNotFetchBattery" = "Não foi possível obter a bateria";
 
-/* TODO: translate - Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
-"contacts.watchlist.couldNotFetchFirmware" = "Couldn't fetch firmware";
+/* Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
+"contacts.watchlist.couldNotFetchFirmware" = "Não foi possível obter o firmware";
 
 /* Login recovery after the status request times out */
 "contacts.watchlist.logInAndRetry" = "Iniciar sessão";
@@ -267,32 +267,32 @@
 /* Joins two card detail segments, such as firmware and last heard */
 "contacts.watchlist.detailSeparator" = "%@ · %@";
 
-/* TODO: translate - Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
-"contacts.watchlist.refreshActive" = "Refresh Active (%d)";
+/* Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
+"contacts.watchlist.refreshActive" = "Atualizar os ativos (%d)";
 
-/* TODO: translate - Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
-"contacts.watchlist.retryFailed" = "Retry Failed (%d)";
+/* Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
+"contacts.watchlist.retryFailed" = "Tentar novamente os que falharam (%d)";
 
-/* TODO: translate - Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
-"contacts.watchlist.refreshAll" = "Refresh All (%d)";
+/* Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
+"contacts.watchlist.refreshAll" = "Atualizar todos (%d)";
 
-/* TODO: translate - Active Watchlist row status while probing status on an existing session */
-"contacts.watchlist.phaseCheckingStatus" = "Checking status…";
+/* Active Watchlist row status while probing status on an existing session */
+"contacts.watchlist.phaseCheckingStatus" = "A verificar o estado…";
 
-/* TODO: translate - Active Watchlist row status while logging in over the saved direct path */
-"contacts.watchlist.phaseLoggingInDirect" = "Logging in via saved path…";
+/* Active Watchlist row status while logging in over the saved direct path */
+"contacts.watchlist.phaseLoggingInDirect" = "A iniciar sessão pela rota guardada…";
 
-/* TODO: translate - Active Watchlist row status while logging in over flood routing */
-"contacts.watchlist.phaseLoggingInFlood" = "Logging in via flood…";
+/* Active Watchlist row status while logging in over flood routing */
+"contacts.watchlist.phaseLoggingInFlood" = "A iniciar sessão com encaminhamento por difusão…";
 
-/* TODO: translate - Active Watchlist row status when retrying login over flood after a direct-path timeout */
-"contacts.watchlist.phaseRetryingViaFlood" = "No reply on path — retrying via flood…";
+/* Active Watchlist row status when retrying login over flood after a direct-path timeout */
+"contacts.watchlist.phaseRetryingViaFlood" = "Sem resposta pela rota conhecida — a tentar novamente com encaminhamento por difusão…";
 
-/* TODO: translate - Active Watchlist row status while requesting status after logging in */
-"contacts.watchlist.phaseFetchingStatus" = "Fetching status…";
+/* Active Watchlist row status while requesting status after logging in */
+"contacts.watchlist.phaseFetchingStatus" = "A obter o estado…";
 
-/* TODO: translate - Active Watchlist row status while requesting firmware version */
-"contacts.watchlist.phaseFetchingFirmware" = "Fetching firmware…";
+/* Active Watchlist row status while requesting firmware version */
+"contacts.watchlist.phaseFetchingFirmware" = "A obter o firmware…";
 
 // MARK: - Contact Detail
 

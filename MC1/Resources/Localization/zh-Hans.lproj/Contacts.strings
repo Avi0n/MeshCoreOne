@@ -228,11 +228,11 @@
 /* Row failure after a refresh request */
 "contacts.watchlist.couldNotRefresh" = "刷新失败";
 
-/* TODO: translate - Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
-"contacts.watchlist.couldNotFetchBattery" = "Couldn't fetch battery";
+/* Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
+"contacts.watchlist.couldNotFetchBattery" = "获取电池失败";
 
-/* TODO: translate - Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
-"contacts.watchlist.couldNotFetchFirmware" = "Couldn't fetch firmware";
+/* Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
+"contacts.watchlist.couldNotFetchFirmware" = "获取固件失败";
 
 /* Login recovery after the status request times out */
 "contacts.watchlist.logInAndRetry" = "登录";
@@ -267,32 +267,32 @@
 /* Joins two card detail segments, such as firmware and last heard */
 "contacts.watchlist.detailSeparator" = "%@ · %@";
 
-/* TODO: translate - Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
-"contacts.watchlist.refreshActive" = "Refresh Active (%d)";
+/* Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
+"contacts.watchlist.refreshActive" = "刷新未失败的（%d）";
 
-/* TODO: translate - Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
-"contacts.watchlist.retryFailed" = "Retry Failed (%d)";
+/* Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
+"contacts.watchlist.retryFailed" = "重试失败的（%d）";
 
-/* TODO: translate - Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
-"contacts.watchlist.refreshAll" = "Refresh All (%d)";
+/* Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
+"contacts.watchlist.refreshAll" = "刷新全部（%d）";
 
-/* TODO: translate - Active Watchlist row status while probing status on an existing session */
-"contacts.watchlist.phaseCheckingStatus" = "Checking status…";
+/* Active Watchlist row status while probing status on an existing session */
+"contacts.watchlist.phaseCheckingStatus" = "正在检查状态…";
 
-/* TODO: translate - Active Watchlist row status while logging in over the saved direct path */
-"contacts.watchlist.phaseLoggingInDirect" = "Logging in via saved path…";
+/* Active Watchlist row status while logging in over the saved direct path */
+"contacts.watchlist.phaseLoggingInDirect" = "正在通过已保存的路径登录…";
 
-/* TODO: translate - Active Watchlist row status while logging in over flood routing */
-"contacts.watchlist.phaseLoggingInFlood" = "Logging in via flood…";
+/* Active Watchlist row status while logging in over flood routing */
+"contacts.watchlist.phaseLoggingInFlood" = "正在通过泛洪登录…";
 
-/* TODO: translate - Active Watchlist row status when retrying login over flood after a direct-path timeout */
-"contacts.watchlist.phaseRetryingViaFlood" = "No reply on path — retrying via flood…";
+/* Active Watchlist row status when retrying login over flood after a direct-path timeout */
+"contacts.watchlist.phaseRetryingViaFlood" = "已知路由无响应，正在改用泛洪路由重试…";
 
-/* TODO: translate - Active Watchlist row status while requesting status after logging in */
-"contacts.watchlist.phaseFetchingStatus" = "Fetching status…";
+/* Active Watchlist row status while requesting status after logging in */
+"contacts.watchlist.phaseFetchingStatus" = "正在获取状态…";
 
-/* TODO: translate - Active Watchlist row status while requesting firmware version */
-"contacts.watchlist.phaseFetchingFirmware" = "Fetching firmware…";
+/* Active Watchlist row status while requesting firmware version */
+"contacts.watchlist.phaseFetchingFirmware" = "正在获取固件…";
 
 // MARK: - Contact Detail
 

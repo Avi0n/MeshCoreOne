@@ -228,11 +228,11 @@
 /* Row failure after a refresh request */
 "contacts.watchlist.couldNotRefresh" = "새로 고칠 수 없음";
 
-/* TODO: translate - Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
-"contacts.watchlist.couldNotFetchBattery" = "Couldn't fetch battery";
+/* Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
+"contacts.watchlist.couldNotFetchBattery" = "배터리를 가져올 수 없음";
 
-/* TODO: translate - Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
-"contacts.watchlist.couldNotFetchFirmware" = "Couldn't fetch firmware";
+/* Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
+"contacts.watchlist.couldNotFetchFirmware" = "펌웨어를 가져올 수 없음";
 
 /* Login recovery after the status request times out */
 "contacts.watchlist.logInAndRetry" = "로그인";
@@ -267,32 +267,32 @@
 /* Joins two card detail segments, such as firmware and last heard */
 "contacts.watchlist.detailSeparator" = "%@ · %@";
 
-/* TODO: translate - Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
-"contacts.watchlist.refreshActive" = "Refresh Active (%d)";
+/* Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
+"contacts.watchlist.refreshActive" = "활성 리피터 새로 고침(%d)";
 
-/* TODO: translate - Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
-"contacts.watchlist.retryFailed" = "Retry Failed (%d)";
+/* Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
+"contacts.watchlist.retryFailed" = "실패한 리피터 다시 시도(%d)";
 
-/* TODO: translate - Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
-"contacts.watchlist.refreshAll" = "Refresh All (%d)";
+/* Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
+"contacts.watchlist.refreshAll" = "모든 리피터 새로 고침(%d)";
 
-/* TODO: translate - Active Watchlist row status while probing status on an existing session */
-"contacts.watchlist.phaseCheckingStatus" = "Checking status…";
+/* Active Watchlist row status while probing status on an existing session */
+"contacts.watchlist.phaseCheckingStatus" = "상태 확인 중…";
 
-/* TODO: translate - Active Watchlist row status while logging in over the saved direct path */
-"contacts.watchlist.phaseLoggingInDirect" = "Logging in via saved path…";
+/* Active Watchlist row status while logging in over the saved direct path */
+"contacts.watchlist.phaseLoggingInDirect" = "저장된 경로로 로그인 중…";
 
-/* TODO: translate - Active Watchlist row status while logging in over flood routing */
-"contacts.watchlist.phaseLoggingInFlood" = "Logging in via flood…";
+/* Active Watchlist row status while logging in over flood routing */
+"contacts.watchlist.phaseLoggingInFlood" = "플러드 라우팅으로 로그인 중…";
 
-/* TODO: translate - Active Watchlist row status when retrying login over flood after a direct-path timeout */
-"contacts.watchlist.phaseRetryingViaFlood" = "No reply on path — retrying via flood…";
+/* Active Watchlist row status when retrying login over flood after a direct-path timeout */
+"contacts.watchlist.phaseRetryingViaFlood" = "경로로 응답 없음 — 플러드 라우팅으로 다시 시도 중…";
 
-/* TODO: translate - Active Watchlist row status while requesting status after logging in */
-"contacts.watchlist.phaseFetchingStatus" = "Fetching status…";
+/* Active Watchlist row status while requesting status after logging in */
+"contacts.watchlist.phaseFetchingStatus" = "상태 가져오는 중…";
 
-/* TODO: translate - Active Watchlist row status while requesting firmware version */
-"contacts.watchlist.phaseFetchingFirmware" = "Fetching firmware…";
+/* Active Watchlist row status while requesting firmware version */
+"contacts.watchlist.phaseFetchingFirmware" = "펌웨어 가져오는 중…";
 
 // MARK: - Contact Detail
 

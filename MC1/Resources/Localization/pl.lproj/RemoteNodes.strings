@@ -89,11 +89,11 @@
 /* Location: NodeAuthenticationSheet.swift - Accessibility announcement for countdown */
 "remoteNodes.auth.secondsRemainingAnnouncement" = "Pozostało %d sekund";
 
-/* TODO: translate - Error shown when authentication times out without a reply */
-"remoteNodes.auth.noReply" = "No reply. Check the password, or the node may be out of range.";
+/* Error shown when authentication times out without a reply */
+"remoteNodes.auth.noReply" = "Brak odpowiedzi. Sprawdź hasło, albo węzeł może być poza zasięgiem.";
 
-/* TODO: translate - Status shown while waiting for the radio to accept a login request */
-"remoteNodes.auth.waitingForRadio" = "Waiting for the radio…";
+/* Status shown while waiting for the radio to accept a login request */
+"remoteNodes.auth.waitingForRadio" = "Oczekiwanie na radio…";
 
 // MARK: - Repeater Settings
 

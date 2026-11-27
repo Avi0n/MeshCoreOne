@@ -82,6 +82,6 @@
 "whatsNew.nodeTelemetry.description" = "Instellingen > Apparaatinfo toont de telemetrie van het knooppunt waarmee je verbonden bent.";
 
 /* What's New v1.7 - Live Activity, title */
-"whatsNew.liveActivity.title" = "Live Activity";
+"whatsNew.liveActivity.title" = "Live activiteit";
 /* What's New v1.7 - Live Activity, description */
 "whatsNew.liveActivity.description" = "Ongelezen berichten vallen meer op en de snelheid in pakketten per minuut is makkelijker te begrijpen.";

@@ -257,8 +257,8 @@
 /* Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware */
 "error.meshCore.featureDisabled" = "이 기기에서 해당 기능이 비활성화되어 있습니다.";
 
-/* TODO: translate - Background request yielded to a higher-priority operation */
-"error.meshCore.preempted" = "The background request was preempted by a higher-priority operation.";
+/* Background request yielded to a higher-priority operation */
+"error.meshCore.preempted" = "백그라운드 요청이 중단되었습니다. 우선순위가 더 높은 작업에 무선 기기가 필요했습니다.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported */
 "error.device.unsupportedCommand" = "기기 펌웨어에서 지원하지 않는 명령입니다.";
