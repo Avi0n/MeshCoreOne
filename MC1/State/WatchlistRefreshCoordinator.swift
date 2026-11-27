@@ -12,14 +12,22 @@ final class WatchlistRefreshCoordinator {
     let connectionStates: @MainActor () -> AsyncStream<DeviceConnectionState>
   }
 
+  typealias TimeoutHandler = @Sendable (Int) async -> Void
+
   /// Remote calls for one repeater, bound to the live connection's services.
   struct Operations {
     let savedPassword: @Sendable (ContactDTO) async -> String?
     let connectedSession: @Sendable (_ publicKeyPrefix: Data) async throws -> RemoteNodeSessionDTO?
     let createSession: @Sendable (ContactDTO) async throws -> RemoteNodeSessionDTO
-    let logIn: @Sendable (_ sessionID: UUID, _ password: String, _ pathLength: UInt8, _ samePasswordExemption: Bool) async throws -> LoginResult
-    let requestStatus: @Sendable (_ sessionID: UUID) async throws -> StatusResponse
-    let requestOwnerInfo: @Sendable (_ sessionID: UUID) async throws -> OwnerInfoResponse
+    let logIn: @Sendable (
+      _ sessionID: UUID,
+      _ password: String,
+      _ pathLength: UInt8,
+      _ samePasswordExemption: Bool,
+      _ onTimeoutKnown: @escaping TimeoutHandler
+    ) async throws -> LoginResult
+    let requestStatus: @Sendable (_ sessionID: UUID, _ onTimeoutKnown: @escaping TimeoutHandler) async throws -> StatusResponse
+    let requestOwnerInfo: @Sendable (_ sessionID: UUID, _ onTimeoutKnown: @escaping TimeoutHandler) async throws -> OwnerInfoResponse
     let attemptFloodFallback: @Sendable (
       _ contact: ContactDTO,
       _ rethrowIfUnavailable: any Error,
@@ -37,12 +45,23 @@ final class WatchlistRefreshCoordinator {
     let savedAt: Date
   }
 
+  enum RefreshPhase: Equatable {
+    case checkingStatus
+    case loggingInDirect
+    case loggingInFlood
+    case retryingViaFlood
+    case fetchingStatus
+    case fetchingFirmware
+  }
+
   /// Repeaters below this `FIRMWARE_VER_LEVEL` never answer owner info.
   static let ownerInfoMinimumFirmwareLevel: UInt8 = 2
   private static let maxPostHandOffPreemptions = 1
   private static let publicKeyPrefixLength = 6
 
   private(set) var activeContactID: UUID?
+  private(set) var activePhase: RefreshPhase?
+  private(set) var phaseDeadline: Date?
   private(set) var progress: Progress?
   private(set) var failedContactIDs: Set<UUID> = []
   private(set) var timedOutContactIDs: Set<UUID> = []
@@ -154,6 +173,8 @@ final class WatchlistRefreshCoordinator {
     guard activeRun?.id == runID else { return }
     activeRun = nil
     activeContactID = nil
+    activePhase = nil
+    phaseDeadline = nil
     progress = nil
     walkTask?.cancel()
     walkTask = nil
@@ -167,6 +188,8 @@ final class WatchlistRefreshCoordinator {
       guard owns(run) else { break }
       var state = queue.removeFirst()
       activeContactID = state.contact.id
+      activePhase = nil
+      phaseDeadline = nil
       progress = Progress(completed: completedCount, total: run.targets.count)
       if !state.hasAttempted {
         failedContactIDs.remove(state.contact.id)
@@ -204,8 +227,26 @@ final class WatchlistRefreshCoordinator {
     if activeRun?.id == run.id {
       activeRun = nil
       activeContactID = nil
+      activePhase = nil
+      phaseDeadline = nil
       progress = nil
       walkTask = nil
+    }
+  }
+
+  private func setPhase(_ phase: RefreshPhase?, for run: Run) {
+    guard owns(run) else { return }
+    phaseDeadline = nil
+    activePhase = phase
+  }
+
+  private func makeTimeoutHandler(for run: Run, expectedPhase: RefreshPhase) -> TimeoutHandler {
+    { [weak self] seconds in
+      await MainActor.run {
+        guard let self, self.owns(run), self.activePhase == expectedPhase else { return }
+        let current = self.now?() ?? .now
+        self.phaseDeadline = current.addingTimeInterval(TimeInterval(seconds))
+      }
     }
   }
 
@@ -270,7 +311,7 @@ final class WatchlistRefreshCoordinator {
          let connected = try await operations(for: run).connectedSession(Data(target.publicKey.prefix(Self.publicKeyPrefixLength))) {
         state.sessionID = connected.id
         do {
-          try await performStatus(for: target, sessionID: connected.id, in: run)
+          try await performStatus(for: target, sessionID: connected.id, phase: .checkingStatus, in: run)
           state.statusAnswered = true
           state.statusDone = true
           return .ok
@@ -355,7 +396,15 @@ final class WatchlistRefreshCoordinator {
     }
 
     do {
-      return try await operations(for: run).logIn(sessionID, password, target.outPathLength, false)
+      let loginPhase: RefreshPhase = canAttemptFlood ? .loggingInDirect : .loggingInFlood
+      setPhase(loginPhase, for: run)
+      return try await operations(for: run).logIn(
+        sessionID,
+        password,
+        target.outPathLength,
+        false,
+        makeTimeoutHandler(for: run, expectedPhase: loginPhase)
+      )
     } catch where canAttemptFlood && !floodFallbackUnavailable && Self.isTimeout(error) {
       return try await attemptFloodLogin(
         target: target,
@@ -377,11 +426,13 @@ final class WatchlistRefreshCoordinator {
     in run: Run
   ) async throws -> LoginResult {
     try await operations(for: run).attemptFloodFallback(target, rethrowIfUnavailable) { [weak self] in
-      let ops = try await MainActor.run {
+      let (ops, handler) = try await MainActor.run {
         guard let self else { throw CancellationError() }
-        return try self.operations(for: run)
+        let operations = try self.operations(for: run)
+        self.setPhase(.retryingViaFlood, for: run)
+        return (operations, self.makeTimeoutHandler(for: run, expectedPhase: .retryingViaFlood))
       }
-      return try await ops.logIn(sessionID, password, PacketBuilder.floodPathSentinel, samePasswordExemption)
+      return try await ops.logIn(sessionID, password, PacketBuilder.floodPathSentinel, samePasswordExemption, handler)
     }
   }
 
@@ -392,7 +443,7 @@ final class WatchlistRefreshCoordinator {
     in run: Run
   ) async -> StepResult {
     do {
-      try await performStatus(for: target, sessionID: sessionID, in: run)
+      try await performStatus(for: target, sessionID: sessionID, phase: .fetchingStatus, in: run)
       state.statusAnswered = true
       state.statusDone = true
       return .ok
@@ -410,8 +461,17 @@ final class WatchlistRefreshCoordinator {
     }
   }
 
-  private func performStatus(for target: ContactDTO, sessionID: UUID, in run: Run) async throws {
-    let status = try await operations(for: run).requestStatus(sessionID)
+  private func performStatus(
+    for target: ContactDTO,
+    sessionID: UUID,
+    phase: RefreshPhase,
+    in run: Run
+  ) async throws {
+    setPhase(phase, for: run)
+    let status = try await operations(for: run).requestStatus(
+      sessionID,
+      makeTimeoutHandler(for: run, expectedPhase: phase)
+    )
     guard owns(run), let store else { throw CancellationError() }
     let metrics = NodeStatusMetrics(
       status: status,
@@ -437,7 +497,11 @@ final class WatchlistRefreshCoordinator {
     }
     let info: OwnerInfoResponse
     do {
-      info = try await operations(for: run).requestOwnerInfo(sessionID)
+      setPhase(.fetchingFirmware, for: run)
+      info = try await operations(for: run).requestOwnerInfo(
+        sessionID,
+        makeTimeoutHandler(for: run, expectedPhase: .fetchingFirmware)
+      )
     } catch let error where statusAnswered && Self.isTimeout(error) {
       // The repeater answered status, so a silent owner-info request means it lacks the request.
       try await recordMissingFirmware(for: target, in: run)

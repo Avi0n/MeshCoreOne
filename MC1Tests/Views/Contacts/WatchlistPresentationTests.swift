@@ -120,6 +120,48 @@ struct WatchlistPresentationTests {
     #expect(Explanation.text(type: .repeater, isMyNode: false, isFavorite: true) == nil)
   }
 
+  @Test
+  func `path and countdown helpers format route states and expiry`() {
+    let radioID = UUID()
+    let flood = ContactDTO(from: Contact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0x11, count: ProtocolLimits.publicKeySize),
+      name: "Flood",
+      typeRawValue: ContactType.repeater.rawValue,
+      outPathLength: PacketBuilder.floodPathSentinel,
+      lastHeardTimestamp: 0
+    ))
+    let directZero = ContactDTO(from: Contact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0x12, count: ProtocolLimits.publicKeySize),
+      name: "Direct",
+      typeRawValue: ContactType.repeater.rawValue,
+      outPathLength: 0,
+      lastHeardTimestamp: 0
+    ))
+    let multiHop = ContactDTO(from: Contact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0x13, count: ProtocolLimits.publicKeySize),
+      name: "Hops",
+      typeRawValue: ContactType.repeater.rawValue,
+      outPathLength: 2,
+      outPath: Data([0xA3, 0x7F]),
+      lastHeardTimestamp: 0
+    ))
+
+    #expect(WatchlistReading.pathText(flood) == L10n.Contacts.Contacts.Route.flood)
+    #expect(WatchlistReading.pathAccessibilityLabel(flood) == L10n.Contacts.Contacts.Detail.routeFlood)
+    #expect(WatchlistReading.pathText(directZero) == L10n.Contacts.Contacts.Route.direct)
+    #expect(WatchlistReading.pathAccessibilityLabel(directZero) == L10n.Contacts.Contacts.Detail.routeDirect)
+    #expect(WatchlistReading.pathText(multiHop) == multiHop.pathString)
+    #expect(WatchlistReading.pathAccessibilityLabel(multiHop) == L10n.Contacts.Contacts.Detail.routePrefix(multiHop.pathString))
+
+    let now = Date(timeIntervalSince1970: 1_800_000_000)
+    #expect(WatchlistReading.remainingSeconds(until: now.addingTimeInterval(4.2), at: now) == 5)
+    #expect(WatchlistReading.remainingSeconds(until: now, at: now) == nil)
+    #expect(WatchlistReading.remainingSeconds(until: now.addingTimeInterval(-1), at: now) == nil)
+  }
+
   private func chat(radioID: UUID) -> ContactDTO {
     ContactDTO(from: Contact(
       radioID: radioID,

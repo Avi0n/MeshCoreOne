@@ -27,6 +27,42 @@ enum WatchlistReading {
     return L10n.Contacts.Contacts.Watchlist.checked(RelativeTimestampText.format(date: reading.savedAt, relativeTo: now))
   }
 
+  static func pathText(_ contact: ContactDTO) -> String {
+    if contact.isFloodRouted {
+      return L10n.Contacts.Contacts.Route.flood
+    }
+    return contact.pathHopCount == 0 ? L10n.Contacts.Contacts.Route.direct : contact.pathString
+  }
+
+  static func pathAccessibilityLabel(_ contact: ContactDTO) -> String {
+    if contact.isFloodRouted {
+      return L10n.Contacts.Contacts.Detail.routeFlood
+    }
+    return contact.pathHopCount == 0
+      ? L10n.Contacts.Contacts.Detail.routeDirect
+      : L10n.Contacts.Contacts.Detail.routePrefix(contact.pathString)
+  }
+
+  static func phaseText(_ phase: WatchlistRefreshCoordinator.RefreshPhase) -> String {
+    switch phase {
+    case .checkingStatus: L10n.Contacts.Contacts.Watchlist.phaseCheckingStatus
+    case .loggingInDirect: L10n.Contacts.Contacts.Watchlist.phaseLoggingInDirect
+    case .loggingInFlood: L10n.Contacts.Contacts.Watchlist.phaseLoggingInFlood
+    case .retryingViaFlood: L10n.Contacts.Contacts.Watchlist.phaseRetryingViaFlood
+    case .fetchingStatus: L10n.Contacts.Contacts.Watchlist.phaseFetchingStatus
+    case .fetchingFirmware: L10n.Contacts.Contacts.Watchlist.phaseFetchingFirmware
+    }
+  }
+
+  static func remainingSeconds(until deadline: Date, at now: Date) -> Int? {
+    let remaining = Int(deadline.timeIntervalSince(now).rounded(.up))
+    return remaining > 0 ? remaining : nil
+  }
+
+  static func countdownText(seconds: Int) -> String {
+    Duration.seconds(seconds).formatted(.units(allowed: [.seconds], width: .narrow))
+  }
+
   static func heardTimestamp(_ contact: ContactDTO) -> UInt32? {
     guard let heard = contact.lastHeardTimestamp, heard > 0 else { return nil }
     return heard

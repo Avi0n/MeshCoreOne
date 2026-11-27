@@ -261,6 +261,24 @@
 /* Joins two card detail segments, such as firmware and last heard */
 "contacts.watchlist.detailSeparator" = "%@ · %@";
 
+/* TODO: translate - Active Watchlist row status while probing status on an existing session */
+"contacts.watchlist.phaseCheckingStatus" = "Checking status…";
+
+/* TODO: translate - Active Watchlist row status while logging in over the saved direct path */
+"contacts.watchlist.phaseLoggingInDirect" = "Logging in via saved path…";
+
+/* TODO: translate - Active Watchlist row status while logging in over flood routing */
+"contacts.watchlist.phaseLoggingInFlood" = "Logging in via flood…";
+
+/* TODO: translate - Active Watchlist row status when retrying login over flood after a direct-path timeout */
+"contacts.watchlist.phaseRetryingViaFlood" = "No reply on path — retrying via flood…";
+
+/* TODO: translate - Active Watchlist row status while requesting status after logging in */
+"contacts.watchlist.phaseFetchingStatus" = "Fetching status…";
+
+/* TODO: translate - Active Watchlist row status while requesting firmware version */
+"contacts.watchlist.phaseFetchingFirmware" = "Fetching firmware…";
+
 // MARK: - Contact Detail
 
 /* Location: ContactDetailView.swift - Purpose: Favorite status indicator */

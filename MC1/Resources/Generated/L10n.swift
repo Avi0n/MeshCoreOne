@@ -2399,6 +2399,18 @@ public enum L10n {
         public static let notChecked = L10n.tr("Contacts", "contacts.watchlist.notChecked", fallback: "Not checked")
         /// Repeater with no last-heard time
         public static let notHeard = L10n.tr("Contacts", "contacts.watchlist.notHeard", fallback: "Not heard")
+        /// Active Watchlist row status while probing status on an existing session
+        public static let phaseCheckingStatus = L10n.tr("Contacts", "contacts.watchlist.phaseCheckingStatus", fallback: "Checking status…")
+        /// Active Watchlist row status while requesting firmware version
+        public static let phaseFetchingFirmware = L10n.tr("Contacts", "contacts.watchlist.phaseFetchingFirmware", fallback: "Fetching firmware…")
+        /// Active Watchlist row status while requesting status after logging in
+        public static let phaseFetchingStatus = L10n.tr("Contacts", "contacts.watchlist.phaseFetchingStatus", fallback: "Fetching status…")
+        /// Active Watchlist row status while logging in over the saved direct path
+        public static let phaseLoggingInDirect = L10n.tr("Contacts", "contacts.watchlist.phaseLoggingInDirect", fallback: "Logging in via saved path…")
+        /// Active Watchlist row status while logging in over flood routing
+        public static let phaseLoggingInFlood = L10n.tr("Contacts", "contacts.watchlist.phaseLoggingInFlood", fallback: "Logging in via flood…")
+        /// Active Watchlist row status when retrying login over flood after a direct-path timeout
+        public static let phaseRetryingViaFlood = L10n.tr("Contacts", "contacts.watchlist.phaseRetryingViaFlood", fallback: "No reply on path — retrying via flood…")
         /// Refresh progress; first number is the repeater being checked, second is the total
         public static func progress(_ p1: Int, _ p2: Int) -> String {
           return L10n.tr("Contacts", "contacts.watchlist.progress", p1, p2, fallback: "Refreshing %d of %d")

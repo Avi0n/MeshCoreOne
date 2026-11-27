@@ -40,10 +40,13 @@ struct WatchlistView: View {
                 Button {
                   onSelect(contact)
                 } label: {
+                  let isActive = coordinator.activeContactID == contact.id
                   WatchlistRow(
                     contact: contact,
                     reading: coordinator.batteryReadings[contact.id],
-                    isActive: coordinator.activeContactID == contact.id,
+                    isActive: isActive,
+                    activePhase: isActive ? coordinator.activePhase : nil,
+                    phaseDeadline: isActive ? coordinator.phaseDeadline : nil,
                     failed: coordinator.failedContactIDs.contains(contact.id),
                     timedOut: coordinator.timedOutContactIDs.contains(contact.id)
                   )
@@ -59,8 +62,11 @@ struct WatchlistView: View {
               }
             }
           } header: {
-            if let progressText {
-              Text(progressText)
+            if let progress = coordinator.progress, let progressText {
+              VStack(alignment: .leading, spacing: WatchlistRowLayout.progressSpacing) {
+                Text(progressText)
+                ProgressView(value: Double(progress.completed), total: Double(max(progress.total, 1)))
+              }
             }
           }
         }
@@ -70,6 +76,10 @@ struct WatchlistView: View {
     .task(id: AutoRefreshKey(rowIDs: rows.map(\.id), isReady: appState.connectionState == .ready)) {
       await coordinator.loadReadings(for: rows)
       coordinator.refreshStale(rows)
+    }
+    .onChange(of: coordinator.activePhase) { _, newPhase in
+      guard newPhase == .retryingViaFlood else { return }
+      AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Watchlist.phaseRetryingViaFlood).post()
     }
     .navigationTitle(L10n.Contacts.Contacts.List.watchlist)
     .navigationBarTitleDisplayMode(.inline)
@@ -104,13 +114,31 @@ private struct AutoRefreshKey: Equatable {
 private enum WatchlistRowLayout {
   static let rowSpacing: CGFloat = 4
   static let titleSpacing: CGFloat = 8
+  static let inlineSpacing: CGFloat = 6
+  static let progressSpacing: CGFloat = 6
+  static let activeBatteryOpacity: Double = 0.6
+}
+
+private struct CountdownSchedule: TimelineSchedule {
+  let deadline: Date
+  let isPaused: Bool
+
+  func entries(from startDate: Date, mode: TimelineScheduleMode) -> [Date] {
+    guard !isPaused else { return [startDate] }
+    let remaining = Int(ceil(deadline.timeIntervalSince(startDate)))
+    guard remaining > 0 else { return [startDate] }
+    return (0...remaining).map { startDate.addingTimeInterval(TimeInterval($0)) }
+  }
 }
 
 private struct WatchlistRow: View {
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   let contact: ContactDTO
   let reading: WatchlistRefreshCoordinator.BatteryReading?
   let isActive: Bool
+  let activePhase: WatchlistRefreshCoordinator.RefreshPhase?
+  let phaseDeadline: Date?
   let failed: Bool
   let timedOut: Bool
 
@@ -121,20 +149,50 @@ private struct WatchlistRow: View {
           .font(.headline)
           .foregroundStyle(.primary)
         Spacer(minLength: 0)
-        if isActive {
-          ProgressView()
-        } else {
-          battery
-        }
+        battery
+          .opacity(isActive && reading != nil ? WatchlistRowLayout.activeBatteryOpacity : 1)
       }
       TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
         VStack(alignment: .leading, spacing: WatchlistRowLayout.rowSpacing) {
           Text(WatchlistReading.detailLine(contact, now: context.date))
             .font(.subheadline)
-          Text(WatchlistReading.checkedLine(reading, now: context.date))
-            .font(.footnote)
+          HStack(spacing: WatchlistRowLayout.inlineSpacing) {
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
+              .font(.caption)
+              .accessibilityHidden(true)
+            Text(WatchlistReading.pathText(contact))
+              .font(.caption.monospaced())
+              .lineLimit(nil)
+          }
+          .accessibilityElement(children: .combine)
+          .accessibilityLabel(WatchlistReading.pathAccessibilityLabel(contact))
+          if !isActive {
+            Text(WatchlistReading.checkedLine(reading, now: context.date))
+              .font(.footnote)
+          }
         }
         .foregroundStyle(.secondary)
+      }
+      if isActive {
+        HStack(spacing: WatchlistRowLayout.inlineSpacing) {
+          ProgressView()
+            .controlSize(.mini)
+          Text(WatchlistReading.phaseText(activePhase ?? .checkingStatus))
+            .font(.footnote)
+            .foregroundStyle(activePhase == .retryingViaFlood ? .orange : .secondary)
+          Spacer(minLength: 0)
+          if let phaseDeadline {
+            TimelineView(CountdownSchedule(deadline: phaseDeadline, isPaused: scenePhase == .background)) { context in
+              if let remaining = WatchlistReading.remainingSeconds(until: phaseDeadline, at: context.date) {
+                Text(WatchlistReading.countdownText(seconds: remaining))
+                  .font(.footnote.monospacedDigit())
+                  .foregroundStyle(.secondary)
+                  .contentTransition(.numericText(countsDown: true))
+                  .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Auth.secondsRemaining(remaining))
+              }
+            }
+          }
+        }
       }
       if failed {
         Label(
@@ -147,6 +205,7 @@ private struct WatchlistRow: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .contentShape(.rect)
+    .animation(reduceMotion ? nil : .default, value: activePhase)
   }
 
   @ViewBuilder

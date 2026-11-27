@@ -32,10 +32,19 @@ public protocol RemoteAccessSessionOps: Actor {
   ) async throws -> MessageSentInfo
 
   /// Requests owner information from a repeater using the binary protocol.
-  func requestOwnerInfo(from publicKey: Data, priority: MeshRequestPriority) async throws -> OwnerInfoResponse
+  func requestOwnerInfo(
+    from publicKey: Data,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> OwnerInfoResponse
 
   /// Requests status information from a remote node.
-  func requestStatus(from publicKey: Data, type: ContactType, priority: MeshRequestPriority) async throws -> StatusResponse
+  func requestStatus(
+    from publicKey: Data,
+    type: ContactType,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> StatusResponse
 
   /// Requests telemetry data from a remote node using the binary protocol.
   func requestTelemetry(from publicKey: Data, priority: MeshRequestPriority) async throws -> TelemetryResponse
@@ -76,6 +85,14 @@ public protocol RemoteAccessSessionOps: Actor {
 // MARK: - Default Implementations
 
 public extension RemoteAccessSessionOps {
+  func requestOwnerInfo(from publicKey: Data, priority: MeshRequestPriority) async throws -> OwnerInfoResponse {
+    try await requestOwnerInfo(from: publicKey, priority: priority, onTimeoutKnown: nil)
+  }
+
+  func requestStatus(from publicKey: Data, type: ContactType, priority: MeshRequestPriority) async throws -> StatusResponse {
+    try await requestStatus(from: publicKey, type: type, priority: priority, onTimeoutKnown: nil)
+  }
+
   func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
     try await sendKeepAlive(to: publicKey, syncSince: { syncSince }, beforeSend: {})
   }

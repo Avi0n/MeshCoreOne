@@ -1039,6 +1039,14 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   }
 
   public func requestOwnerInfo(from publicKey: Data, priority: MeshRequestPriority) async throws -> OwnerInfoResponse {
+    try await requestOwnerInfo(from: publicKey, priority: priority, onTimeoutKnown: nil)
+  }
+
+  public func requestOwnerInfo(
+    from publicKey: Data,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> OwnerInfoResponse {
     requestOwnerInfoPriorities.append(priority)
     if !stubbedRequestOwnerInfoResults.isEmpty {
       switch stubbedRequestOwnerInfoResults.removeFirst() {
@@ -1057,6 +1065,15 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   }
 
   public func requestStatus(from publicKey: Data, type: ContactType, priority: MeshRequestPriority) async throws -> StatusResponse {
+    try await requestStatus(from: publicKey, type: type, priority: priority, onTimeoutKnown: nil)
+  }
+
+  public func requestStatus(
+    from publicKey: Data,
+    type: ContactType,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> StatusResponse {
     requestStatusPriorities.append(priority)
     if !stubbedRequestStatusResults.isEmpty {
       switch stubbedRequestStatusResults.removeFirst() {

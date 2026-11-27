@@ -326,6 +326,70 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
+  func `active phase and deadline track each refresh stage and clear on completion and cancel`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+
+    let contact = harness.repeater(name: "PhaseNode", byte: 0x6F, pathLength: 1)
+    try await harness.store.saveContact(contact)
+    await harness.session.setConnectedSession(
+      RemoteNodeSessionDTO(
+        id: UUID(),
+        radioID: harness.radioID,
+        publicKey: contact.publicKey,
+        name: contact.name,
+        role: .repeater,
+        isConnected: true
+      ),
+      for: contact.publicKey
+    )
+    await harness.session.setHoldLogins(true)
+    await harness.session.setScriptedTimeout(40)
+    await harness.session.enqueueStatusTimeout()
+    await harness.session.enqueueLoginOnly()
+    await harness.session.enqueueStatusResponse(3550)
+    await harness.session.enqueueOwnerResponse("1.9.0")
+
+    harness.coordinator.refresh([contact])
+    try await waitUntil("checking status entered") { await harness.session.entered == 1 }
+    #expect(harness.coordinator.activePhase == .checkingStatus)
+    #expect(harness.coordinator.phaseDeadline == harness.now.addingTimeInterval(40))
+
+    harness.now = harness.now.addingTimeInterval(5)
+    await harness.session.releaseOne()
+    try await waitUntil("flood retry login entered") { await harness.session.entered == 2 }
+    #expect(harness.coordinator.activePhase == .retryingViaFlood)
+    #expect(harness.coordinator.phaseDeadline == harness.now.addingTimeInterval(40))
+
+    harness.now = harness.now.addingTimeInterval(5)
+    await harness.session.releaseOne()
+    try await waitUntil("fetching status entered") { await harness.session.entered == 3 }
+    #expect(harness.coordinator.activePhase == .fetchingStatus)
+    #expect(harness.coordinator.phaseDeadline == harness.now.addingTimeInterval(40))
+
+    harness.now = harness.now.addingTimeInterval(5)
+    await harness.session.releaseOne()
+    try await waitUntil("fetching firmware entered") { await harness.session.entered == 4 }
+    #expect(harness.coordinator.activePhase == .fetchingFirmware)
+    #expect(harness.coordinator.phaseDeadline == harness.now.addingTimeInterval(40))
+
+    await harness.session.releaseOne()
+    try await waitUntil("walk finished") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.activePhase == nil)
+    #expect(harness.coordinator.phaseDeadline == nil)
+
+    await harness.session.enqueueStatusResponse(3600)
+    harness.coordinator.refresh([contact])
+    try await waitUntil("second run status entered") { await harness.session.entered == 5 }
+    #expect(harness.coordinator.activePhase == .checkingStatus)
+    #expect(harness.coordinator.phaseDeadline == harness.now.addingTimeInterval(40))
+    harness.coordinator.cancelRefresh()
+    #expect(harness.coordinator.activePhase == nil)
+    #expect(harness.coordinator.phaseDeadline == nil)
+    await harness.session.releaseOne()
+  }
+
+  @Test
   func `owner info is checked once per app run when firmware version is already known`() async throws {
     let harness = try await Harness()
     defer { harness.coordinator.shutdown() }
@@ -1031,6 +1095,8 @@ private actor ScriptedRemote {
   private var sessionKeys: [UUID: Data] = [:]
   private var connectedSessions: [Data: RemoteNodeSessionDTO] = [:]
   private var floodFallbackAvailable = true
+  private var holdLogins = false
+  private var scriptedTimeoutSeconds: Int?
   private(set) var calls: [Call] = []
   private(set) var logins: [Login] = []
   private(set) var loginSessionIDs: [UUID] = []
@@ -1045,15 +1111,31 @@ private actor ScriptedRemote {
       savedPassword: { await self.password(for: $0) },
       connectedSession: { await self.connectedSession(forPrefix: $0) },
       createSession: { await self.session(for: $0) },
-      logIn: { try await self.logIn(sessionID: $0, password: $1, pathLength: $2, samePasswordExemption: $3) },
-      requestStatus: { try await self.requestStatus(sessionID: $0) },
-      requestOwnerInfo: { try await self.requestOwnerInfo(sessionID: $0) },
+      logIn: {
+        try await self.logIn(
+          sessionID: $0,
+          password: $1,
+          pathLength: $2,
+          samePasswordExemption: $3,
+          onTimeoutKnown: $4
+        )
+      },
+      requestStatus: { try await self.requestStatus(sessionID: $0, onTimeoutKnown: $1) },
+      requestOwnerInfo: { try await self.requestOwnerInfo(sessionID: $0, onTimeoutKnown: $1) },
       attemptFloodFallback: { try await self.attemptFloodFallback(contact: $0, rethrowIfUnavailable: $1, operation: $2) }
     )
   }
 
   func setFloodFallbackAvailable(_ available: Bool) {
     floodFallbackAvailable = available
+  }
+
+  func setHoldLogins(_ hold: Bool) {
+    holdLogins = hold
+  }
+
+  func setScriptedTimeout(_ seconds: Int?) {
+    scriptedTimeoutSeconds = seconds
   }
 
   func setSavedPassword(_ password: String, for publicKey: Data) {
@@ -1148,8 +1230,9 @@ private actor ScriptedRemote {
     sessionID: UUID,
     password: String,
     pathLength: UInt8,
-    samePasswordExemption: Bool
-  ) throws -> LoginResult {
+    samePasswordExemption: Bool,
+    onTimeoutKnown: WatchlistRefreshCoordinator.TimeoutHandler
+  ) async throws -> LoginResult {
     let key = sessionKeys[sessionID] ?? Data()
     logins.append(
       Login(
@@ -1160,6 +1243,13 @@ private actor ScriptedRemote {
       )
     )
     loginSessionIDs.append(sessionID)
+    if let seconds = scriptedTimeoutSeconds {
+      await onTimeoutKnown(seconds)
+    }
+    if holdLogins {
+      entered += 1
+      await withCheckedContinuation { held.append($0) }
+    }
     let level = try loginOutcomes.isEmpty ? Self.currentFirmwareLevel : loginOutcomes.removeFirst().get()
     return LoginResult(
       success: true, isAdmin: false, aclPermissions: nil, publicKeyPrefix: Data(key.prefix(6)),
@@ -1177,13 +1267,25 @@ private actor ScriptedRemote {
     return try await operation()
   }
 
-  private func requestStatus(sessionID: UUID) async throws -> StatusResponse {
+  private func requestStatus(
+    sessionID: UUID,
+    onTimeoutKnown: WatchlistRefreshCoordinator.TimeoutHandler
+  ) async throws -> StatusResponse {
+    if let seconds = scriptedTimeoutSeconds {
+      await onTimeoutKnown(seconds)
+    }
     try await record(.status(sessionKeys[sessionID] ?? Data()))
     guard !statusOutcomes.isEmpty else { throw ScriptFailure() }
     return try statusOutcomes.removeFirst().get()
   }
 
-  private func requestOwnerInfo(sessionID: UUID) async throws -> OwnerInfoResponse {
+  private func requestOwnerInfo(
+    sessionID: UUID,
+    onTimeoutKnown: WatchlistRefreshCoordinator.TimeoutHandler
+  ) async throws -> OwnerInfoResponse {
+    if let seconds = scriptedTimeoutSeconds {
+      await onTimeoutKnown(seconds)
+    }
     try await record(.owner(sessionKeys[sessionID] ?? Data()))
     guard !ownerOutcomes.isEmpty else { throw ScriptFailure() }
     return try ownerOutcomes.removeFirst().get()

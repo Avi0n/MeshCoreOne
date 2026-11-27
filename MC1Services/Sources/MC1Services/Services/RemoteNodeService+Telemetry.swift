@@ -5,7 +5,11 @@ public extension RemoteNodeService {
   // MARK: - Status
 
   /// Request status from a remote node.
-  func requestStatus(sessionID: UUID, priority: MeshRequestPriority) async throws -> StatusResponse {
+  func requestStatus(
+    sessionID: UUID,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
+  ) async throws -> StatusResponse {
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
       throw RemoteNodeError.sessionNotFound
     }
@@ -20,7 +24,13 @@ public extension RemoteNodeService {
       return try await session.requestStatus(
         from: remoteSession.publicKey,
         type: contactType,
-        priority: priority
+        priority: priority,
+        onTimeoutKnown: onTimeoutKnown.map { callback in
+          { @Sendable seconds in
+            let roundedSeconds = max(1, Int(seconds.rounded(.up)))
+            await callback(roundedSeconds)
+          }
+        }
       )
     } catch let error as MeshCoreError {
       if case .timeout = error {
@@ -54,7 +64,11 @@ public extension RemoteNodeService {
   // MARK: - Owner Info
 
   /// Request owner info from a repeater using binary protocol.
-  func requestOwnerInfo(sessionID: UUID, priority: MeshRequestPriority) async throws -> OwnerInfoResponse {
+  func requestOwnerInfo(
+    sessionID: UUID,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
+  ) async throws -> OwnerInfoResponse {
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
       throw RemoteNodeError.sessionNotFound
     }
@@ -62,7 +76,16 @@ public extension RemoteNodeService {
     guard !remoteSession.isSensor else { throw RemoteNodeError.invalidResponse }
 
     do {
-      return try await session.requestOwnerInfo(from: remoteSession.publicKey, priority: priority)
+      return try await session.requestOwnerInfo(
+        from: remoteSession.publicKey,
+        priority: priority,
+        onTimeoutKnown: onTimeoutKnown.map { callback in
+          { @Sendable seconds in
+            let roundedSeconds = max(1, Int(seconds.rounded(.up)))
+            await callback(roundedSeconds)
+          }
+        }
+      )
     } catch let error as MeshCoreError {
       if case .timeout = error {
         throw RemoteNodeError.timeout

@@ -178,8 +178,12 @@ public actor RepeaterAdminService {
   // MARK: - Status
 
   /// Request status from a repeater.
-  public func requestStatus(sessionID: UUID, priority: MeshRequestPriority) async throws -> StatusResponse {
-    try await remoteNodeService.requestStatus(sessionID: sessionID, priority: priority)
+  public func requestStatus(
+    sessionID: UUID,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
+  ) async throws -> StatusResponse {
+    try await remoteNodeService.requestStatus(sessionID: sessionID, priority: priority, onTimeoutKnown: onTimeoutKnown)
   }
 
   // MARK: - Telemetry
@@ -192,8 +196,16 @@ public actor RepeaterAdminService {
   // MARK: - Owner Info
 
   /// Request owner info from a repeater using binary protocol.
-  public func requestOwnerInfo(sessionID: UUID, priority: MeshRequestPriority) async throws -> OwnerInfoResponse {
-    try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, priority: priority)
+  public func requestOwnerInfo(
+    sessionID: UUID,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
+  ) async throws -> OwnerInfoResponse {
+    try await remoteNodeService.requestOwnerInfo(
+      sessionID: sessionID,
+      priority: priority,
+      onTimeoutKnown: onTimeoutKnown
+    )
   }
 
   // MARK: - CLI Commands

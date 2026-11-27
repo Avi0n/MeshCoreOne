@@ -21,9 +21,23 @@ public extension MeshCoreSession {
     type: ContactType,
     priority: MeshRequestPriority
   ) async throws -> StatusResponse {
+    try await requestStatus(from: publicKey, type: type, priority: priority, onTimeoutKnown: nil)
+  }
+
+  func requestStatus(
+    from publicKey: Data,
+    type: ContactType,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> StatusResponse {
     try requireFullPublicKey(publicKey, operation: "requestStatus")
     let layout: StatusResponse.Layout = type == .room ? .roomServer : .repeater
-    return try await performStatusRequest(from: publicKey, layout: layout, priority: priority)
+    return try await performStatusRequest(
+      from: publicKey,
+      layout: layout,
+      priority: priority,
+      onTimeoutKnown: onTimeoutKnown
+    )
   }
 
   /// Requests status information from a remote contact using its contact type to
@@ -38,7 +52,8 @@ public extension MeshCoreSession {
   private func performStatusRequest(
     from publicKey: Data,
     layout: StatusResponse.Layout,
-    priority: MeshRequestPriority
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)? = nil
   ) async throws -> StatusResponse {
     let publicKeyPrefix = Data(publicKey.prefix(6))
     let spec = MeshExchangeSpec<StatusResponse>(
@@ -67,7 +82,7 @@ public extension MeshCoreSession {
         )
       },
       budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
-      onTimeoutKnown: nil,
+      onTimeoutKnown: onTimeoutKnown,
       loginPasswordDigest: nil,
       samePasswordExemption: false,
       onUnconsumedExit: nil
@@ -170,6 +185,14 @@ public extension MeshCoreSession {
     from publicKey: Data,
     priority: MeshRequestPriority
   ) async throws -> OwnerInfoResponse {
+    try await requestOwnerInfo(from: publicKey, priority: priority, onTimeoutKnown: nil)
+  }
+
+  func requestOwnerInfo(
+    from publicKey: Data,
+    priority: MeshRequestPriority,
+    onTimeoutKnown: (@Sendable (TimeInterval) async -> Void)?
+  ) async throws -> OwnerInfoResponse {
     try requireFullPublicKey(publicKey, operation: "requestOwnerInfo")
     let spec = MeshExchangeSpec<OwnerInfoResponse>(
       request: PacketBuilder.binaryRequest(to: publicKey, type: .ownerInfo),
@@ -190,7 +213,7 @@ public extension MeshCoreSession {
         )
       },
       budget: { [overall = configuration.binaryRequestOverallTimeout] _ in overall },
-      onTimeoutKnown: nil,
+      onTimeoutKnown: onTimeoutKnown,
       loginPasswordDigest: nil,
       samePasswordExemption: false,
       onUnconsumedExit: nil
