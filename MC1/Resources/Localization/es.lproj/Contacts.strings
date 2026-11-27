@@ -228,6 +228,12 @@
 /* Row failure after a refresh request */
 "contacts.watchlist.couldNotRefresh" = "No se pudo actualizar";
 
+/* TODO: translate - Row warning when a Watchlist refresh fetched firmware but could not fetch battery status */
+"contacts.watchlist.couldNotFetchBattery" = "Couldn't fetch battery";
+
+/* TODO: translate - Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version */
+"contacts.watchlist.couldNotFetchFirmware" = "Couldn't fetch firmware";
+
 /* Login recovery after the status request times out */
 "contacts.watchlist.logInAndRetry" = "Iniciar sesión";
 
@@ -260,6 +266,15 @@
 
 /* Joins two card detail segments, such as firmware and last heard */
 "contacts.watchlist.detailSeparator" = "%@ · %@";
+
+/* TODO: translate - Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count */
+"contacts.watchlist.refreshActive" = "Refresh Active (%d)";
+
+/* TODO: translate - Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count */
+"contacts.watchlist.retryFailed" = "Retry Failed (%d)";
+
+/* TODO: translate - Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count */
+"contacts.watchlist.refreshAll" = "Refresh All (%d)";
 
 /* TODO: translate - Active Watchlist row status while probing status on an existing session */
 "contacts.watchlist.phaseCheckingStatus" = "Checking status…";

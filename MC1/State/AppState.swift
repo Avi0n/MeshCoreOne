@@ -642,6 +642,7 @@ final class AppState {
 
     watchlistRefreshCoordinator.configure(
       store: connectionManager.persistenceStore,
+      failureStore: WatchlistFailureStore(defaults: defaults),
       now: { Date() },
       onContactsChanged: { [weak self] in
         self?.noteContactsChanged()

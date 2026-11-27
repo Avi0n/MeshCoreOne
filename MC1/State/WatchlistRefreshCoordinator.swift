@@ -54,6 +54,24 @@ final class WatchlistRefreshCoordinator {
     case fetchingFirmware
   }
 
+  typealias FailureRecord = WatchlistFailureStore.Record
+
+  struct PartialWarning: Equatable, Sendable {
+    enum Missing: Equatable, Sendable {
+      case battery
+      case firmware
+    }
+
+    let missing: Missing
+    let failedAt: Date
+  }
+
+  enum RefreshScope: Equatable {
+    case skippingFailed
+    case failedOnly
+    case all
+  }
+
   /// Repeaters below this `FIRMWARE_VER_LEVEL` never answer owner info.
   static let ownerInfoMinimumFirmwareLevel: UInt8 = 2
   private static let maxPostHandOffPreemptions = 1
@@ -63,31 +81,42 @@ final class WatchlistRefreshCoordinator {
   private(set) var activePhase: RefreshPhase?
   private(set) var phaseDeadline: Date?
   private(set) var progress: Progress?
-  private(set) var failedContactIDs: Set<UUID> = []
-  private(set) var timedOutContactIDs: Set<UUID> = []
+  private(set) var failures: [UUID: FailureRecord] = [:]
+  private(set) var partialWarnings: [UUID: PartialWarning] = [:]
   private(set) var batteryReadings: [UUID: BatteryReading] = [:]
+
+  var failedContactIDs: Set<UUID> {
+    Set(failures.keys)
+  }
+
+  var timedOutContactIDs: Set<UUID> {
+    Set(failures.compactMap { $0.value.kind == .noReply ? $0.key : nil })
+  }
 
   var isRefreshing: Bool {
     activeRun != nil
   }
 
   @ObservationIgnored private var store: PersistenceStore?
+  @ObservationIgnored private var failureStore: WatchlistFailureStore?
+  @ObservationIgnored private var loadedRadioID: UUID?
   @ObservationIgnored private var now: (@MainActor () -> Date)?
   @ObservationIgnored private var onContactsChanged: (@MainActor () -> Void)?
   @ObservationIgnored private var dependencies: Dependencies?
   private var activeRun: Run?
   @ObservationIgnored private var walkTask: Task<Void, Never>?
   @ObservationIgnored private var observation: Task<Void, Never>?
-  @ObservationIgnored private var lastSessionScope: SessionScope?
   @ObservationIgnored private var ownerInfoCheckedContactIDs: Set<UUID> = []
 
   func configure(
     store: PersistenceStore,
+    failureStore: WatchlistFailureStore,
     now: @escaping @MainActor () -> Date,
     onContactsChanged: @escaping @MainActor () -> Void,
     dependencies: Dependencies
   ) {
     self.store = store
+    self.failureStore = failureStore
     self.now = now
     self.onContactsChanged = onContactsChanged
     self.dependencies = dependencies
@@ -97,13 +126,23 @@ final class WatchlistRefreshCoordinator {
   func shutdown() {
     observation?.cancel()
     observation = nil
-    clearFailures()
     if let runID = activeRun?.id {
       cancel(runID)
+    }
+    loadedRadioID = nil
+    if !failures.isEmpty {
+      failures.removeAll()
+    }
+    if !partialWarnings.isEmpty {
+      partialWarnings.removeAll()
     }
   }
 
   func refresh(_ contacts: [ContactDTO]) {
+    refresh(contacts, scope: .all)
+  }
+
+  func refresh(_ contacts: [ContactDTO], scope: RefreshScope) {
     guard activeRun == nil else { return }
     guard let dependencies, dependencies.connectionState() == .ready else { return }
     guard let radioID = dependencies.radioID(),
@@ -111,16 +150,22 @@ final class WatchlistRefreshCoordinator {
           let identity = dependencies.sessionIdentity()
     else { return }
 
+    syncFailures(for: radioID)
     let targets = contacts
-      .filter { $0.radioID == radioID && $0.type == .repeater }
+      .filter { contact in
+        guard contact.radioID == radioID, contact.type == .repeater else { return false }
+        return switch scope {
+        case .skippingFailed: failures[contact.id] == nil
+        case .failedOnly: failures[contact.id] != nil
+        case .all: true
+        }
+      }
       .sorted(by: WatchlistDirectory.displayOrder)
     guard !targets.isEmpty else { return }
 
-    let scope = SessionScope(radioID: radioID, sessionIdentity: identity)
-    lastSessionScope = scope
     let run = Run(
       id: UUID(),
-      scope: scope,
+      scope: SessionScope(radioID: radioID, sessionIdentity: identity),
       targets: targets
     )
     activeRun = run
@@ -128,12 +173,62 @@ final class WatchlistRefreshCoordinator {
     walkTask = Task { await walk(run) }
   }
 
-  func loadReadings(for contacts: [ContactDTO]) async {
-    guard let store,
-          let snapshots = try? await store.fetchLatestBatterySnapshots(nodePublicKeys: contacts.map(\.publicKey))
-    else { return }
+  func clearFailure(for contact: ContactDTO) {
+    recordSuccess(for: contact.id, radioID: contact.radioID)
+  }
+
+  func clearPartialWarning(for contactID: UUID, missing: PartialWarning.Missing, radioID: UUID) {
+    guard loadedRadioID == radioID, partialWarnings[contactID]?.missing == missing else { return }
+    partialWarnings.removeValue(forKey: contactID)
+  }
+
+  func loadReadings(for contacts: [ContactDTO], radioID: UUID) async {
+    let isRadioChange = loadedRadioID != radioID
+    loadedRadioID = radioID
+    if isRadioChange, !partialWarnings.isEmpty {
+      partialWarnings.removeAll()
+    }
+    let initial = failureStore?.load(radioID: radioID) ?? [:]
+    if failures != initial {
+      failures = initial
+    }
+    guard let store else { return }
+    let fetchedSnapshots = try? await store.fetchLatestBatterySnapshots(nodePublicKeys: contacts.map(\.publicKey))
+    let fetchedSessions = try? await store.fetchRemoteNodeSessions(radioID: radioID)
+    let snapshots = fetchedSnapshots ?? [:]
+    let sessions = fetchedSessions ?? []
+    guard loadedRadioID == radioID else { return }
+
+    var latestLoginByKey: [Data: Date] = [:]
+    for session in sessions {
+      guard let loginDate = session.lastConnectedDate else { continue }
+      if let existing = latestLoginByKey[session.publicKey], existing >= loginDate { continue }
+      latestLoginByKey[session.publicKey] = loginDate
+    }
+
+    let persisted = failureStore?.load(radioID: radioID) ?? [:]
+    var updated = persisted
     for contact in contacts {
-      batteryReadings[contact.id] = snapshots[contact.publicKey].flatMap(BatteryReading.init(snapshot:))
+      let reading = snapshots[contact.publicKey].flatMap(BatteryReading.init(snapshot:))
+      batteryReadings[contact.id] = reading
+      if let warning = partialWarnings[contact.id],
+         warning.missing == .battery,
+         let reading,
+         reading.savedAt > warning.failedAt {
+        partialWarnings.removeValue(forKey: contact.id)
+      }
+      guard let record = updated[contact.id] else { continue }
+      let hasNewerStatus = reading.map { $0.savedAt > record.failedAt } ?? false
+      let hasNewerLogin = latestLoginByKey[contact.publicKey].map { $0 > record.failedAt } ?? false
+      if hasNewerStatus || hasNewerLogin {
+        updated.removeValue(forKey: contact.id)
+      }
+    }
+    if updated != persisted {
+      failureStore?.save(updated, for: radioID)
+    }
+    if failures != updated {
+      failures = updated
     }
   }
 
@@ -161,22 +256,51 @@ final class WatchlistRefreshCoordinator {
     return SessionScope(radioID: radioID, sessionIdentity: sessionIdentity)
   }
 
-  private func clearFailures() {
-    lastSessionScope = nil
-    if !failedContactIDs.isEmpty {
-      failedContactIDs.removeAll()
+  private func syncFailures(for radioID: UUID) {
+    guard loadedRadioID != radioID else { return }
+    loadedRadioID = radioID
+    if !partialWarnings.isEmpty {
+      partialWarnings.removeAll()
     }
-    if !timedOutContactIDs.isEmpty {
-      timedOutContactIDs.removeAll()
+    let persisted = failureStore?.load(radioID: radioID) ?? [:]
+    if failures != persisted {
+      failures = persisted
+    }
+  }
+
+  private func recordPartialWarning(for contactID: UUID, missing: PartialWarning.Missing, radioID: UUID) {
+    guard loadedRadioID == nil || loadedRadioID == radioID else { return }
+    loadedRadioID = radioID
+    partialWarnings[contactID] = PartialWarning(missing: missing, failedAt: now?() ?? .now)
+  }
+
+  private func recordFailure(for contactID: UUID, kind: FailureRecord.Kind, radioID: UUID) {
+    let record = FailureRecord(kind: kind, failedAt: now?() ?? .now)
+    var persisted = failureStore?.load(radioID: radioID) ?? (loadedRadioID == radioID ? failures : [:])
+    persisted[contactID] = record
+    failureStore?.save(persisted, for: radioID)
+    if loadedRadioID == nil || loadedRadioID == radioID {
+      loadedRadioID = radioID
+      failures = persisted
+    }
+  }
+
+  private func recordSuccess(for contactID: UUID, radioID: UUID) {
+    var persisted = failureStore?.load(radioID: radioID) ?? (loadedRadioID == radioID ? failures : [:])
+    if persisted.removeValue(forKey: contactID) != nil {
+      failureStore?.save(persisted, for: radioID)
+    }
+    if loadedRadioID == radioID, failures[contactID] != nil {
+      failures.removeValue(forKey: contactID)
     }
   }
 
   private func handle(_ state: DeviceConnectionState) {
     guard let dependencies else { return }
-    let current = currentScope(from: dependencies)
-    if !state.isConnected || current != lastSessionScope {
-      clearFailures()
+    if let radioID = dependencies.radioID(), radioID != loadedRadioID {
+      syncFailures(for: radioID)
     }
+    let current = currentScope(from: dependencies)
     guard let run = activeRun else { return }
     if state.isConnected, current == run.scope { return }
     cancel(run.id)
@@ -205,8 +329,6 @@ final class WatchlistRefreshCoordinator {
       phaseDeadline = nil
       progress = Progress(completed: completedCount, total: run.targets.count)
       if !state.hasAttempted {
-        failedContactIDs.remove(state.contact.id)
-        timedOutContactIDs.remove(state.contact.id)
         state.hasAttempted = true
       }
 
@@ -217,13 +339,20 @@ final class WatchlistRefreshCoordinator {
       case .cancelled:
         queue.removeAll()
       case .succeeded:
+        recordSuccess(for: state.contact.id, radioID: run.radioID)
+        partialWarnings.removeValue(forKey: state.contact.id)
+        completedCount += 1
+      case let .partial(missing):
+        recordSuccess(for: state.contact.id, radioID: run.radioID)
+        recordPartialWarning(for: state.contact.id, missing: missing, radioID: run.radioID)
         completedCount += 1
       case .failed:
-        failedContactIDs.insert(state.contact.id)
+        partialWarnings.removeValue(forKey: state.contact.id)
+        recordFailure(for: state.contact.id, kind: .other, radioID: run.radioID)
         completedCount += 1
       case .noReply:
-        failedContactIDs.insert(state.contact.id)
-        timedOutContactIDs.insert(state.contact.id)
+        partialWarnings.removeValue(forKey: state.contact.id)
+        recordFailure(for: state.contact.id, kind: .noReply, radioID: run.radioID)
         completedCount += 1
       case let .preempted(afterHandOff):
         if !afterHandOff {
@@ -281,7 +410,7 @@ final class WatchlistRefreshCoordinator {
 
     if target.myNodeFirmwareVersion == nil || !ownerInfoCheckedContactIDs.contains(target.id) {
       do {
-        try await refreshFirmware(
+        state.firmwareAnswered = try await refreshFirmware(
           for: target,
           sessionID: sessionID,
           login: state.login,
@@ -295,11 +424,17 @@ final class WatchlistRefreshCoordinator {
         if let afterHandOff = Self.preemption(from: error) {
           return .preempted(afterHandOff: afterHandOff)
         }
-        state.statusOrOwnerFailed = true
+        state.firmwareFailed = true
       }
     }
 
-    if state.statusOrOwnerFailed {
+    if state.statusFailed, state.firmwareAnswered {
+      return .partial(.battery)
+    }
+    if state.statusAnswered, state.firmwareFailed {
+      return .partial(.firmware)
+    }
+    if state.statusFailed || state.firmwareFailed {
       return state.statusTimedOut && !state.statusAnswered ? .noReply : .failed
     }
     return .succeeded
@@ -337,7 +472,7 @@ final class WatchlistRefreshCoordinator {
             return .terminal(.preempted(afterHandOff: afterHandOff))
           }
           guard Self.isTimeout(error) else {
-            state.statusOrOwnerFailed = true
+            state.statusFailed = true
             state.statusDone = true
             return .ok
           }
@@ -363,8 +498,10 @@ final class WatchlistRefreshCoordinator {
         skipDirectAttempt: statusTimedOutBeforeRelogin,
         in: run
       )
+      guard owns(run) else { return .terminal(.cancelled) }
       state.login = login
       state.needsRelogin = false
+      recordSuccess(for: target.id, radioID: run.radioID)
     } catch is CancellationError {
       return .terminal(.cancelled)
     } catch {
@@ -467,7 +604,7 @@ final class WatchlistRefreshCoordinator {
       if let afterHandOff = Self.preemption(from: error) {
         return .terminal(.preempted(afterHandOff: afterHandOff))
       }
-      state.statusOrOwnerFailed = true
+      state.statusFailed = true
       state.statusTimedOut = Self.isTimeout(error)
       state.statusDone = true
       return .ok
@@ -494,6 +631,10 @@ final class WatchlistRefreshCoordinator {
     let snapshot = try await store.recordWatchlistStatus(nodePublicKey: target.publicKey, status: metrics)
     guard owns(run) else { throw CancellationError() }
     batteryReadings[target.id] = BatteryReading(snapshot: snapshot)
+    recordSuccess(for: target.id, radioID: run.radioID)
+    if partialWarnings[target.id]?.missing == .battery {
+      partialWarnings.removeValue(forKey: target.id)
+    }
   }
 
   private func refreshFirmware(
@@ -502,12 +643,14 @@ final class WatchlistRefreshCoordinator {
     login: LoginResult?,
     statusAnswered: Bool,
     in run: Run
-  ) async throws {
+  ) async throws -> Bool {
     if let level = login?.firmwareLevel, level < Self.ownerInfoMinimumFirmwareLevel {
       try await recordMissingFirmware(for: target, in: run)
       ownerInfoCheckedContactIDs.insert(target.id)
-      return
+      return false
     }
+    let lacksOwnerInfo = (login != nil && login?.firmwareLevel == nil && (target.myNodeFirmwareVersion ?? "").isEmpty)
+      || (login == nil && target.myNodeFirmwareVersion == "")
     let info: OwnerInfoResponse
     do {
       setPhase(.fetchingFirmware, for: run)
@@ -515,20 +658,25 @@ final class WatchlistRefreshCoordinator {
         sessionID,
         makeTimeoutHandler(for: run, expectedPhase: .fetchingFirmware)
       )
-    } catch let error where statusAnswered && Self.isTimeout(error) {
-      // The repeater answered status, so a silent owner-info request means it lacks the request.
+    } catch let error where statusAnswered && Self.isTimeout(error) && lacksOwnerInfo {
+      // A timeout after a status reply on legacy firmware means the repeater lacks owner info.
       try await recordMissingFirmware(for: target, in: run)
       ownerInfoCheckedContactIDs.insert(target.id)
-      return
+      return false
     }
-    ownerInfoCheckedContactIDs.insert(target.id)
     guard owns(run), let store else { throw CancellationError() }
     _ = try await store.updateWatchlistFirmware(
       contactID: target.id,
       radioID: run.radioID,
       version: info.firmwareVersion
     )
+    ownerInfoCheckedContactIDs.insert(target.id)
+    recordSuccess(for: target.id, radioID: run.radioID)
+    if partialWarnings[target.id]?.missing == .firmware {
+      partialWarnings.removeValue(forKey: target.id)
+    }
     onContactsChanged?()
+    return true
   }
 
   /// Records a checked reading with no version, keeping any version already saved.
@@ -571,6 +719,7 @@ final class WatchlistRefreshCoordinator {
 
   private enum TargetOutcome {
     case succeeded, failed, noReply, cancelled
+    case partial(PartialWarning.Missing)
     case preempted(afterHandOff: Bool)
   }
 
@@ -582,9 +731,11 @@ final class WatchlistRefreshCoordinator {
     var login: LoginResult?
     var needsRelogin = false
     var statusAnswered = false
+    var statusFailed = false
     var statusDone = false
-    var statusOrOwnerFailed = false
     var statusTimedOut = false
+    var firmwareAnswered = false
+    var firmwareFailed = false
   }
 
   private struct SessionScope: Equatable {

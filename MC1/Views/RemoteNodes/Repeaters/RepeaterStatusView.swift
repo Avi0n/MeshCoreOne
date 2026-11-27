@@ -86,8 +86,9 @@ struct RepeaterStatusView: View {
   private func saveFirmwareForWatchlist(_ version: String) async {
     guard let store = appState.connectionSnapshot(for: session.radioID)?.services.dataStore,
           let contact = await (try? store.fetchContact(radioID: session.radioID, publicKey: session.publicKey))
-            .flatMap(\.self),
-          contact.myNodeFirmwareVersion != version else { return }
+            .flatMap(\.self) else { return }
+    appState.watchlistRefreshCoordinator.clearPartialWarning(for: contact.id, missing: .firmware, radioID: session.radioID)
+    guard contact.myNodeFirmwareVersion != version else { return }
     let saved = try? await store.updateWatchlistFirmware(contactID: contact.id, radioID: session.radioID, version: version)
     if saved != nil { appState.contactsVersion += 1 }
   }

@@ -127,8 +127,9 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `status and owner failures stay independent and the walk continues`() async throws {
+  func `status and owner failures stay independent and partial replies stay eligible for refresh`() async throws {
     let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
     let first = harness.repeater(name: "First", byte: 0x11, firmware: "old")
     let second = harness.repeater(name: "Second", byte: 0x22, firmware: "keep")
     try await harness.store.saveContact(first)
@@ -143,9 +144,25 @@ struct WatchlistRefreshCoordinatorTests {
     #expect(harness.coordinator.batteryReadings[first.id] == nil)
     #expect(try await harness.store.fetchContact(id: second.id)?.myNodeFirmwareVersion == "keep")
     #expect(harness.coordinator.batteryReadings[second.id]?.millivolts == 1)
-    #expect(harness.coordinator.failedContactIDs == [first.id, second.id])
+    #expect(harness.coordinator.partialWarnings[first.id]?.missing == .battery)
+    #expect(harness.coordinator.partialWarnings[second.id]?.missing == .firmware)
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
     #expect(harness.coordinator.timedOutContactIDs.isEmpty)
+    #expect(harness.failureStore.load(radioID: harness.radioID).isEmpty)
     #expect(await harness.session.calls.map(\.kind) == [.status, .owner, .status, .owner])
+
+    await harness.session.enqueueStatusOnly(status: 3750, firmwareLevel: 2)
+    await harness.session.enqueue(status: 3850, firmware: "1.9.0")
+    harness.coordinator.refresh([first, second], scope: .skippingFailed)
+    try await harness.releaseRemaining(count: 3, from: 4)
+
+    #expect(harness.coordinator.batteryReadings[first.id]?.millivolts == 3750)
+    #expect(harness.coordinator.batteryReadings[second.id]?.millivolts == 3850)
+    #expect(try await harness.store.fetchContact(id: second.id)?.myNodeFirmwareVersion == "1.9.0")
+    #expect(harness.coordinator.partialWarnings.isEmpty)
+    #expect(await harness.session.calls.map(\.kind) == [
+      .status, .owner, .status, .owner, .status, .status, .owner,
+    ])
   }
 
   @Test
@@ -482,9 +499,13 @@ struct WatchlistRefreshCoordinatorTests {
     )
     try await store.saveRemoteNodeSessionDTO(connected)
 
+    let failureSuite = "WatchlistRefreshCoordinatorTests-\(UUID().uuidString)"
+    defer { UserDefaults.standard.removePersistentDomain(forName: failureSuite) }
+    let failureStore = try WatchlistFailureStore(defaults: #require(UserDefaults(suiteName: failureSuite)))
     let coordinator = WatchlistRefreshCoordinator()
     coordinator.configure(
       store: store,
+      failureStore: failureStore,
       now: { Date(timeIntervalSince1970: 1_700_002_200) },
       onContactsChanged: {},
       dependencies: WatchlistRefreshCoordinator.Dependencies(
@@ -550,9 +571,13 @@ struct WatchlistRefreshCoordinatorTests {
       id: UUID(), radioID: radioID, publicKey: watchlistKey, name: "Back", role: .repeater, isConnected: true
     ))
 
+    let failureSuite = "WatchlistRefreshCoordinatorTests-\(UUID().uuidString)"
+    defer { UserDefaults.standard.removePersistentDomain(forName: failureSuite) }
+    let failureStore = try WatchlistFailureStore(defaults: #require(UserDefaults(suiteName: failureSuite)))
     let coordinator = WatchlistRefreshCoordinator()
     coordinator.configure(
       store: store,
+      failureStore: failureStore,
       now: { Date(timeIntervalSince1970: 1_700_002_300) },
       onContactsChanged: {},
       dependencies: WatchlistRefreshCoordinator.Dependencies(
@@ -628,23 +653,39 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `an owner info timeout after a battery reply records an unknown version without failing`() async throws {
+  func `owner info timeout after status warns for modern firmware and marks legacy unknown`() async throws {
     let harness = try await Harness()
     defer { harness.coordinator.shutdown() }
-    let unchecked = harness.repeater(name: "A", byte: 0x3B)
-    let known = harness.repeater(name: "B", byte: 0x3C, firmware: "1.7.0")
-    try await harness.store.saveContact(unchecked)
-    try await harness.store.saveContact(known)
+    let modernUnchecked = harness.repeater(name: "A", byte: 0x3B)
+    let modernKnown = harness.repeater(name: "B", byte: 0x3C, firmware: "1.7.0")
+    let legacy = harness.repeater(name: "C", byte: 0x3D)
+    for contact in [modernUnchecked, modernKnown, legacy] {
+      try await harness.store.saveContact(contact)
+    }
     await harness.session.enqueueFailure(status: false, owner: true, firmware: nil, error: RemoteNodeError.timeout)
     await harness.session.enqueueFailure(status: false, owner: true, firmware: nil, error: RemoteNodeError.timeout)
+    await harness.session.enqueueFailure(
+      status: false, owner: true, firmware: nil, firmwareLevel: nil, error: RemoteNodeError.timeout
+    )
 
-    harness.coordinator.refresh([unchecked, known])
-    try await harness.releaseRemaining(count: 4)
+    harness.coordinator.refresh([modernUnchecked, modernKnown, legacy])
+    try await harness.releaseRemaining(count: 6)
 
-    #expect(try await harness.store.fetchContact(id: unchecked.id)?.myNodeFirmwareVersion == "")
-    #expect(try await harness.store.fetchContact(id: known.id)?.myNodeFirmwareVersion == "1.7.0")
+    #expect(try await harness.store.fetchContact(id: modernUnchecked.id)?.myNodeFirmwareVersion == nil)
+    #expect(try await harness.store.fetchContact(id: modernKnown.id)?.myNodeFirmwareVersion == "1.7.0")
+    #expect(try await harness.store.fetchContact(id: legacy.id)?.myNodeFirmwareVersion == "")
+    #expect(harness.coordinator.partialWarnings[modernUnchecked.id]?.missing == .firmware)
+    #expect(harness.coordinator.partialWarnings[modernKnown.id]?.missing == .firmware)
+    #expect(harness.coordinator.partialWarnings[legacy.id] == nil)
     #expect(harness.coordinator.failedContactIDs.isEmpty)
     #expect(harness.coordinator.timedOutContactIDs.isEmpty)
+
+    await harness.session.enqueue(status: 3800, firmware: "1.9.0")
+    harness.coordinator.refresh([modernUnchecked], scope: .skippingFailed)
+    try await harness.releaseRemaining(count: 2, from: 6)
+
+    #expect(try await harness.store.fetchContact(id: modernUnchecked.id)?.myNodeFirmwareVersion == "1.9.0")
+    #expect(harness.coordinator.partialWarnings[modernUnchecked.id] == nil)
   }
 
   @Test
@@ -660,7 +701,7 @@ struct WatchlistRefreshCoordinatorTests {
     try await harness.seedBattery(fresh, millivolts: 3900, age: NodeSnapshotPolicy.minimumInterval / 2)
     try await harness.seedBattery(stale, millivolts: 3500, age: NodeSnapshotPolicy.minimumInterval * 2)
 
-    await harness.coordinator.loadReadings(for: [fresh, stale, never])
+    await harness.coordinator.loadReadings(for: [fresh, stale, never], radioID: harness.radioID)
 
     #expect(harness.coordinator.batteryReadings[fresh.id]?.millivolts == 3900)
     #expect(harness.coordinator.batteryReadings[stale.id]?.millivolts == 3500)
@@ -670,7 +711,7 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `idle failure state persists on same-session resync and clears on disconnect or scope change`() async throws {
+  func `failures persist across disconnect and relaunch, isolate by radio, and survive cancelled retries`() async throws {
     let harness = try await Harness()
     defer { harness.coordinator.shutdown() }
     let contact = harness.repeater(name: "A", byte: 0x40)
@@ -682,44 +723,164 @@ struct WatchlistRefreshCoordinatorTests {
     #expect(harness.coordinator.failedContactIDs == [contact.id])
     #expect(harness.coordinator.timedOutContactIDs == [contact.id])
 
-    harness.yield(.syncing)
-    harness.yield(.ready)
+    harness.yield(.disconnected)
     for _ in 0..<3 {
       await Task.yield()
     }
     #expect(harness.coordinator.failedContactIDs == [contact.id])
-    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
 
-    harness.yield(.disconnected)
-    try await waitUntil("disconnect cleared failures") {
-      harness.coordinator.failedContactIDs.isEmpty && harness.coordinator.timedOutContactIDs.isEmpty
-    }
+    let relaunched = harness.makeCoordinator()
+    defer { relaunched.shutdown() }
+    await relaunched.loadReadings(for: [contact], radioID: UUID())
+    #expect(relaunched.failures.isEmpty)
+
+    await relaunched.loadReadings(for: [contact], radioID: harness.radioID)
+    #expect(relaunched.failedContactIDs == [contact.id])
 
     harness.state = .ready
-    await harness.session.enqueueLoginTimeout()
-    harness.coordinator.refresh([contact])
-    try await waitUntil("second timeout finished") { !harness.coordinator.isRefreshing }
-    #expect(harness.coordinator.failedContactIDs == [contact.id])
-    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
+    await harness.session.setHoldLogins(true)
+    await harness.session.enqueueLoginOnly()
+    relaunched.refresh([contact], scope: .all)
+    try await waitUntil("login held") { await harness.session.entered == 1 }
+    relaunched.cancelRefresh()
+    await harness.session.releaseOne()
+    for _ in 0..<3 {
+      await Task.yield()
+    }
+    #expect(relaunched.failedContactIDs == [contact.id])
+    #expect(harness.failureStore.load(radioID: harness.radioID)[contact.id]?.kind == .noReply)
+  }
 
-    harness.currentRadioID = UUID()
-    harness.yield(.ready)
-    try await waitUntil("radio change cleared failures") {
-      harness.coordinator.failedContactIDs.isEmpty && harness.coordinator.timedOutContactIDs.isEmpty
+  @Test
+  func `refresh scopes skip failed repeaters, retry failed only, or refresh all`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let active = harness.repeater(name: "Active", byte: 0x41)
+    let failed = harness.repeater(name: "Failed", byte: 0x42)
+    try await harness.store.saveContact(active)
+    try await harness.store.saveContact(failed)
+
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([failed])
+    try await waitUntil("failed node timed out") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.failedContactIDs == [failed.id])
+
+    await harness.session.enqueue(status: 3900, firmware: "1.0")
+    harness.coordinator.refresh([active, failed], scope: .skippingFailed)
+    try await harness.releaseRemaining(count: 2)
+    #expect(await harness.session.calls == [.status(active.publicKey), .owner(active.publicKey)])
+    #expect(harness.coordinator.failedContactIDs == [failed.id])
+
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([active, failed], scope: .failedOnly)
+    try await waitUntil("failedOnly finished") { !harness.coordinator.isRefreshing }
+    #expect(await harness.session.logins.map(\.publicKey) == [failed.publicKey, active.publicKey, failed.publicKey])
+
+    await harness.session.enqueue(status: 3800, firmware: "1.1")
+    await harness.session.enqueue(status: 3700, firmware: "1.2")
+    harness.coordinator.refresh([active, failed], scope: .all)
+    try await harness.releaseRemaining(count: 4, from: 2)
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+  }
+
+  @Test
+  func `loadReadings clears failures only on newer status or login and ignores passive adverts`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let statusNode = harness.repeater(name: "Status", byte: 0x43)
+    let loginNode = harness.repeater(name: "Login", byte: 0x44)
+    let advertNode = harness.repeater(name: "Advert", byte: 0x45)
+    let targets = [statusNode, loginNode, advertNode]
+    for contact in targets {
+      try await harness.store.saveContact(contact)
     }
 
-    harness.currentRadioID = harness.radioID
-    await harness.session.enqueueLoginTimeout()
-    harness.coordinator.refresh([contact])
-    try await waitUntil("third timeout finished") { !harness.coordinator.isRefreshing }
-    #expect(harness.coordinator.failedContactIDs == [contact.id])
-    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
-
-    harness.identityToken = IdentityToken()
-    harness.yield(.syncing)
-    try await waitUntil("session change cleared failures") {
-      harness.coordinator.failedContactIDs.isEmpty && harness.coordinator.timedOutContactIDs.isEmpty
+    let t0 = Date(timeIntervalSince1970: 1_800_000_000)
+    harness.now = t0
+    for _ in targets {
+      await harness.session.enqueueLoginTimeout()
     }
+    harness.coordinator.refresh(targets)
+    try await waitUntil("all timed out") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.failedContactIDs == Set(targets.map(\.id)))
+
+    harness.now = t0.addingTimeInterval(60)
+    try await harness.seedBattery(statusNode, millivolts: 3850, age: 0)
+    try await harness.store.saveRemoteNodeSessionDTO(RemoteNodeSessionDTO(
+      id: UUID(),
+      radioID: harness.radioID,
+      publicKey: loginNode.publicKey,
+      name: loginNode.name,
+      role: .repeater,
+      isConnected: true,
+      lastConnectedDate: harness.now
+    ))
+    let updatedAdvertNode = ContactDTO(from: Contact(
+      id: advertNode.id,
+      radioID: harness.radioID,
+      publicKey: advertNode.publicKey,
+      name: advertNode.name,
+      typeRawValue: ContactType.repeater.rawValue,
+      outPathLength: advertNode.outPathLength,
+      lastHeardTimestamp: UInt32(harness.now.timeIntervalSince1970)
+    ))
+
+    await harness.coordinator.loadReadings(for: [statusNode, loginNode, updatedAdvertNode], radioID: harness.radioID)
+    #expect(harness.coordinator.failedContactIDs == [advertNode.id])
+    #expect(harness.failureStore.load(radioID: harness.radioID).keys.map(\.self) == [advertNode.id])
+
+    harness.coordinator.clearFailure(for: advertNode)
+    #expect(harness.coordinator.failures.isEmpty)
+    #expect(harness.failureStore.load(radioID: harness.radioID).isEmpty)
+  }
+
+  @Test
+  func `partial replies clear prior failures and battery warnings clear on newer status or radio switch`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let batteryMissing = harness.repeater(name: "BatteryMissing", byte: 0x46)
+    let firmwareMissing = harness.repeater(name: "FirmwareMissing", byte: 0x4B)
+    for contact in [batteryMissing, firmwareMissing] {
+      try await harness.store.saveContact(contact)
+    }
+
+    let t0 = Date(timeIntervalSince1970: 1_800_000_000)
+    harness.now = t0
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([batteryMissing])
+    try await waitUntil("initial timeout") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.failedContactIDs == [batteryMissing.id])
+
+    harness.now = t0.addingTimeInterval(60)
+    await harness.session.enqueueFailure(status: true, owner: false, firmware: "1.8.0")
+    await harness.session.enqueueFailure(status: false, owner: true, firmware: nil)
+    harness.coordinator.refresh([batteryMissing, firmwareMissing], scope: .all)
+    try await harness.releaseRemaining(count: 4)
+
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+    #expect(harness.failureStore.load(radioID: harness.radioID).isEmpty)
+    #expect(harness.coordinator.partialWarnings[batteryMissing.id] == .init(
+      missing: .battery, failedAt: t0.addingTimeInterval(60)
+    ))
+    #expect(harness.coordinator.partialWarnings[firmwareMissing.id] == .init(
+      missing: .firmware, failedAt: t0.addingTimeInterval(60)
+    ))
+
+    harness.yield(.disconnected)
+    for _ in 0..<3 {
+      await Task.yield()
+    }
+    #expect(Set(harness.coordinator.partialWarnings.keys) == [batteryMissing.id, firmwareMissing.id])
+
+    harness.now = t0.addingTimeInterval(120)
+    try await harness.seedBattery(batteryMissing, millivolts: 3750, age: 0)
+    try await harness.seedBattery(firmwareMissing, millivolts: 3800, age: 0)
+    await harness.coordinator.loadReadings(for: [batteryMissing, firmwareMissing], radioID: harness.radioID)
+    #expect(harness.coordinator.partialWarnings[batteryMissing.id] == nil)
+    #expect(harness.coordinator.partialWarnings[firmwareMissing.id]?.missing == .firmware)
+
+    await harness.coordinator.loadReadings(for: [batteryMissing, firmwareMissing], radioID: UUID())
+    #expect(harness.coordinator.partialWarnings.isEmpty)
   }
 
   @Test
@@ -927,7 +1088,8 @@ struct WatchlistRefreshCoordinatorTests {
     #expect(harness.coordinator.batteryReadings[unmarked.id]?.millivolts == 3300)
     #expect(try await harness.store.fetchContact(id: deleted.id) == nil)
     #expect(try await harness.store.fetchContacts(radioID: harness.radioID).count == 1)
-    #expect(harness.coordinator.failedContactIDs.contains(deleted.id))
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+    #expect(harness.coordinator.partialWarnings[deleted.id]?.missing == .firmware)
   }
 
   @Test
@@ -957,9 +1119,13 @@ struct WatchlistRefreshCoordinatorTests {
       isMyNode: true
     ))
     try await store.saveContact(contact)
+    let failureSuite = "WatchlistRefreshCoordinatorTests-\(UUID().uuidString)"
+    defer { UserDefaults.standard.removePersistentDomain(forName: failureSuite) }
+    let failureStore = try WatchlistFailureStore(defaults: #require(UserDefaults(suiteName: failureSuite)))
     let coordinator = WatchlistRefreshCoordinator()
     coordinator.configure(
       store: store,
+      failureStore: failureStore,
       now: { Date(timeIntervalSince1970: 1_700_002_100) },
       onContactsChanged: {},
       dependencies: WatchlistRefreshCoordinator.Dependencies(
@@ -1019,6 +1185,8 @@ private final class IdentityToken {}
 @MainActor
 private final class Harness {
   let radioID = UUID()
+  let defaultsSuiteName: String
+  let failureStore: WatchlistFailureStore
   let store: PersistenceStore
   let session: ScriptedRemote
   let coordinator = WatchlistRefreshCoordinator()
@@ -1031,6 +1199,9 @@ private final class Harness {
   let yield: AsyncStream<DeviceConnectionState>.Continuation
 
   init() async throws {
+    defaultsSuiteName = "WatchlistRefreshCoordinatorTests-\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: defaultsSuiteName) ?? .standard
+    failureStore = WatchlistFailureStore(defaults: defaults)
     store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     session = ScriptedRemote()
     currentRadioID = radioID
@@ -1039,6 +1210,7 @@ private final class Harness {
     yield = continuation
     coordinator.configure(
       store: store,
+      failureStore: failureStore,
       now: { [weak self] in self?.now ?? .now },
       onContactsChanged: { [weak self] in self?.contactChanges += 1 },
       dependencies: WatchlistRefreshCoordinator.Dependencies(
@@ -1049,6 +1221,29 @@ private final class Harness {
         connectionStates: { stream }
       )
     )
+  }
+
+  deinit {
+    UserDefaults.standard.removePersistentDomain(forName: defaultsSuiteName)
+  }
+
+  func makeCoordinator(remote: ScriptedRemote? = nil) -> WatchlistRefreshCoordinator {
+    let instance = WatchlistRefreshCoordinator()
+    let stream = AsyncStream<DeviceConnectionState> { $0.finish() }
+    instance.configure(
+      store: store,
+      failureStore: failureStore,
+      now: { [weak self] in self?.now ?? .now },
+      onContactsChanged: { [weak self] in self?.contactChanges += 1 },
+      dependencies: WatchlistRefreshCoordinator.Dependencies(
+        operations: { [weak self] in (remote ?? self?.currentRemote)?.operations },
+        radioID: { [weak self] in self?.currentRadioID },
+        connectionState: { [weak self] in self?.state ?? .disconnected },
+        sessionIdentity: { [weak self] in self.map { ObjectIdentifier($0.identityToken) } },
+        connectionStates: { stream }
+      )
+    )
+    return instance
   }
 
   func yield(_ state: DeviceConnectionState) {
@@ -1205,9 +1400,10 @@ private actor ScriptedRemote {
     status failsStatus: Bool,
     owner failsOwner: Bool,
     firmware: String?,
+    firmwareLevel: UInt8? = ScriptedRemote.currentFirmwareLevel,
     error: any Error = ScriptFailure()
   ) {
-    loginOutcomes.append(.success(Self.currentFirmwareLevel))
+    loginOutcomes.append(.success(firmwareLevel))
     statusOutcomes.append(failsStatus ? .failure(error) : .success(Self.status(1)))
     if failsOwner {
       ownerOutcomes.append(.failure(error))

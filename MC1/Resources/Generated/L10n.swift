@@ -2373,6 +2373,10 @@ public enum L10n {
         public static func checked(_ p1: Any) -> String {
           return L10n.tr("Contacts", "contacts.watchlist.checked", String(describing: p1), fallback: "Checked %@")
         }
+        /// Row warning when a Watchlist refresh fetched firmware but could not fetch battery status
+        public static let couldNotFetchBattery = L10n.tr("Contacts", "contacts.watchlist.couldNotFetchBattery", fallback: "Couldn't fetch battery")
+        /// Row warning when a Watchlist refresh fetched battery status but could not fetch firmware version
+        public static let couldNotFetchFirmware = L10n.tr("Contacts", "contacts.watchlist.couldNotFetchFirmware", fallback: "Couldn't fetch firmware")
         /// Row failure after a refresh request
         public static let couldNotRefresh = L10n.tr("Contacts", "contacts.watchlist.couldNotRefresh", fallback: "Couldn't refresh")
         /// Joins two card detail segments, such as firmware and last heard
@@ -2417,6 +2421,18 @@ public enum L10n {
         }
         /// Refresh button
         public static let refresh = L10n.tr("Contacts", "contacts.watchlist.refresh", fallback: "Refresh")
+        /// Toolbar menu action to refresh Watchlist repeaters that have not failed previously; argument is the repeater count
+        public static func refreshActive(_ p1: Int) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.refreshActive", p1, fallback: "Refresh Active (%d)")
+        }
+        /// Toolbar menu action to refresh every repeater on the Watchlist, including failed ones; argument is the total count
+        public static func refreshAll(_ p1: Int) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.refreshAll", p1, fallback: "Refresh All (%d)")
+        }
+        /// Toolbar menu action to retry only previously failed Watchlist repeaters; argument is the repeater count
+        public static func retryFailed(_ p1: Int) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.retryFailed", p1, fallback: "Retry Failed (%d)")
+        }
       }
     }
   }

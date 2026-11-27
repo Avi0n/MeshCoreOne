@@ -25,6 +25,23 @@ enum WatchlistReading {
     return L10n.Contacts.Contacts.Watchlist.checked(RelativeTimestampText.format(date: reading.savedAt, relativeTo: now))
   }
 
+  static func failureText(_ failure: WatchlistRefreshCoordinator.FailureRecord, now: Date) -> String {
+    let status = failure.kind == .noReply
+      ? L10n.Contacts.Contacts.Watchlist.noReply
+      : L10n.Contacts.Contacts.Watchlist.couldNotRefresh
+    let elapsed = RelativeTimestampText.format(date: failure.failedAt, relativeTo: now)
+    return L10n.Contacts.Contacts.Watchlist.detailSeparator(status, elapsed)
+  }
+
+  static func partialWarningText(_ warning: WatchlistRefreshCoordinator.PartialWarning, now: Date) -> String {
+    let status = switch warning.missing {
+    case .battery: L10n.Contacts.Contacts.Watchlist.couldNotFetchBattery
+    case .firmware: L10n.Contacts.Contacts.Watchlist.couldNotFetchFirmware
+    }
+    let elapsed = RelativeTimestampText.format(date: warning.failedAt, relativeTo: now)
+    return L10n.Contacts.Contacts.Watchlist.detailSeparator(status, elapsed)
+  }
+
   static func pathText(_ contact: ContactDTO) -> String {
     if contact.isFloodRouted {
       return L10n.Contacts.Contacts.Route.flood

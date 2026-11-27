@@ -28,6 +28,14 @@ struct WatchlistView: View {
     appState.connectionState == .ready && !coordinator.isRefreshing
   }
 
+  private var failedRowCount: Int {
+    rows.count { coordinator.failures[$0.id] != nil }
+  }
+
+  private var activeRowCount: Int {
+    rows.count - failedRowCount
+  }
+
   var body: some View {
     Group {
       if rows.isEmpty {
@@ -40,11 +48,11 @@ struct WatchlistView: View {
         List {
           Section {
             ForEach(rows) { contact in
+              let isActive = coordinator.activeContactID == contact.id
               VStack(alignment: .leading, spacing: WatchlistRowLayout.footerSpacing) {
                 Button {
                   onSelect(contact)
                 } label: {
-                  let isActive = coordinator.activeContactID == contact.id
                   WatchlistRow(
                     contact: contact,
                     reading: coordinator.batteryReadings[contact.id],
@@ -54,9 +62,9 @@ struct WatchlistView: View {
                   )
                 }
                 .buttonStyle(.plain)
-                if coordinator.failedContactIDs.contains(contact.id) {
-                  WatchlistFailureFooter(
-                    timedOut: coordinator.timedOutContactIDs.contains(contact.id),
+                if !isActive, let footerKind = statusFooterKind(for: contact.id) {
+                  WatchlistStatusFooter(
+                    kind: footerKind,
                     isActionDisabled: appState.connectionState != .ready || coordinator.isRefreshing,
                     onLogIn: { onLogIn(contact) }
                   )
@@ -92,8 +100,8 @@ struct WatchlistView: View {
         }
       }
     }
-    .task(id: rows.map(\.id)) {
-      await coordinator.loadReadings(for: rows)
+    .task(id: LoadReadingsKey(radioID: radioID, rowIDs: rows.map(\.id))) {
+      await coordinator.loadReadings(for: rows, radioID: radioID)
     }
     .onChange(of: coordinator.activePhase) { _, newPhase in
       guard newPhase == .retryingViaFlood else { return }
@@ -103,25 +111,61 @@ struct WatchlistView: View {
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
-        // One button whose role flips keeps toolbar item identity stable.
-        Button {
-          if coordinator.isRefreshing {
+        if coordinator.isRefreshing {
+          Button {
             coordinator.cancelRefresh()
-          } else {
-            coordinator.refresh(rows)
-          }
-        } label: {
-          if coordinator.isRefreshing {
+          } label: {
             Label(L10n.Localizable.Common.cancel, systemImage: "xmark")
-          } else {
+          }
+          .accessibilityValue(progressText ?? "")
+        } else if failedRowCount > 0, activeRowCount > 0 {
+          Menu {
+            Button {
+              coordinator.refresh(rows, scope: .skippingFailed)
+            } label: {
+              Label(L10n.Contacts.Contacts.Watchlist.refreshActive(activeRowCount), systemImage: "arrow.clockwise")
+            }
+            Button {
+              coordinator.refresh(rows, scope: .failedOnly)
+            } label: {
+              Label(L10n.Contacts.Contacts.Watchlist.retryFailed(failedRowCount), systemImage: "arrow.counterclockwise")
+            }
+            Divider()
+            Button {
+              coordinator.refresh(rows, scope: .all)
+            } label: {
+              Label(L10n.Contacts.Contacts.Watchlist.refreshAll(rows.count), systemImage: "arrow.clockwise")
+            }
+          } label: {
             Label(L10n.Contacts.Contacts.Watchlist.refresh, systemImage: "arrow.clockwise")
           }
+          .disabled(appState.connectionState != .ready)
+        } else {
+          Button {
+            coordinator.refresh(rows, scope: .all)
+          } label: {
+            Label(L10n.Contacts.Contacts.Watchlist.refresh, systemImage: "arrow.clockwise")
+          }
+          .disabled(appState.connectionState != .ready || rows.isEmpty)
         }
-        .disabled(!coordinator.isRefreshing && (appState.connectionState != .ready || rows.isEmpty))
-        .accessibilityValue(progressText ?? "")
       }
     }
   }
+
+  private func statusFooterKind(for id: UUID) -> WatchlistStatusFooter.Kind? {
+    if let failure = coordinator.failures[id] {
+      return .failure(failure)
+    }
+    if let warning = coordinator.partialWarnings[id] {
+      return .partial(warning)
+    }
+    return nil
+  }
+}
+
+private struct LoadReadingsKey: Equatable {
+  let radioID: UUID
+  let rowIDs: [UUID]
 }
 
 private enum WatchlistRowLayout {
@@ -132,20 +176,44 @@ private enum WatchlistRowLayout {
   static let footerSpacing: CGFloat = 8
 }
 
-private struct WatchlistFailureFooter: View {
+private struct WatchlistStatusFooter: View {
+  enum Kind: Equatable {
+    case failure(WatchlistRefreshCoordinator.FailureRecord)
+    case partial(WatchlistRefreshCoordinator.PartialWarning)
+  }
+
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-  let timedOut: Bool
+  @Environment(\.scenePhase) private var scenePhase
+  let kind: Kind
   let isActionDisabled: Bool
   let onLogIn: () -> Void
 
+  private var showsLogInButton: Bool {
+    if case let .failure(failure) = kind {
+      return failure.kind == .noReply
+    }
+    return false
+  }
+
+  private func labelText(at date: Date) -> String {
+    switch kind {
+    case let .failure(failure):
+      WatchlistReading.failureText(failure, now: date)
+    case let .partial(warning):
+      WatchlistReading.partialWarningText(warning, now: date)
+    }
+  }
+
   private var statusLabel: some View {
-    Label(
-      timedOut ? L10n.Contacts.Contacts.Watchlist.noReply : L10n.Contacts.Contacts.Watchlist.couldNotRefresh,
-      systemImage: "exclamationmark.triangle.fill"
-    )
-    .labelStyle(.titleAndIcon)
-    .font(.footnote)
-    .foregroundStyle(.orange)
+    TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
+      Label(
+        labelText(at: context.date),
+        systemImage: "exclamationmark.triangle.fill"
+      )
+      .labelStyle(.titleAndIcon)
+      .font(.footnote)
+      .foregroundStyle(.orange)
+    }
   }
 
   private var logInButton: some View {
@@ -159,7 +227,7 @@ private struct WatchlistFailureFooter: View {
   var body: some View {
     VStack(alignment: .leading, spacing: WatchlistRowLayout.footerSpacing) {
       Divider()
-      if timedOut {
+      if showsLogInButton {
         if dynamicTypeSize.isAccessibilitySize {
           VStack(alignment: .leading, spacing: WatchlistRowLayout.inlineSpacing) {
             statusLabel

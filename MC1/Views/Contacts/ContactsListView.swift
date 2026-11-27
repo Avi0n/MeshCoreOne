@@ -48,6 +48,7 @@ struct ContactsListView: View {
           guard navigation.selectedTab == AppTab.nodes.rawValue,
                 navigation.nodesSelection == .watchlist(radioID: target.radioID) else { return }
           watchlistLogin = nil
+          appState.watchlistRefreshCoordinator.clearFailure(for: target)
           appState.watchlistRefreshCoordinator.refresh([target])
         }
         .presentationSizing(.page)
