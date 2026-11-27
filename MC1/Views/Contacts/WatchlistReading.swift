@@ -2,10 +2,8 @@ import Foundation
 import MC1Services
 
 enum WatchlistReading {
-  static func battery(_ reading: WatchlistRefreshCoordinator.BatteryReading?, contact: ContactDTO) -> String {
-    guard let reading else {
-      return L10n.Contacts.Contacts.Watchlist.notChecked
-    }
+  static func battery(_ reading: WatchlistRefreshCoordinator.BatteryReading?, contact: ContactDTO) -> String? {
+    guard let reading else { return nil }
     return BatteryReadingText.string(millivolts: Int(reading.millivolts), ocvArray: contact.activeOCVArray)
   }
 

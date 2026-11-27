@@ -78,6 +78,7 @@ final class WatchlistRefreshCoordinator {
   private var activeRun: Run?
   @ObservationIgnored private var walkTask: Task<Void, Never>?
   @ObservationIgnored private var observation: Task<Void, Never>?
+  @ObservationIgnored private var lastSessionScope: SessionScope?
   @ObservationIgnored private var ownerInfoCheckedContactIDs: Set<UUID> = []
 
   func configure(
@@ -96,6 +97,7 @@ final class WatchlistRefreshCoordinator {
   func shutdown() {
     observation?.cancel()
     observation = nil
+    clearFailures()
     if let runID = activeRun?.id {
       cancel(runID)
     }
@@ -114,24 +116,16 @@ final class WatchlistRefreshCoordinator {
       .sorted(by: WatchlistDirectory.displayOrder)
     guard !targets.isEmpty else { return }
 
+    let scope = SessionScope(radioID: radioID, sessionIdentity: identity)
+    lastSessionScope = scope
     let run = Run(
       id: UUID(),
-      radioID: radioID,
-      sessionIdentity: identity,
+      scope: scope,
       targets: targets
     )
     activeRun = run
     progress = Progress(completed: 0, total: targets.count)
     walkTask = Task { await walk(run) }
-  }
-
-  func refreshStale(_ contacts: [ContactDTO]) {
-    guard let now else { return }
-    let current = now()
-    refresh(contacts.filter { contact in
-      guard let reading = batteryReadings[contact.id] else { return true }
-      return current.timeIntervalSince(reading.savedAt) >= NodeSnapshotPolicy.minimumInterval
-    })
   }
 
   func loadReadings(for contacts: [ContactDTO]) async {
@@ -160,12 +154,31 @@ final class WatchlistRefreshCoordinator {
     }
   }
 
+  private func currentScope(from dependencies: Dependencies) -> SessionScope? {
+    guard let radioID = dependencies.radioID(),
+          let sessionIdentity = dependencies.sessionIdentity()
+    else { return nil }
+    return SessionScope(radioID: radioID, sessionIdentity: sessionIdentity)
+  }
+
+  private func clearFailures() {
+    lastSessionScope = nil
+    if !failedContactIDs.isEmpty {
+      failedContactIDs.removeAll()
+    }
+    if !timedOutContactIDs.isEmpty {
+      timedOutContactIDs.removeAll()
+    }
+  }
+
   private func handle(_ state: DeviceConnectionState) {
-    guard let run = activeRun else { return }
     guard let dependencies else { return }
-    let sameRadio = dependencies.radioID() == run.radioID
-    let sameSession = dependencies.sessionIdentity() == run.sessionIdentity
-    if state.isConnected, sameRadio, sameSession { return }
+    let current = currentScope(from: dependencies)
+    if !state.isConnected || current != lastSessionScope {
+      clearFailures()
+    }
+    guard let run = activeRun else { return }
+    if state.isConnected, current == run.scope { return }
     cancel(run.id)
   }
 
@@ -535,8 +548,7 @@ final class WatchlistRefreshCoordinator {
   private func owns(_ run: Run) -> Bool {
     guard activeRun?.id == run.id, let dependencies else { return false }
     return dependencies.connectionState().isConnected
-      && dependencies.radioID() == run.radioID
-      && dependencies.sessionIdentity() == run.sessionIdentity
+      && currentScope(from: dependencies) == run.scope
   }
 
   private static func isTimeout(_ error: any Error) -> Bool {
@@ -575,11 +587,19 @@ final class WatchlistRefreshCoordinator {
     var statusTimedOut = false
   }
 
-  private struct Run {
-    let id: UUID
+  private struct SessionScope: Equatable {
     let radioID: UUID
     let sessionIdentity: ObjectIdentifier
+  }
+
+  private struct Run {
+    let id: UUID
+    let scope: SessionScope
     let targets: [ContactDTO]
+
+    var radioID: UUID {
+      scope.radioID
+    }
   }
 }
 

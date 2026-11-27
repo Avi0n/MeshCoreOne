@@ -648,7 +648,7 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `opening refreshes only repeaters without a reading in the current window`() async throws {
+  func `loading readings restores saved snapshots without sending radio requests`() async throws {
     let harness = try await Harness()
     defer { harness.coordinator.shutdown() }
     let fresh = harness.repeater(name: "Fresh", byte: 0x3D)
@@ -659,22 +659,67 @@ struct WatchlistRefreshCoordinatorTests {
     }
     try await harness.seedBattery(fresh, millivolts: 3900, age: NodeSnapshotPolicy.minimumInterval / 2)
     try await harness.seedBattery(stale, millivolts: 3500, age: NodeSnapshotPolicy.minimumInterval * 2)
-    await harness.session.enqueue(status: 3600, firmware: "1")
-    await harness.session.enqueue(status: 3700, firmware: "2")
 
     await harness.coordinator.loadReadings(for: [fresh, stale, never])
+
     #expect(harness.coordinator.batteryReadings[fresh.id]?.millivolts == 3900)
     #expect(harness.coordinator.batteryReadings[stale.id]?.millivolts == 3500)
     #expect(harness.coordinator.batteryReadings[never.id] == nil)
-    harness.coordinator.refreshStale([fresh, stale, never])
-    harness.coordinator.refreshStale([fresh, stale, never])
-    try await harness.releaseRemaining(count: 4)
+    #expect(!harness.coordinator.isRefreshing)
+    #expect(await harness.session.calls.isEmpty)
+  }
 
-    #expect(await harness.session.calls.map(\.publicKey) == [
-      never.publicKey, never.publicKey, stale.publicKey, stale.publicKey
-    ])
-    #expect(harness.coordinator.batteryReadings[stale.id]?.millivolts == 3700)
-    #expect(harness.coordinator.batteryReadings[fresh.id]?.millivolts == 3900)
+  @Test
+  func `idle failure state persists on same-session resync and clears on disconnect or scope change`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+    let contact = harness.repeater(name: "A", byte: 0x40)
+    try await harness.store.saveContact(contact)
+
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([contact])
+    try await waitUntil("timeout finished") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.failedContactIDs == [contact.id])
+    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
+
+    harness.yield(.syncing)
+    harness.yield(.ready)
+    for _ in 0..<3 {
+      await Task.yield()
+    }
+    #expect(harness.coordinator.failedContactIDs == [contact.id])
+    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
+
+    harness.yield(.disconnected)
+    try await waitUntil("disconnect cleared failures") {
+      harness.coordinator.failedContactIDs.isEmpty && harness.coordinator.timedOutContactIDs.isEmpty
+    }
+
+    harness.state = .ready
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([contact])
+    try await waitUntil("second timeout finished") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.failedContactIDs == [contact.id])
+    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
+
+    harness.currentRadioID = UUID()
+    harness.yield(.ready)
+    try await waitUntil("radio change cleared failures") {
+      harness.coordinator.failedContactIDs.isEmpty && harness.coordinator.timedOutContactIDs.isEmpty
+    }
+
+    harness.currentRadioID = harness.radioID
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([contact])
+    try await waitUntil("third timeout finished") { !harness.coordinator.isRefreshing }
+    #expect(harness.coordinator.failedContactIDs == [contact.id])
+    #expect(harness.coordinator.timedOutContactIDs == [contact.id])
+
+    harness.identityToken = IdentityToken()
+    harness.yield(.syncing)
+    try await waitUntil("session change cleared failures") {
+      harness.coordinator.failedContactIDs.isEmpty && harness.coordinator.timedOutContactIDs.isEmpty
+    }
   }
 
   @Test

@@ -55,7 +55,7 @@ struct WatchlistPresentationTests {
   }
 
   @Test
-  func `readings distinguish unchecked zero and unknown values`() {
+  func `readings distinguish unchecked zero and unknown values`() throws {
     let radioID = UUID()
     let savedAt = Date(timeIntervalSince1970: 1_700_000_000)
     let heard: UInt32 = 1_800_000_000
@@ -66,9 +66,9 @@ struct WatchlistPresentationTests {
     let empty = WatchlistRefreshCoordinator.BatteryReading(millivolts: 0, savedAt: savedAt)
     let mid = WatchlistRefreshCoordinator.BatteryReading(millivolts: 3300, savedAt: savedAt)
 
-    #expect(WatchlistReading.battery(nil, contact: unchecked) == L10n.Contacts.Contacts.Watchlist.notChecked)
-    #expect(WatchlistReading.battery(empty, contact: zero).hasPrefix("\(volts(0))V ("))
-    #expect(WatchlistReading.battery(mid, contact: alkaline) != WatchlistReading.battery(mid, contact: liIon))
+    #expect(WatchlistReading.battery(nil, contact: unchecked) == nil)
+    #expect(try #require(WatchlistReading.battery(empty, contact: zero)).hasPrefix("\(volts(0))V ("))
+    #expect(try #require(WatchlistReading.battery(mid, contact: alkaline)) != #require(WatchlistReading.battery(mid, contact: liIon)))
     #expect(WatchlistReading.heardTimestamp(zero) == heard)
     #expect(WatchlistReading.heardTimestamp(alkaline) == nil)
   }

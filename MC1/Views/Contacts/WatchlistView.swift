@@ -1,7 +1,7 @@
 import MC1Services
 import SwiftUI
 
-/// Shows the last saved readings, then refreshes repeaters with no snapshot or one past the snapshot window.
+/// Shows the last saved readings and refreshes repeaters on demand.
 struct WatchlistView: View {
   @Environment(\.appState) private var appState
 
@@ -22,6 +22,10 @@ struct WatchlistView: View {
     coordinator.progress.map {
       L10n.Contacts.Contacts.Watchlist.progress(min($0.completed + 1, $0.total), $0.total)
     }
+  }
+
+  private var canStartRefresh: Bool {
+    appState.connectionState == .ready && !coordinator.isRefreshing
   }
 
   var body: some View {
@@ -58,6 +62,24 @@ struct WatchlistView: View {
                   )
                 }
               }
+              .contextMenu {
+                Button {
+                  coordinator.refresh([contact])
+                } label: {
+                  Label(L10n.Contacts.Contacts.Watchlist.refresh, systemImage: "arrow.clockwise")
+                }
+                .disabled(!canStartRefresh)
+              }
+              .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                if canStartRefresh {
+                  Button {
+                    coordinator.refresh([contact])
+                  } label: {
+                    Label(L10n.Contacts.Contacts.Watchlist.refresh, systemImage: "arrow.clockwise")
+                  }
+                  .tint(.accentColor)
+                }
+              }
             }
           } header: {
             if let progress = coordinator.progress, let progressText {
@@ -70,10 +92,8 @@ struct WatchlistView: View {
         }
       }
     }
-    // Keyed on the board's members and readiness only, so a finished refresh does not retrigger itself.
-    .task(id: AutoRefreshKey(rowIDs: rows.map(\.id), isReady: appState.connectionState == .ready)) {
+    .task(id: rows.map(\.id)) {
       await coordinator.loadReadings(for: rows)
-      coordinator.refreshStale(rows)
     }
     .onChange(of: coordinator.activePhase) { _, newPhase in
       guard newPhase == .retryingViaFlood else { return }
@@ -97,16 +117,11 @@ struct WatchlistView: View {
             Label(L10n.Contacts.Contacts.Watchlist.refresh, systemImage: "arrow.clockwise")
           }
         }
-        .disabled(!coordinator.isRefreshing && appState.connectionState != .ready)
+        .disabled(!coordinator.isRefreshing && (appState.connectionState != .ready || rows.isEmpty))
         .accessibilityValue(progressText ?? "")
       }
     }
   }
-}
-
-private struct AutoRefreshKey: Equatable {
-  let rowIDs: [UUID]
-  let isReady: Bool
 }
 
 private enum WatchlistRowLayout {
@@ -244,15 +259,10 @@ private struct WatchlistRow: View {
 
   @ViewBuilder
   private var battery: some View {
-    let text = Text(WatchlistReading.battery(reading, contact: contact))
-    if reading != nil {
-      text
+    if let batteryText = WatchlistReading.battery(reading, contact: contact) {
+      Text(batteryText)
         .font(.subheadline.monospacedDigit())
         .foregroundStyle(isActive ? .secondary : .primary)
-    } else {
-      text
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
     }
   }
 }
