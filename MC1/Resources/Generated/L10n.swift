@@ -2392,9 +2392,9 @@ public enum L10n {
           return L10n.tr("Contacts", "contacts.watchlist.heard", String(describing: p1), fallback: "Heard %@")
         }
         /// Login recovery after the status request times out
-        public static let logInAndRetry = L10n.tr("Contacts", "contacts.watchlist.logInAndRetry", fallback: "Log In and Retry")
+        public static let logInAndRetry = L10n.tr("Contacts", "contacts.watchlist.logInAndRetry", fallback: "Log In")
         /// Row note when the repeater did not answer
-        public static let noReply = L10n.tr("Contacts", "contacts.watchlist.noReply", fallback: "No reply. You may need to log in.")
+        public static let noReply = L10n.tr("Contacts", "contacts.watchlist.noReply", fallback: "No reply")
         /// Reading that has not been checked
         public static let notChecked = L10n.tr("Contacts", "contacts.watchlist.notChecked", fallback: "Not checked")
         /// Repeater with no last-heard time

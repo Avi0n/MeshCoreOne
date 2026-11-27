@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "새로 고칠 수 없음";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "로그인 후 다시 시도";
+"contacts.watchlist.logInAndRetry" = "로그인";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "수신한 적 없음";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "워치리스트에 추가하면 이 리피터도 즐겨찾기로 표시되어, 노드 목록이 가득 차도 무선 기기가 이 리피터를 유지합니다.";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "응답이 없습니다. 로그인이 필요할 수 있습니다.";
+"contacts.watchlist.noReply" = "응답이 없습니다";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "새로 고침 중 %d/%d";

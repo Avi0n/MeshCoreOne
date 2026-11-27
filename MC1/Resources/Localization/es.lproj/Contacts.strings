@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "No se pudo actualizar";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "Iniciar sesión y reintentar";
+"contacts.watchlist.logInAndRetry" = "Iniciar sesión";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "No escuchado";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "Añadir a la lista de seguimiento también marca este repetidor como favorito, para que tu radio lo conserve cuando la lista de nodos está llena.";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "Sin respuesta. Puede que necesites iniciar sesión.";
+"contacts.watchlist.noReply" = "Sin respuesta";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "Actualizando %d de %d";

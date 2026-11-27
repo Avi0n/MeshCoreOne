@@ -222,7 +222,7 @@
 /* Row failure after a refresh request */
 "contacts.watchlist.couldNotRefresh" = "Couldn't refresh";
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "Log In and Retry";
+"contacts.watchlist.logInAndRetry" = "Log In";
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "Not heard";
 /* Empty board */
@@ -232,7 +232,7 @@
 /* Footer explaining that adding to the Watchlist also sets Favorite */
 "contacts.watchlist.addMarksFavorite" = "Adding to your Watchlist also makes this repeater a Favorite, so your radio keeps it when its node list is full.";
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "No reply. You may need to log in.";
+"contacts.watchlist.noReply" = "No reply";
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "Refreshing %d of %d";
 /* Card detail segment showing the repeater's firmware version */

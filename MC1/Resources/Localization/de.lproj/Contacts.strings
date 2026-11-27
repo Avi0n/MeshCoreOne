@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "Aktualisierung fehlgeschlagen";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "Anmelden und erneut versuchen";
+"contacts.watchlist.logInAndRetry" = "Anmelden";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "Nicht gehört";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "Wenn du diesen Repeater zur Watchlist hinzufügst, wird er auch als Favorit markiert, damit dein Funkgerät ihn behält, wenn seine Knotenliste voll ist.";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "Keine Antwort. Du musst dich möglicherweise anmelden.";
+"contacts.watchlist.noReply" = "Keine Antwort";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "Aktualisiere %d von %d";

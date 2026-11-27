@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "Nie udało się odświeżyć";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "Zaloguj się i ponów";
+"contacts.watchlist.logInAndRetry" = "Zaloguj się";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "Nie usłyszany";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "Dodanie do listy obserwowanych oznacza też ten przekaźnik jako Ulubiony, więc radio zachowa go, gdy lista węzłów radia jest pełna.";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "Brak odpowiedzi. Może musisz się zalogować.";
+"contacts.watchlist.noReply" = "Brak odpowiedzi";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "Odświeżanie %d z %d";

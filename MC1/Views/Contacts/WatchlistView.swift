@@ -36,7 +36,7 @@ struct WatchlistView: View {
         List {
           Section {
             ForEach(rows) { contact in
-              VStack(alignment: .leading) {
+              VStack(alignment: .leading, spacing: WatchlistRowLayout.footerSpacing) {
                 Button {
                   onSelect(contact)
                 } label: {
@@ -46,18 +46,16 @@ struct WatchlistView: View {
                     reading: coordinator.batteryReadings[contact.id],
                     isActive: isActive,
                     activePhase: isActive ? coordinator.activePhase : nil,
-                    phaseDeadline: isActive ? coordinator.phaseDeadline : nil,
-                    failed: coordinator.failedContactIDs.contains(contact.id),
-                    timedOut: coordinator.timedOutContactIDs.contains(contact.id)
+                    phaseDeadline: isActive ? coordinator.phaseDeadline : nil
                   )
                 }
                 .buttonStyle(.plain)
-                if coordinator.timedOutContactIDs.contains(contact.id) {
-                  Button(L10n.Contacts.Contacts.Watchlist.logInAndRetry) {
-                    onLogIn(contact)
-                  }
-                  .buttonStyle(.borderless)
-                  .disabled(appState.connectionState != .ready || coordinator.isRefreshing)
+                if coordinator.failedContactIDs.contains(contact.id) {
+                  WatchlistFailureFooter(
+                    timedOut: coordinator.timedOutContactIDs.contains(contact.id),
+                    isActionDisabled: appState.connectionState != .ready || coordinator.isRefreshing,
+                    onLogIn: { onLogIn(contact) }
+                  )
                 }
               }
             }
@@ -116,7 +114,54 @@ private enum WatchlistRowLayout {
   static let titleSpacing: CGFloat = 8
   static let inlineSpacing: CGFloat = 6
   static let progressSpacing: CGFloat = 6
-  static let activeBatteryOpacity: Double = 0.6
+  static let footerSpacing: CGFloat = 8
+}
+
+private struct WatchlistFailureFooter: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  let timedOut: Bool
+  let isActionDisabled: Bool
+  let onLogIn: () -> Void
+
+  private var statusLabel: some View {
+    Label(
+      timedOut ? L10n.Contacts.Contacts.Watchlist.noReply : L10n.Contacts.Contacts.Watchlist.couldNotRefresh,
+      systemImage: "exclamationmark.triangle.fill"
+    )
+    .labelStyle(.titleAndIcon)
+    .font(.footnote)
+    .foregroundStyle(.orange)
+  }
+
+  private var logInButton: some View {
+    Button(L10n.Contacts.Contacts.Watchlist.logInAndRetry, action: onLogIn)
+      .buttonStyle(.bordered)
+      .buttonBorderShape(.capsule)
+      .controlSize(.small)
+      .disabled(isActionDisabled)
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: WatchlistRowLayout.footerSpacing) {
+      Divider()
+      if timedOut {
+        if dynamicTypeSize.isAccessibilitySize {
+          VStack(alignment: .leading, spacing: WatchlistRowLayout.inlineSpacing) {
+            statusLabel
+            logInButton
+          }
+        } else {
+          HStack(spacing: WatchlistRowLayout.titleSpacing) {
+            statusLabel
+            Spacer(minLength: 0)
+            logInButton
+          }
+        }
+      } else {
+        statusLabel
+      }
+    }
+  }
 }
 
 private struct CountdownSchedule: TimelineSchedule {
@@ -139,8 +184,6 @@ private struct WatchlistRow: View {
   let isActive: Bool
   let activePhase: WatchlistRefreshCoordinator.RefreshPhase?
   let phaseDeadline: Date?
-  let failed: Bool
-  let timedOut: Bool
 
   var body: some View {
     VStack(alignment: .leading, spacing: WatchlistRowLayout.rowSpacing) {
@@ -150,7 +193,6 @@ private struct WatchlistRow: View {
           .foregroundStyle(.primary)
         Spacer(minLength: 0)
         battery
-          .opacity(isActive && reading != nil ? WatchlistRowLayout.activeBatteryOpacity : 1)
       }
       TimelineView(ForegroundMinuteSchedule(isPaused: scenePhase == .background)) { context in
         VStack(alignment: .leading, spacing: WatchlistRowLayout.rowSpacing) {
@@ -194,14 +236,6 @@ private struct WatchlistRow: View {
           }
         }
       }
-      if failed {
-        Label(
-          timedOut ? L10n.Contacts.Contacts.Watchlist.noReply : L10n.Contacts.Contacts.Watchlist.couldNotRefresh,
-          systemImage: "exclamationmark.triangle.fill"
-        )
-        .font(.subheadline)
-        .foregroundStyle(.orange)
-      }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .contentShape(.rect)
@@ -214,6 +248,7 @@ private struct WatchlistRow: View {
     if reading != nil {
       text
         .font(.subheadline.monospacedDigit())
+        .foregroundStyle(isActive ? .secondary : .primary)
     } else {
       text
         .font(.subheadline)

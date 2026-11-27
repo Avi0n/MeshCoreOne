@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "刷新失败";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "登录并重试";
+"contacts.watchlist.logInAndRetry" = "登录";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "从未收到";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "添加到观察列表也会将此转发节点标记为收藏，这样在节点列表已满时，您的设备仍会保留它。";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "没有回复。您可能需要登录。";
+"contacts.watchlist.noReply" = "没有回复";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "正在刷新 %d/%d";

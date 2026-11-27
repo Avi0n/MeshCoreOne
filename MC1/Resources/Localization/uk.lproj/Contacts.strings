@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "Не вдалося оновити";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "Увійти та повторити";
+"contacts.watchlist.logInAndRetry" = "Увійти";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "Не отримано";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "Додавання до списку спостереження також позначає цей ретранслятор як обраний, тож твоє радіо зберігає його, коли список вузлів заповнений.";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "Немає відповіді. Можливо, потрібно увійти.";
+"contacts.watchlist.noReply" = "Немає відповіді";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "Оновлення %d з %d";

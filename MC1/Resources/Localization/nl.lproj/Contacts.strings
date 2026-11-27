@@ -229,7 +229,7 @@
 "contacts.watchlist.couldNotRefresh" = "Kon niet vernieuwen";
 
 /* Login recovery after the status request times out */
-"contacts.watchlist.logInAndRetry" = "Inloggen en opnieuw proberen";
+"contacts.watchlist.logInAndRetry" = "Inloggen";
 
 /* Repeater with no last-heard time */
 "contacts.watchlist.notHeard" = "Niet gehoord";
@@ -244,7 +244,7 @@
 "contacts.watchlist.addMarksFavorite" = "Toevoegen aan Watchlist markeert deze repeater ook als favoriet, zodat je radio hem behoudt als de nodelijst vol is.";
 
 /* Row note when the repeater did not answer */
-"contacts.watchlist.noReply" = "Geen antwoord. Je moet misschien inloggen.";
+"contacts.watchlist.noReply" = "Geen antwoord";
 
 /* Refresh progress; first number is the repeater being checked, second is the total */
 "contacts.watchlist.progress" = "%d van %d vernieuwen";
