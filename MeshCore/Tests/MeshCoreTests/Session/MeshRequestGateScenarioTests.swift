@@ -723,17 +723,17 @@ struct MeshRequestGateScenarioTests {
   }
 
   @Test
-  func `flood login enforces ten second resend floor`() async throws {
+  func `flood login enforces fifteen second resend floor`() async throws {
     let harness = try await ScenarioHarness.make()
     let companion = FirmwarePendingSlotCompanion()
     await companion.configureContact(repeater, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 4000)
 
     let login = Task {
-      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 20 })
+      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 40 })
     }
     try await harness.ack(companion, code: .sendLogin, count: 1)
-    try await harness.waitUntilParked(for: .seconds(10))
-    harness.clock.advance(by: .seconds(10))
+    try await harness.waitUntilParked(for: .seconds(15))
+    harness.clock.advance(by: .seconds(15))
     try await harness.ack(companion, code: .sendLogin, count: 2)
     await companion.deliver(from: repeater, body: loginOK, on: harness.transport)
     #expect(try await login.value.succeeded)
@@ -747,13 +747,13 @@ struct MeshRequestGateScenarioTests {
     await companion.configureContact(repeater, route: MessageSentInfo.floodRoute, suggestedTimeoutMs: 8000)
 
     let login = Task {
-      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 14 })
+      try await harness.session.login(to: repeater, password: "pw", priority: .interactive, budget: { _ in 22 })
     }
     try await harness.ack(companion, code: .sendLogin, count: 1)
-    try await harness.waitUntilParked(for: .seconds(14))
-    harness.clock.advance(by: .seconds(10))
+    try await harness.waitUntilParked(for: .seconds(22))
+    harness.clock.advance(by: .seconds(15))
     #expect(await harness.commands(.sendLogin).count == 1)
-    harness.clock.advance(by: .seconds(4))
+    harness.clock.advance(by: .seconds(7))
     await #expect(throws: MeshCoreError.self) { try await login.value }
     #expect(await harness.commands(.sendLogin).count == 1)
     await harness.session.stop()

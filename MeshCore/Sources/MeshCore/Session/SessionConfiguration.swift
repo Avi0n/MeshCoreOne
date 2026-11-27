@@ -22,7 +22,7 @@ public struct SessionConfiguration: Sendable {
   public static let binaryRetransmitRTTHeadroom: TimeInterval = 2.0
 
   static let loginRetransmitRTTMultiplier: TimeInterval = 1.25
-  static let loginFloodRetransmitFloor: TimeInterval = 10.0
+  static let loginFloodRetransmitFloor: TimeInterval = 15.0
   static let loginMaxSends = 2
   static let minimumUsefulResendTailRatio: TimeInterval = 0.5
 

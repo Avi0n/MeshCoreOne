@@ -6,7 +6,7 @@ public enum RemoteOperationTimeoutPolicy {
   static let firmwareRoundTripMultiplier = 2
   static let loginMaximum: Duration = .seconds(40)
   static let loginMinimumDirect: Duration = .seconds(5)
-  static let loginMinimumFlood: Duration = .seconds(20)
+  static let loginPerHopDirect: Duration = .seconds(5)
   static let loginBudgetMultiplier: Double = 2.5
   /// Outer cap for remote binary / status / telemetry waits: one
   /// `binaryRequestOverallTimeout` exchange plus a small BLE margin.
@@ -43,14 +43,16 @@ public enum RemoteOperationTimeoutPolicy {
   }
 
   static func loginTimeout(for sentInfo: MessageSentInfo, pathLength: UInt8) -> Duration {
-    let isFlood = sentInfo.route == MessageSentInfo.floodRoute || decodePathLen(pathLength) == nil
-    if sentInfo.suggestedTimeoutMs == 0 {
-      let fallbackPathLength = isFlood ? PacketBuilder.floodPathSentinel : pathLength
-      return min(LoginTimeoutConfig.timeout(forPathLength: fallbackPathLength), loginMaximum)
+    let isFlood = sentInfo.route == MessageSentInfo.floodRoute
+    let hopFloor: Duration = if !isFlood, let decoded = decodePathLen(pathLength) {
+      loginMinimumDirect + loginPerHopDirect * decoded.hopCount
+    } else {
+      loginMaximum
     }
-    let scaledMs = Int((Double(sentInfo.suggestedTimeoutMs) * loginBudgetMultiplier).rounded(.up))
-    let floor = isFlood ? loginMinimumFlood : loginMinimumDirect
-    return min(max(.milliseconds(scaledMs), floor), loginMaximum)
+    let hintBudget = Duration.milliseconds(
+      Int((Double(sentInfo.suggestedTimeoutMs) * loginBudgetMultiplier).rounded(.up))
+    )
+    return min(max(hintBudget, hopFloor), loginMaximum)
   }
 
   static func cliTimeout(
