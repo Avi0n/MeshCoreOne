@@ -17,9 +17,14 @@ final class WatchlistRefreshCoordinator {
     let savedPassword: @Sendable (ContactDTO) async -> String?
     let connectedSession: @Sendable (_ publicKeyPrefix: Data) async throws -> RemoteNodeSessionDTO?
     let createSession: @Sendable (ContactDTO) async throws -> RemoteNodeSessionDTO
-    let logIn: @Sendable (_ sessionID: UUID, _ password: String, _ pathLength: UInt8) async throws -> LoginResult
+    let logIn: @Sendable (_ sessionID: UUID, _ password: String, _ pathLength: UInt8, _ samePasswordExemption: Bool) async throws -> LoginResult
     let requestStatus: @Sendable (_ sessionID: UUID) async throws -> StatusResponse
     let requestOwnerInfo: @Sendable (_ sessionID: UUID) async throws -> OwnerInfoResponse
+    let attemptFloodFallback: @Sendable (
+      _ contact: ContactDTO,
+      _ rethrowIfUnavailable: any Error,
+      _ operation: @escaping @Sendable () async throws -> LoginResult
+    ) async throws -> LoginResult
   }
 
   struct Progress: Equatable {
@@ -34,8 +39,6 @@ final class WatchlistRefreshCoordinator {
 
   /// Repeaters below this `FIRMWARE_VER_LEVEL` never answer owner info.
   static let ownerInfoMinimumFirmwareLevel: UInt8 = 2
-  static let watchlistMaximumBackoff: TimeInterval = 4 * 3600
-  private static let maxBackoffExponent = 16
   private static let maxPostHandOffPreemptions = 1
   private static let publicKeyPrefixLength = 6
 
@@ -57,7 +60,6 @@ final class WatchlistRefreshCoordinator {
   @ObservationIgnored private var walkTask: Task<Void, Never>?
   @ObservationIgnored private var observation: Task<Void, Never>?
   @ObservationIgnored private var ownerInfoCheckedContactIDs: Set<UUID> = []
-  @ObservationIgnored private var noReplyBackoffs: [UUID: BackoffEntry] = [:]
 
   func configure(
     store: PersistenceStore,
@@ -108,9 +110,6 @@ final class WatchlistRefreshCoordinator {
     guard let now else { return }
     let current = now()
     refresh(contacts.filter { contact in
-      if isBackedOff(contact.id, at: current) {
-        return false
-      }
       guard let reading = batteryReadings[contact.id] else { return true }
       return current.timeIntervalSince(reading.savedAt) >= NodeSnapshotPolicy.minimumInterval
     })
@@ -130,29 +129,6 @@ final class WatchlistRefreshCoordinator {
     if let runID = activeRun?.id {
       cancel(runID)
     }
-  }
-
-  func backoffDelay(for contactID: UUID) -> TimeInterval? {
-    guard let entry = noReplyBackoffs[contactID], entry.consecutiveNoReplyCount > 0 else { return nil }
-    let exponent = min(entry.consecutiveNoReplyCount - 1, Self.maxBackoffExponent)
-    return min(NodeSnapshotPolicy.minimumInterval * pow(2.0, Double(exponent)), Self.watchlistMaximumBackoff)
-  }
-
-  private func isBackedOff(_ contactID: UUID, at current: Date) -> Bool {
-    guard let entry = noReplyBackoffs[contactID], let delay = backoffDelay(for: contactID) else {
-      return false
-    }
-    return current.timeIntervalSince(entry.lastNoReplyAt) < delay
-  }
-
-  private func resetBackoff(for contactID: UUID) {
-    noReplyBackoffs.removeValue(forKey: contactID)
-  }
-
-  private func recordNoReply(for contactID: UUID) {
-    let timestamp = now?() ?? .now
-    let count = (noReplyBackoffs[contactID]?.consecutiveNoReplyCount ?? 0) + 1
-    noReplyBackoffs[contactID] = BackoffEntry(consecutiveNoReplyCount: count, lastNoReplyAt: timestamp)
   }
 
   private func startObserving() {
@@ -212,7 +188,6 @@ final class WatchlistRefreshCoordinator {
       case .noReply:
         failedContactIDs.insert(state.contact.id)
         timedOutContactIDs.insert(state.contact.id)
-        recordNoReply(for: state.contact.id)
         completedCount += 1
       case let .preempted(afterHandOff):
         if !afterHandOff {
@@ -290,6 +265,7 @@ final class WatchlistRefreshCoordinator {
     }
 
     do {
+      var statusTimedOutBeforeRelogin = false
       if state.sessionID == nil,
          let connected = try await operations(for: run).connectedSession(Data(target.publicKey.prefix(Self.publicKeyPrefixLength))) {
         state.sessionID = connected.id
@@ -312,6 +288,7 @@ final class WatchlistRefreshCoordinator {
             return .ok
           }
           state.needsRelogin = true
+          statusTimedOutBeforeRelogin = true
         }
       }
 
@@ -325,8 +302,13 @@ final class WatchlistRefreshCoordinator {
       }
 
       let password = try await operations(for: run).savedPassword(target) ?? ""
-      let login = try await operations(for: run).logIn(sessionID, password, target.outPathLength)
-      resetBackoff(for: target.id)
+      let login = try await loginWithFloodFallback(
+        target: target,
+        sessionID: sessionID,
+        password: password,
+        skipDirectAttempt: statusTimedOutBeforeRelogin,
+        in: run
+      )
       state.login = login
       state.needsRelogin = false
     } catch is CancellationError {
@@ -343,6 +325,64 @@ final class WatchlistRefreshCoordinator {
       return .terminal(.failed)
     }
     return await fetchStatus(for: target, sessionID: sessionID, state: &state, in: run)
+  }
+
+  private struct FloodFallbackUnavailableError: Error {}
+
+  private func loginWithFloodFallback(
+    target: ContactDTO,
+    sessionID: UUID,
+    password: String,
+    skipDirectAttempt: Bool,
+    in run: Run
+  ) async throws -> LoginResult {
+    let canAttemptFlood = target.outPathLength != PacketBuilder.floodPathSentinel
+    var floodFallbackUnavailable = false
+
+    if skipDirectAttempt, canAttemptFlood {
+      do {
+        return try await attemptFloodLogin(
+          target: target,
+          sessionID: sessionID,
+          password: password,
+          samePasswordExemption: false,
+          rethrowIfUnavailable: FloodFallbackUnavailableError(),
+          in: run
+        )
+      } catch is FloodFallbackUnavailableError {
+        floodFallbackUnavailable = true
+      }
+    }
+
+    do {
+      return try await operations(for: run).logIn(sessionID, password, target.outPathLength, false)
+    } catch where canAttemptFlood && !floodFallbackUnavailable && Self.isTimeout(error) {
+      return try await attemptFloodLogin(
+        target: target,
+        sessionID: sessionID,
+        password: password,
+        samePasswordExemption: true,
+        rethrowIfUnavailable: error,
+        in: run
+      )
+    }
+  }
+
+  private func attemptFloodLogin(
+    target: ContactDTO,
+    sessionID: UUID,
+    password: String,
+    samePasswordExemption: Bool,
+    rethrowIfUnavailable: any Error,
+    in run: Run
+  ) async throws -> LoginResult {
+    try await operations(for: run).attemptFloodFallback(target, rethrowIfUnavailable) { [weak self] in
+      let ops = try await MainActor.run {
+        guard let self else { throw CancellationError() }
+        return try self.operations(for: run)
+      }
+      return try await ops.logIn(sessionID, password, PacketBuilder.floodPathSentinel, samePasswordExemption)
+    }
   }
 
   private func fetchStatus(
@@ -372,7 +412,6 @@ final class WatchlistRefreshCoordinator {
 
   private func performStatus(for target: ContactDTO, sessionID: UUID, in run: Run) async throws {
     let status = try await operations(for: run).requestStatus(sessionID)
-    resetBackoff(for: target.id)
     guard owns(run), let store else { throw CancellationError() }
     let metrics = NodeStatusMetrics(
       status: status,
@@ -399,7 +438,6 @@ final class WatchlistRefreshCoordinator {
     let info: OwnerInfoResponse
     do {
       info = try await operations(for: run).requestOwnerInfo(sessionID)
-      resetBackoff(for: target.id)
     } catch let error where statusAnswered && Self.isTimeout(error) {
       // The repeater answered status, so a silent owner-info request means it lacks the request.
       try await recordMissingFirmware(for: target, in: run)
@@ -471,11 +509,6 @@ final class WatchlistRefreshCoordinator {
     var statusDone = false
     var statusOrOwnerFailed = false
     var statusTimedOut = false
-  }
-
-  private struct BackoffEntry {
-    var consecutiveNoReplyCount: Int
-    var lastNoReplyAt: Date
   }
 
   private struct Run {

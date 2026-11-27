@@ -79,8 +79,8 @@ struct WatchlistRefreshCoordinatorTests {
     try await harness.releaseRemaining(count: 4)
 
     #expect(await harness.session.logins == [
-      .init(publicKey: saved.publicKey, password: "secret", pathLength: saved.outPathLength),
-      .init(publicKey: blank.publicKey, password: "", pathLength: 2),
+      .init(publicKey: saved.publicKey, password: "secret", pathLength: saved.outPathLength, samePasswordExemption: false),
+      .init(publicKey: blank.publicKey, password: "", pathLength: 2, samePasswordExemption: false),
     ])
     #expect(harness.coordinator.failedContactIDs.isEmpty)
   }
@@ -162,6 +162,7 @@ struct WatchlistRefreshCoordinatorTests {
     harness.coordinator.refresh([first, next])
     try await harness.releaseRemaining(count: 2)
 
+    #expect(await harness.session.floodFallbackAttempts.isEmpty)
     #expect(harness.coordinator.timedOutContactIDs == [first.id])
     #expect(harness.coordinator.failedContactIDs == [first.id])
     #expect(try await harness.store.fetchContact(id: first.id)?.myNodeFirmwareVersion == "old")
@@ -215,8 +216,14 @@ struct WatchlistRefreshCoordinatorTests {
 
     #expect(await harness.session.createSessionCount == 0)
     #expect(await harness.session.loginSessionIDs == [staleDTO.id])
+    #expect(await harness.session.floodFallbackAttempts == [staleSession.publicKey])
     #expect(await harness.session.logins == [
-      .init(publicKey: staleSession.publicKey, password: "", pathLength: 1),
+      .init(
+        publicKey: staleSession.publicKey,
+        password: "",
+        pathLength: PacketBuilder.floodPathSentinel,
+        samePasswordExemption: false
+      ),
     ])
     #expect(harness.coordinator.batteryReadings[connected.id]?.millivolts == 3400)
     #expect(harness.coordinator.batteryReadings[staleSession.id]?.millivolts == 3500)
@@ -224,36 +231,98 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `exponential backoff skips auto refresh and allows manual refresh, resetting on reply`() async throws {
+  func `direct login timeout retries over flood with same-password exemption and preserves timeout when unavailable`() async throws {
     let harness = try await Harness()
     defer { harness.coordinator.shutdown() }
-    let target = harness.repeater(name: "Ridge", byte: 0x62, firmware: "1.8.0")
-    try await harness.store.saveContact(target)
+    let contact = harness.repeater(name: "Direct", byte: 0x68, firmware: "1.8.0", pathLength: 2)
+    let unavailable = harness.repeater(name: "NoFallback", byte: 0x69, firmware: "1.8.0", pathLength: 2)
+    try await harness.store.saveContact(contact)
+    try await harness.store.saveContact(unavailable)
 
     await harness.session.enqueueLoginTimeout()
-    harness.coordinator.refresh([target])
-    try await waitUntil("walk 1 ends") { !harness.coordinator.isRefreshing }
-    #expect(harness.coordinator.backoffDelay(for: target.id) == NodeSnapshotPolicy.minimumInterval)
-
-    harness.now = harness.now.addingTimeInterval(NodeSnapshotPolicy.minimumInterval - 1)
-    harness.coordinator.refreshStale([target])
-    #expect(!harness.coordinator.isRefreshing)
-
-    await harness.session.enqueueLoginTimeout()
-    harness.coordinator.refresh([target])
-    try await waitUntil("walk 2 ends") { !harness.coordinator.isRefreshing }
-    #expect(harness.coordinator.backoffDelay(for: target.id) == NodeSnapshotPolicy.minimumInterval * 2)
-
-    harness.now = harness.now.addingTimeInterval(NodeSnapshotPolicy.minimumInterval)
-    harness.coordinator.refreshStale([target])
-    #expect(!harness.coordinator.isRefreshing)
-
-    harness.now = harness.now.addingTimeInterval(NodeSnapshotPolicy.minimumInterval + 1)
-    await harness.session.enqueue(status: 3800, firmware: "1.8.0")
-    harness.coordinator.refreshStale([target])
+    await harness.session.enqueue(status: 3650, firmware: "1.8.0")
+    harness.coordinator.refresh([contact])
     try await harness.releaseRemaining(count: 2)
-    #expect(harness.coordinator.backoffDelay(for: target.id) == nil)
-    #expect(harness.coordinator.batteryReadings[target.id]?.millivolts == 3800)
+
+    #expect(await harness.session.floodFallbackAttempts == [contact.publicKey])
+    #expect(await harness.session.logins == [
+      .init(publicKey: contact.publicKey, password: "", pathLength: 2, samePasswordExemption: false),
+      .init(
+        publicKey: contact.publicKey,
+        password: "",
+        pathLength: PacketBuilder.floodPathSentinel,
+        samePasswordExemption: true
+      ),
+    ])
+    #expect(harness.coordinator.batteryReadings[contact.id]?.millivolts == 3650)
+    #expect(harness.coordinator.timedOutContactIDs.isEmpty)
+    #expect(harness.coordinator.failedContactIDs.isEmpty)
+
+    await harness.session.setFloodFallbackAvailable(false)
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([unavailable])
+    try await waitUntil("unavailable walk ends") { !harness.coordinator.isRefreshing }
+
+    #expect(await harness.session.floodFallbackAttempts == [contact.publicKey, unavailable.publicKey])
+    #expect(await harness.session.logins.last == .init(
+      publicKey: unavailable.publicKey,
+      password: "",
+      pathLength: 2,
+      samePasswordExemption: false
+    ))
+    #expect(await harness.session.logins.count == 3)
+    #expect(harness.coordinator.timedOutContactIDs == [unavailable.id])
+    #expect(harness.coordinator.failedContactIDs == [unavailable.id])
+  }
+
+  @Test
+  func `connected session status timeout falls back to direct login only when flood fallback is unavailable`() async throws {
+    let harness = try await Harness()
+    defer { harness.coordinator.shutdown() }
+
+    let failsDirect = harness.repeater(name: "DirectFail", byte: 0x6D, firmware: "1.8.0", pathLength: 1)
+    let failsFlood = harness.repeater(name: "FloodFail", byte: 0x6E, firmware: "1.8.0", pathLength: 1)
+    for contact in [failsDirect, failsFlood] {
+      try await harness.store.saveContact(contact)
+      await harness.session.setConnectedSession(
+        RemoteNodeSessionDTO(
+          id: UUID(),
+          radioID: harness.radioID,
+          publicKey: contact.publicKey,
+          name: contact.name,
+          role: .repeater,
+          isConnected: true
+        ),
+        for: contact.publicKey
+      )
+    }
+
+    await harness.session.setFloodFallbackAvailable(false)
+    await harness.session.enqueueStatusTimeout()
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([failsDirect])
+    try await harness.releaseRemaining(count: 1)
+    #expect(await harness.session.floodFallbackAttempts == [failsDirect.publicKey])
+    #expect(await harness.session.logins == [
+      .init(publicKey: failsDirect.publicKey, password: "", pathLength: 1, samePasswordExemption: false),
+    ])
+    #expect(harness.coordinator.timedOutContactIDs == [failsDirect.id])
+    #expect(harness.coordinator.failedContactIDs == [failsDirect.id])
+
+    await harness.session.setFloodFallbackAvailable(true)
+    await harness.session.enqueueStatusTimeout()
+    await harness.session.enqueueLoginTimeout()
+    harness.coordinator.refresh([failsFlood])
+    try await harness.releaseRemaining(count: 1, from: 1)
+    #expect(await harness.session.floodFallbackAttempts == [failsDirect.publicKey, failsFlood.publicKey])
+    #expect(await harness.session.logins.last == .init(
+      publicKey: failsFlood.publicKey,
+      password: "",
+      pathLength: PacketBuilder.floodPathSentinel,
+      samePasswordExemption: false
+    ))
+    #expect(await harness.session.logins.count == 2)
+    #expect(harness.coordinator.timedOutContactIDs == [failsDirect.id, failsFlood.id])
   }
 
   @Test
@@ -295,7 +364,6 @@ struct WatchlistRefreshCoordinatorTests {
     #expect(harness.coordinator.batteryReadings[beforeHandOff.id]?.millivolts == 3900)
     #expect(harness.coordinator.failedContactIDs.isEmpty)
     #expect(harness.coordinator.timedOutContactIDs.isEmpty)
-    #expect(harness.coordinator.backoffDelay(for: beforeHandOff.id) == nil)
 
     await harness.session.enqueueLoginOnly()
     await harness.session.enqueuePreemptedStatus(afterHandOff: true)
@@ -305,7 +373,6 @@ struct WatchlistRefreshCoordinatorTests {
     #expect(harness.coordinator.batteryReadings[afterHandOffSkipped.id] == nil)
     #expect(harness.coordinator.failedContactIDs.isEmpty)
     #expect(harness.coordinator.timedOutContactIDs.isEmpty)
-    #expect(harness.coordinator.backoffDelay(for: afterHandOffSkipped.id) == nil)
 
     await harness.session.enqueueLoginOnly()
     await harness.session.enqueueStatusResponse(3750)
@@ -388,7 +455,7 @@ struct WatchlistRefreshCoordinatorTests {
   }
 
   @Test
-  func `background status queued past 45s gets no write before admission and records no failure or backoff`() async throws {
+  func `background status queued past 45s gets no write before admission and records no failure`() async throws {
     let transport = MockTransport()
     let clock = TestClock()
     let session = MeshCoreSession(
@@ -474,7 +541,6 @@ struct WatchlistRefreshCoordinatorTests {
     #expect(coordinator.batteryReadings[contact.id]?.millivolts == 3650)
     #expect(coordinator.failedContactIDs.isEmpty)
     #expect(coordinator.timedOutContactIDs.isEmpty)
-    #expect(coordinator.backoffDelay(for: contact.id) == nil)
   }
 
   @Test
@@ -928,6 +994,7 @@ private actor ScriptedRemote {
     let publicKey: Data
     let password: String
     let pathLength: UInt8
+    let samePasswordExemption: Bool
   }
 
   enum Call: Equatable {
@@ -963,9 +1030,11 @@ private actor ScriptedRemote {
   private var passwords: [Data: String] = [:]
   private var sessionKeys: [UUID: Data] = [:]
   private var connectedSessions: [Data: RemoteNodeSessionDTO] = [:]
+  private var floodFallbackAvailable = true
   private(set) var calls: [Call] = []
   private(set) var logins: [Login] = []
   private(set) var loginSessionIDs: [UUID] = []
+  private(set) var floodFallbackAttempts: [Data] = []
   private(set) var createSessionCount = 0
   private(set) var entered = 0
   private(set) var maxInFlight = 0
@@ -976,10 +1045,15 @@ private actor ScriptedRemote {
       savedPassword: { await self.password(for: $0) },
       connectedSession: { await self.connectedSession(forPrefix: $0) },
       createSession: { await self.session(for: $0) },
-      logIn: { try await self.logIn(sessionID: $0, password: $1, pathLength: $2) },
+      logIn: { try await self.logIn(sessionID: $0, password: $1, pathLength: $2, samePasswordExemption: $3) },
       requestStatus: { try await self.requestStatus(sessionID: $0) },
-      requestOwnerInfo: { try await self.requestOwnerInfo(sessionID: $0) }
+      requestOwnerInfo: { try await self.requestOwnerInfo(sessionID: $0) },
+      attemptFloodFallback: { try await self.attemptFloodFallback(contact: $0, rethrowIfUnavailable: $1, operation: $2) }
     )
+  }
+
+  func setFloodFallbackAvailable(_ available: Bool) {
+    floodFallbackAvailable = available
   }
 
   func setSavedPassword(_ password: String, for publicKey: Data) {
@@ -1070,15 +1144,37 @@ private actor ScriptedRemote {
     )
   }
 
-  private func logIn(sessionID: UUID, password: String, pathLength: UInt8) throws -> LoginResult {
+  private func logIn(
+    sessionID: UUID,
+    password: String,
+    pathLength: UInt8,
+    samePasswordExemption: Bool
+  ) throws -> LoginResult {
     let key = sessionKeys[sessionID] ?? Data()
-    logins.append(Login(publicKey: key, password: password, pathLength: pathLength))
+    logins.append(
+      Login(
+        publicKey: key,
+        password: password,
+        pathLength: pathLength,
+        samePasswordExemption: samePasswordExemption
+      )
+    )
     loginSessionIDs.append(sessionID)
     let level = try loginOutcomes.isEmpty ? Self.currentFirmwareLevel : loginOutcomes.removeFirst().get()
     return LoginResult(
       success: true, isAdmin: false, aclPermissions: nil, publicKeyPrefix: Data(key.prefix(6)),
       firmwareLevel: level
     )
+  }
+
+  private func attemptFloodFallback(
+    contact: ContactDTO,
+    rethrowIfUnavailable: any Error,
+    operation: @Sendable () async throws -> LoginResult
+  ) async throws -> LoginResult {
+    floodFallbackAttempts.append(contact.publicKey)
+    guard floodFallbackAvailable else { throw rethrowIfUnavailable }
+    return try await operation()
   }
 
   private func requestStatus(sessionID: UUID) async throws -> StatusResponse {
