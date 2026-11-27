@@ -156,7 +156,6 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     stubbedResetPathWritesFloodBeforeError = value
   }
 
-  /// Result to return from `discoverPath`
   public var stubbedDiscoverPathResults: [Result<PathInfo, Error>] = []
 
   public func setStubbedDiscoverPathResults(_ results: [Result<PathInfo, Error>]) {

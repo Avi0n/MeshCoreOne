@@ -463,14 +463,18 @@ public extension MeshCoreSession {
       }
     )
     let (outcome, sendCount) = try await performMeshExchangeWithSendCount(spec, priority: priority)
-    let mayAnswerEarlier = consumeLoginDigests(forPrefix: gatePrefix, currentDigest: passwordDigest)
-    if sendCount > 1, sessionIsRunning {
-      recordUnconsumedLoginDigest(passwordDigest, forPrefix: gatePrefix)
-    }
     switch outcome {
     case let .success(info):
+      let mayAnswerEarlier = consumeLoginDigests(forPrefix: gatePrefix, currentDigest: passwordDigest)
+      if sendCount > 1, sessionIsRunning {
+        recordUnconsumedLoginDigest(passwordDigest, forPrefix: gatePrefix)
+      }
       return LoginExchangeResult(info: info, mayAnswerEarlierLogin: mayAnswerEarlier)
     case .failed:
+      if sessionIsRunning,
+         sendCount > 1 || hasDifferentUnconsumedLoginDigest(forPrefix: gatePrefix, currentDigest: passwordDigest) {
+        recordUnconsumedLoginDigest(passwordDigest, forPrefix: gatePrefix)
+      }
       return LoginExchangeResult(info: nil, mayAnswerEarlierLogin: false)
     }
   }

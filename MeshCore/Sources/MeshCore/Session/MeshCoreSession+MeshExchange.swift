@@ -459,6 +459,10 @@ extension MeshCoreSession {
     }
     return mayAnswerEarlier
   }
+
+  func hasDifferentUnconsumedLoginDigest(forPrefix prefix: Data, currentDigest: Data) -> Bool {
+    unconsumedLoginDigests[prefix]?.contains { $0 != currentDigest } ?? false
+  }
 }
 
 private extension Clock where Duration == Swift.Duration {

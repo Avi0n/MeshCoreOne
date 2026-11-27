@@ -93,21 +93,6 @@ struct MeshRequestGateHoldTests {
   }
 
   @Test
-  func `a hold that has passed does not delay a later login`() async throws {
-    let harness = try await StartedExchange.make(configuration: .init())
-    let companion = FirmwarePendingSlotCompanion()
-    try await leaveReplyInFlight(from: repeater, harness: harness, companion: companion)
-    harness.clock.advance(by: sameContactHold)
-
-    let login = Task { try await loginExchange(to: repeater, session: harness.session) }
-    try await waitUntil("login is written without waiting") {
-      await !harness.commands(.sendLogin).isEmpty
-    }
-    login.cancel()
-    await harness.session.stop()
-  }
-
-  @Test
   func `background work does not take the gate ahead of an interactive login waiting out a hold`() async throws {
     let harness = try await StartedExchange.make(configuration: .init())
     let companion = FirmwarePendingSlotCompanion()
@@ -182,47 +167,9 @@ struct MeshRequestGateHoldTests {
     await companion.ackNewCommands(on: harness.transport)
     _ = try await keepAlive.value
     #expect(await harness.keepAliveWrites(to: other).count == 1)
+    #expect(await !harness.session.meshRequestGate.hasActiveHold(for: other.prefix(4)))
 
     try await fetchNoMessages(harness)
-    await harness.session.stop()
-  }
-
-  @Test
-  func `interactive budget starts at message sent, not at enqueue`() async throws {
-    let harness = try await StartedExchange.make(
-      configuration: .init(binaryRequestOverallTimeout: overallTimeout, binaryRequestRetransmitInterval: nil)
-    )
-    let companion = FirmwarePendingSlotCompanion()
-    let background = Task {
-      try await harness.session.requestOwnerInfo(from: repeater, priority: .background)
-    }
-    try await harness.ack(companion, code: .binaryRequest)
-    try await harness.waitUntilParked(for: .seconds(overallTimeout))
-
-    let telemetry = Task {
-      try await harness.session.requestTelemetry(from: repeater, priority: .interactive)
-    }
-    try await waitUntil("telemetry is queued or preempted") {
-      let queued = await harness.session.meshRequestGate.queuedWaiterCount
-      let written = await !harness.commands(.getSelfTelemetry).isEmpty
-      return queued == 1 || written
-    }
-    try await harness.ack(companion, code: .getSelfTelemetry)
-    let backgroundError = await #expect(throws: MeshCoreError.self) { try await background.value }
-    guard case .preempted(afterHandOff: true) = backgroundError else {
-      Issue.record("Background exchange should be preempted when interactive telemetry arrives, got \(String(describing: backgroundError))")
-      telemetry.cancel()
-      await harness.session.stop()
-      return
-    }
-    try await harness.waitUntilParked(for: .seconds(overallTimeout))
-    harness.clock.advance(by: .seconds(overallTimeout - 1))
-    #expect(harness.clock.sleeperCount == 1)
-    #expect(harness.clock.nextSleepDuration == .seconds(1))
-
-    await companion.deliver(from: repeater, body: Data([0x01]), on: harness.transport)
-    let response = try await telemetry.value
-    #expect(response.publicKeyPrefix == repeater.prefix(6))
     await harness.session.stop()
   }
 

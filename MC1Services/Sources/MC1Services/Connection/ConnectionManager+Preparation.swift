@@ -73,7 +73,10 @@ extension ConnectionManager {
     let device = try await registration.value
     attempt.identity = ConnectionDeviceIdentity(device)
     try requireAttemptOwnership(request, attempt)
-    if membershipBatch?.radioID != device.radioID { membershipBatch = nil }
+    if membershipBatch?.radioID != device.radioID
+      || (previousPublicKey != nil && previousPublicKey != selfInfo.publicKey) {
+      membershipBatch = nil
+    }
     let ranges = await capabilities.clientRepeat ? ((try? resource.session.getRepeatFreq()) ?? []) : []
     try requireAttemptOwnership(request, attempt)
     let container = try await buildServiceContainer(

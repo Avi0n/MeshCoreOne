@@ -26,6 +26,11 @@ extension ConnectionManager {
     if imported.radioID != receipt.originalRadioID {
       try? await store.disconnectAllRemoteNodeSessions(radioID: imported.radioID)
     }
+    if receipt.originalPublicKey != selfInfo.publicKey,
+       let batchRadioID = membershipBatch?.radioID,
+       batchRadioID == receipt.originalRadioID || batchRadioID == imported.radioID {
+      membershipBatch = nil
+    }
     consumeIdentityReceipt(receipt)
     if receipt.originalPublicKey != selfInfo.publicKey {
       await dropStaleVContact(dataStore: store, radioID: receipt.originalRadioID, oldSelfPublicKey: receipt.originalPublicKey)

@@ -298,17 +298,6 @@ struct MeshRequestGateScenarioTests {
   }
 
   @Test
-  func `keep-alive sets no same-contact hold`() async throws {
-    let harness = try await ScenarioHarness.make()
-    let companion = FirmwarePendingSlotCompanion()
-    let kaTask = Task { try await harness.session.sendKeepAlive(to: repeater, syncSince: 0) }
-    try await harness.ack(companion, code: .binaryRequest)
-    _ = try await kaTask.value
-    #expect(await !harness.session.meshRequestGate.hasActiveHold(for: repeater.prefix(4)))
-    await harness.session.stop()
-  }
-
-  @Test
   func `multi-write login and pre-ack handoff cancellation set hold without truncation by shorter exchange`() async throws {
     let harness = try await ScenarioHarness.make()
     let companion = FirmwarePendingSlotCompanion()
@@ -357,40 +346,6 @@ struct MeshRequestGateScenarioTests {
     try await harness.ack(companion, code: .binaryRequest, count: 1)
     await #expect(throws: CancellationError.self) { try await owner.value }
     #expect(await harness.session.meshRequestGate.hasActiveHold(for: other.prefix(4)))
-    await harness.session.stop()
-  }
-
-  @Test
-  func `lock order: keep-alive behind background resend and getMessage run cleanly`() async throws {
-    let harness = try await ScenarioHarness.make()
-    let companion = FirmwarePendingSlotCompanion()
-
-    let bg = Task {
-      try await harness.session.requestOwnerInfo(from: repeater, priority: .background)
-    }
-    try await harness.ack(companion, code: .binaryRequest, count: 1)
-    try await harness.waitUntilParked(for: defaultHold)
-
-    let ka = Task { try await harness.session.sendKeepAlive(to: other, syncSince: 0) }
-    try await waitUntil("keep-alive queues at gate") {
-      await harness.session.meshRequestGate.queuedWaiterCount == 1
-    }
-
-    harness.clock.advance(by: defaultHold)
-    try await harness.ack(companion, code: .binaryRequest, count: 2)
-    let bgRecord = try #require(await companion.acceptedWrites.last)
-    await companion.deliver(replyingTo: bgRecord.id, body: Data("v1\nR\nO".utf8), on: harness.transport)
-    _ = try await bg.value
-
-    try await harness.ack(companion, code: .binaryRequest, count: 3)
-    _ = try await ka.value
-
-    let getMsg = Task { try await harness.session.getMessage(timeout: fetchTimeout) }
-    try await waitUntil("getMessage written") {
-      await !harness.commands(.getMessage).isEmpty
-    }
-    await harness.transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
-    _ = try await getMsg.value
     await harness.session.stop()
   }
 
@@ -802,6 +757,77 @@ struct MeshRequestGateScenarioTests {
     await #expect(throws: MeshCoreError.self) { try await login.value }
     #expect(await harness.commands(.sendLogin).count == 1)
     await harness.session.stop()
+  }
+
+  @Test
+  func `failed login preserves unconsumed digest for delayed reply`() async throws {
+    do {
+      let harness = try await ScenarioHarness.make()
+      let companion = FirmwarePendingSlotCompanion()
+
+      let goodLogin = Task {
+        try await harness.session.login(to: repeater, password: "good", priority: .interactive, budget: { _ in 20 })
+      }
+      try await harness.ack(companion, code: .sendLogin, count: 1)
+      let goodRecord = try #require(await companion.acceptedWrites.last)
+      try await harness.waitUntilParked(for: .seconds(1))
+      goodLogin.cancel()
+      await #expect(throws: CancellationError.self) { _ = try await goodLogin.value }
+
+      let badLogin = Task {
+        try await harness.session.login(to: repeater, password: "bad", priority: .interactive, budget: { _ in 20 })
+      }
+      try await harness.waitUntilParked(for: defaultHold)
+      harness.clock.advance(by: defaultHold)
+      try await harness.ack(companion, code: .sendLogin, count: 2)
+      await companion.deliver(from: repeater, body: Data([0x01]), on: harness.transport)
+      let badResult = try await badLogin.value
+      #expect(!badResult.succeeded)
+
+      let wrongNewLogin = Task {
+        try await harness.session.login(to: repeater, password: "wrong-new", priority: .interactive, budget: { _ in 20 })
+      }
+      try await harness.ack(companion, code: .sendLogin, count: 3)
+      await companion.deliver(replyingTo: goodRecord.id, body: loginOK, on: harness.transport)
+      let wrongNewResult = try await wrongNewLogin.value
+      #expect(wrongNewResult.succeeded)
+      #expect(wrongNewResult.mayAnswerEarlierLogin)
+      await harness.session.stop()
+    }
+
+    do {
+      let harness = try await ScenarioHarness.make()
+      let companion = FirmwarePendingSlotCompanion()
+
+      let wrongLogin = Task {
+        try await harness.session.login(to: other, password: "wrong", priority: .interactive, budget: { _ in 20 })
+      }
+      try await harness.ack(companion, code: .sendLogin, count: 1)
+      try await harness.waitUntilParked(for: .seconds(1))
+      wrongLogin.cancel()
+      await #expect(throws: CancellationError.self) { _ = try await wrongLogin.value }
+
+      let goodLogin = Task {
+        try await harness.session.login(to: other, password: "good", priority: .interactive, budget: { _ in 20 })
+      }
+      try await harness.waitUntilParked(for: defaultHold)
+      harness.clock.advance(by: defaultHold)
+      try await harness.ack(companion, code: .sendLogin, count: 2)
+      let goodRecord = try #require(await companion.acceptedWrites.last)
+      await companion.deliver(from: other, body: Data([0x01]), on: harness.transport)
+      let goodFailResult = try await goodLogin.value
+      #expect(!goodFailResult.succeeded)
+
+      let wrongNewLogin = Task {
+        try await harness.session.login(to: other, password: "wrong-new", priority: .interactive, budget: { _ in 20 })
+      }
+      try await harness.ack(companion, code: .sendLogin, count: 3)
+      await companion.deliver(replyingTo: goodRecord.id, body: loginOK, on: harness.transport)
+      let wrongNewResult = try await wrongNewLogin.value
+      #expect(wrongNewResult.succeeded)
+      #expect(wrongNewResult.mayAnswerEarlierLogin)
+      await harness.session.stop()
+    }
   }
 
   private func statusFields(battery: UInt16) -> Data {

@@ -120,31 +120,24 @@ public actor RepeaterAdminService {
     offset: UInt16 = 0,
     orderBy: NeighborSortOrder = .newestFirst,
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
-    priority: MeshRequestPriority,
-    timeout: Duration? = nil
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID),
           remoteSession.isRepeater else {
       throw RemoteNodeError.sessionNotFound
     }
 
-    // Log neighbors request
     await auditLogger.logNeighborsRequest(publicKey: remoteSession.publicKey, count: count, offset: offset)
 
     do {
-      let effectiveTimeout = timeout ?? RemoteOperationTimeoutPolicy.binaryMaximum
-      return try await withTimeout(effectiveTimeout, operationName: "remoteNeighbours") {
-        try await self.session.requestNeighbours(
-          from: remoteSession.publicKey,
-          count: count,
-          offset: offset,
-          orderBy: orderBy.rawValue,
-          pubkeyPrefixLength: pubkeyPrefixLength,
-          priority: priority
-        )
-      }
-    } catch is TimeoutError {
-      throw RemoteNodeError.timeout
+      return try await self.session.requestNeighbours(
+        from: remoteSession.publicKey,
+        count: count,
+        offset: offset,
+        orderBy: orderBy.rawValue,
+        pubkeyPrefixLength: pubkeyPrefixLength,
+        priority: priority
+      )
     } catch let error as MeshCoreError {
       if case .timeout = error {
         throw RemoteNodeError.timeout
@@ -158,11 +151,10 @@ public actor RepeaterAdminService {
     sessionID: UUID,
     orderBy: NeighborSortOrder = .newestFirst,
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
-    priority: MeshRequestPriority,
-    timeout: Duration? = nil
+    priority: MeshRequestPriority
   ) async throws -> NeighboursResponse {
     // Paginate over the per-page request so each round-trip keeps its audit log entry
-    // and timeout ceiling; a single node response is capped to one radio frame.
+    // and session timeout ceiling; a single node response is capped to one radio frame.
     let response = try await NeighboursResponse.collectingAllPages { offset in
       if offset > 0 { try await Task.sleep(for: NeighboursResponse.interPageDelay) }
       return try await self.requestNeighbors(
@@ -171,8 +163,7 @@ public actor RepeaterAdminService {
         offset: offset,
         orderBy: orderBy,
         pubkeyPrefixLength: pubkeyPrefixLength,
-        priority: priority,
-        timeout: timeout
+        priority: priority
       )
     }
 

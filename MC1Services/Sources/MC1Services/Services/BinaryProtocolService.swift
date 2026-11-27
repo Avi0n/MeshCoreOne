@@ -244,7 +244,6 @@ public actor BinaryProtocolService {
 
   // MARK: - Direct-path flood recovery
 
-  /// Repairs via `attemptFloodFallback` on mesh timeout and restores the pre-fallback path if needed.
   private func performWithPathResetOnTimeout<T: Sendable>(
     publicKey: Data,
     operationName: String,

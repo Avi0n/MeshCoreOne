@@ -131,4 +131,40 @@ struct MeshRequestSchedulerConnectionTests {
       #expect(try await !harness.isConnected(repeater))
     }
   }
+
+  @Test
+  func `external key change across BLE recovery drops membershipBatch and leaves rooms disconnected`() async throws {
+    try await ConnectionRadioHandoffHarness.withHarness { harness in
+      let room = try await harness.addMembership(radioID: harness.deviceA.radioID, connected: true)
+      let repeater = RemoteNodeSessionDTO.testSession(
+        radioID: harness.deviceA.radioID,
+        publicKey: Data(repeating: 0x89, count: 32),
+        role: .repeater,
+        isConnected: true
+      )
+      try await harness.manager.persistenceStore.saveRemoteNodeSessionDTO(repeater)
+      try await harness.connectBluetooth()
+      try await waitUntil("BLE lifecycle handler is installed") {
+        await harness.bluetooth.hasLifecycleHandler
+      }
+
+      await harness.bluetooth.simulateAutoReconnecting(deviceID: harness.deviceA.id)
+      try await waitUntil("BLE recovery captures room membership batch") {
+        harness.manager.currentConnection == nil && harness.manager.membershipBatch?.sessionIDs == [room.id]
+      }
+
+      let rotatedKey = Data(repeating: 0xEA, count: ProtocolLimits.publicKeySize)
+      await harness.bluetooth.setPublicKey(rotatedKey, for: harness.deviceA.id)
+      await harness.bluetooth.simulateReconnected()
+      try await waitUntil("reconnect reaches ready after key rotation") {
+        harness.manager.connectionState == .ready
+      }
+
+      #expect(harness.manager.membershipBatch == nil)
+      #expect(try await !harness.isConnected(room))
+      #expect(try await !harness.isConnected(repeater))
+      let loginFrames = await harness.bluetooth.sentData.filter { $0.first == CommandCode.sendLogin.rawValue }
+      #expect(loginFrames.isEmpty)
+    }
+  }
 }

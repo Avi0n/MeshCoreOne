@@ -1,6 +1,6 @@
 import Foundation
 @testable import MC1Services
-import MeshCore
+@testable import MeshCore
 import MeshCoreTestSupport
 import Testing
 
@@ -388,6 +388,88 @@ struct MeshRequestSchedulerServicesTests {
     let radioAfterUncontestedFlood = try #require(await session.getContact(publicKey: key))
     #expect(radioAfterUncontestedFlood.outPathLength == PacketBuilder.floodPathSentinel)
     #expect(radioAfterUncontestedFlood.outPath.isEmpty)
+  }
+
+  @Test
+  func `repeaterAdmin fetchAllNeighbors waits at MeshRequestGate without pre-admission timeout`() async throws {
+    let radioID = UUID()
+    let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let repeaterKey = Data(repeating: 0xF1, count: 32)
+    let otherKey = Data(repeating: 0xF2, count: 32)
+    let remote = RemoteNodeSessionDTO.testSession(
+      radioID: radioID, publicKey: repeaterKey, role: .repeater, isConnected: true, permissionLevel: .admin
+    )
+    try await dataStore.saveRemoteNodeSessionDTO(remote)
+
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: .init(binaryRequestOverallTimeout: 40, binaryRequestRetransmitInterval: nil),
+      clock: clock
+    )
+    let startTask = Task { try await session.start() }
+    try await waitUntil("appStart is written") {
+      await transport.sentData.contains { $0.first == CommandCode.appStart.rawValue }
+    }
+    await transport.simulateReceive(
+      Data([ResponseCode.selfInfo.rawValue, 1, 22, 22]) + Data(repeating: 0, count: 54)
+    )
+    try await startTask.value
+    await transport.clearSentData()
+
+    let remoteService = RemoteNodeService(
+      session: session, dataStore: dataStore, keychainService: KeychainService(), radioID: radioID
+    )
+    let repeaterAdmin = RepeaterAdminService(
+      session: session, remoteNodeService: remoteService, dataStore: dataStore, radioID: radioID
+    )
+
+    let statusTask = Task {
+      try await session.requestStatus(from: otherKey, priority: .interactive)
+    }
+    try await waitUntil("status request is written") {
+      await transport.sentData.contains { $0.first == CommandCode.sendStatusRequest.rawValue }
+    }
+    await transport.simulateReceive(
+      Data([ResponseCode.messageSent.rawValue, 0, 0x01, 0x00, 0x00, 0x00, 0, 0, 0, 0])
+    )
+    try await waitUntil("status parked on RF wait") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(40)
+    }
+
+    let neighborsTask = Task {
+      try await repeaterAdmin.fetchAllNeighbors(sessionID: remote.id, priority: .interactive)
+    }
+    try await waitUntil("neighbors queues at MeshRequestGate") {
+      await session.meshRequestGate.queuedWaiterCount == 1
+    }
+
+    clock.advance(by: .seconds(30))
+    await transport.simulateReceive(
+      Data([ResponseCode.statusResponse.rawValue, 0]) + Data(otherKey.prefix(6)) + Data(repeating: 0, count: 51)
+    )
+    _ = try await statusTask.value
+
+    try await waitUntil("neighbors binary request is written") {
+      await transport.sentData.contains { $0.first == CommandCode.binaryRequest.rawValue }
+    }
+    let tag = Data([0x22, 0x00, 0x00, 0x00])
+    await transport.simulateReceive(
+      Data([ResponseCode.messageSent.rawValue, 0]) + tag + Data([0, 0, 0, 0])
+    )
+    try await waitUntil("neighbors parked on full 40s post-admission budget") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(40)
+    }
+
+    clock.advance(by: .seconds(20))
+    await transport.simulateReceive(
+      Data([ResponseCode.binaryResponse.rawValue, 0]) + tag + Data([0, 0, 0, 0])
+    )
+    let response = try await neighborsTask.value
+    #expect(response.totalCount == 0)
+    #expect(response.neighbours.isEmpty)
+    await session.stop()
   }
 }
 

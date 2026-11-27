@@ -173,9 +173,6 @@ struct MeshRequestGateSimulationTests {
         }
       }
       activeOps = remaining
-
-      let writes = await companion.acceptedWrites
-      #expect(writes.count >= 0)
     }
 
     if seedIndex.isMultiple(of: 3) {
