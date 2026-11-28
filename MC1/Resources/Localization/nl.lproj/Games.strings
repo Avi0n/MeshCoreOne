@@ -1,0 +1,441 @@
+/*
+  Games.strings
+  MC1
+
+  Dutch translation of strings for games played over direct messages.
+  AI-translated - please verify with native speakers.
+*/
+
+
+// MARK: - Games
+
+/* Location: GameStrings.swift - Name of the chess game */
+"games.kind.chess" = "Schaken";
+
+/* Location: GameStrings.swift - Name of the battleship game */
+"games.kind.battleship" = "Zeeslag";
+
+/* Location: MeshGameSheet.swift, GamesPickerSheet.swift, notifications - A game and its opponent - first %@ is the game name, second %@ is the opponent's name */
+"games.gameWithOpponent" = "%1$@ · %2$@";
+
+// MARK: - Picker
+
+/* Location: ChatShareMenu.swift - Item in a DM's + menu that opens the games list */
+"games.picker.menuItem" = "Spellen";
+
+/* Location: GamesPickerSheet.swift - Navigation title */
+"games.picker.title" = "Spellen";
+
+/* Location: GamesPickerSheet.swift - Button to invite the contact to chess */
+"games.picker.chess" = "Schaken (CoreChess)";
+
+/* Location: GamesPickerSheet.swift - Section header above the games to invite to - %@ is the contact's name */
+"games.picker.invite" = "%@ uitnodigen";
+
+/* Location: GamesPickerSheet.swift - Section footer under the games to invite to */
+"games.picker.footer" = "Elke zet is één kort direct bericht. Zeeslag is er alleen in MeshCore One; schaken werkt ook met CoreChess.";
+
+/* Location: GamesPickerSheet.swift - Section header for the head-to-head record - %@ is the contact's name */
+"games.picker.record" = "Jij tegen %@";
+
+/* Location: GamesPickerSheet.swift - Accessibility value of a head-to-head record - %1$d wins, %2$d draws, %3$d losses */
+"games.picker.recordAccessibility" = "%1$d gewonnen, %2$d remise, %3$d verloren";
+
+/* Location: GamesPickerSheet.swift - Section header for running and finished games */
+"games.picker.yourGames" = "Jouw spellen";
+
+/* Location: GamesPickerSheet.swift - Swipe action that removes a game */
+"games.picker.remove" = "Verwijderen";
+
+/* Location: GamesPickerSheet.swift - Button that closes the games list */
+"games.picker.close" = "Sluiten";
+
+// MARK: - Status
+
+/* Location: GameStatus.swift - Our move is on its way */
+"games.status.sending" = "Je zet wordt verzonden…";
+
+/* Location: GameStatus.swift - Our move is on its way as a flood message */
+"games.status.sendingFlood" = "Je zet wordt verzonden (flood)…";
+
+/* Location: GameStatus.swift - Our move is on its way over a direct route */
+"games.status.sendingDirect" = "Je zet wordt verzonden (direct)…";
+
+/* Location: GameStatus.swift, GameDebugView.swift - Which send attempt this is - %d is the attempt number */
+"games.status.attempt" = "poging %d";
+
+/* Location: GameStatus.swift - The opponent's radio acknowledged our move - %@ is the opponent's name */
+"games.status.reachedRadio" = "Radio van %@ bereikt · wacht op de app";
+
+/* Location: GameStatus.swift - The opponent's app confirmed our move - %@ is the opponent's name */
+"games.status.confirmed" = "%@ heeft je zet ontvangen · hun beurt";
+
+/* Location: GameStatus.swift - Our move was never confirmed */
+"games.status.failed" = "Zet niet bevestigd — verstuur opnieuw";
+
+/* Location: GameStatus.swift - Battleship: the player is placing their fleet */
+"games.status.placeFleet" = "Plaats je vloot en verstuur de uitnodiging";
+
+/* Location: GameStatus.swift, game sheets - Our invite waits for an answer - %@ is the opponent's name */
+"games.status.waitingForAccept" = "Wachten tot %@ accepteert…";
+
+/* Location: GameStatus.swift - Chess: we accepted and wait for the board - %@ is the opponent's name */
+"games.status.waitingForSetup" = "Wachten tot %@ het bord klaarzet…";
+
+/* Location: GameStatus.swift - Someone invited us - %@ is the opponent's name */
+"games.status.invitesYou" = "%@ nodigt je uit";
+
+/* Location: GameStatus.swift - The game is over, no details known */
+"games.status.over" = "Spel voorbij";
+
+/* Location: GameStatus.swift - It is the player's move */
+"games.status.yourMove" = "Jouw zet";
+
+/* Location: GameStatus.swift - It is the opponent's move - %@ is the opponent's name */
+"games.status.theirTurn" = "%@ is aan de beurt";
+
+// MARK: - Endings
+
+/* Location: GameStrings.swift - The player resigned */
+"games.ending.youResigned" = "Je hebt opgegeven.";
+
+/* Location: GameStrings.swift - The opponent resigned - %@ is the opponent's name */
+"games.ending.opponentResigned" = "%@ heeft opgegeven. Je wint!";
+
+/* Location: GameStrings.swift - The opponent declined the invite - %@ is the opponent's name */
+"games.ending.opponentDeclined" = "%@ heeft afgewezen.";
+
+/* Location: GameStrings.swift - Chess: the opponent reset the board - %@ is the opponent's name */
+"games.ending.opponentResetBoard" = "%@ heeft het bord gereset.";
+
+/* Location: GameStrings.swift - The invite was never answered */
+"games.ending.inviteUnanswered" = "Uitnodiging niet beantwoord.";
+
+/* Location: GameStrings.swift - Chess: the game could not be set up */
+"games.ending.setupFailed" = "Het opzetten van het spel kwam niet aan. Nodig opnieuw uit.";
+
+/* Location: GameStrings.swift - The player won */
+"games.ending.youWon" = "Je wint!";
+
+/* Location: GameStrings.swift - The opponent won - %@ is the opponent's name */
+"games.ending.opponentWon" = "%@ wint.";
+
+/* Location: GameStrings.swift - The game ended in a draw */
+"games.ending.draw" = "Gelijkspel.";
+
+/* Location: GameStrings.swift - Chess: both players agreed to a draw */
+"games.ending.drawAgreed" = "Remise afgesproken. ½–½";
+
+/* Location: GameStrings.swift - Chess: the player gave checkmate */
+"games.ending.checkmateYouWon" = "Schaakmat — je wint!";
+
+/* Location: GameStrings.swift - Chess: the opponent gave checkmate - %@ is the opponent's name */
+"games.ending.checkmateOpponentWon" = "Schaakmat — %@ wint.";
+
+/* Location: GameStrings.swift - Chess: stalemate */
+"games.ending.stalemate" = "Pat — remise.";
+
+/* Location: GameStrings.swift - Chess: draw by the fifty-move rule */
+"games.ending.fiftyMoveRule" = "Remise — vijftigzettenregel.";
+
+/* Location: GameStrings.swift - Chess: draw because neither side can mate */
+"games.ending.insufficientMaterial" = "Remise — onvoldoende materiaal.";
+
+/* Location: GameStrings.swift - Chess: draw by threefold repetition */
+"games.ending.threefoldRepetition" = "Remise — drievoudige herhaling.";
+
+// MARK: - Notices
+
+/* Location: GameStrings.swift - Our move was never acknowledged */
+"games.notice.moveNotAcknowledged" = "Zet niet bevestigd — de tegenstander is misschien offline.";
+
+/* Location: GameStrings.swift - We accepted but the inviter has not confirmed - %@ is the opponent's name */
+"games.notice.opponentNotConfirmed" = "%@ heeft nog niet bevestigd.";
+
+/* Location: GameStrings.swift - A move arrived that does not fit the board - %@ is the raw move */
+"games.notice.invalidMove" = "Een zet ontvangen die niet bij het bord past: %@";
+
+/* Location: GameStrings.swift - Chess: the boards differ and are being resynced */
+"games.notice.resyncing" = "De zet van de tegenstander past niet bij ons bord — opnieuw synchroniseren…";
+
+/* Location: GameStrings.swift - Chess: the board was replaced with the opponent's - %@ is the opponent's name */
+"games.notice.resynced" = "Bord gesynchroniseerd met %@.";
+
+// MARK: - Game sheets
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button that hides the board, the game keeps running */
+"games.sheet.hide" = "Verbergen";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item that opens the connection details */
+"games.sheet.connectionDetails" = "Verbindingsdetails";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item and confirmation button to resign */
+"games.sheet.resign" = "Opgeven";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Title of the resign confirmation */
+"games.sheet.resignConfirm" = "Dit spel opgeven?";
+
+/* Location: MeshGameSheet.swift - Menu item that deletes the game */
+"games.sheet.remove" = "Spel verwijderen";
+
+/* Location: MeshGameSheet.swift - Shown when the game no longer exists */
+"games.sheet.ended" = "Spel beëindigd";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while our move waits for confirmation */
+"games.sheet.moveSent" = "Zet verzonden.";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when it is the player's move */
+"games.sheet.yourMove" = "Jouw zet.";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while the opponent moves - %@ is the opponent's name */
+"games.sheet.thinking" = "%@ denkt na…";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when the game is over, no details known */
+"games.sheet.over" = "Spel voorbij.";
+
+/* Location: MeshGameSheet.swift, MainTabView.swift - Someone invites the player - first %@ is the opponent's name, second %@ is the game name */
+"games.sheet.invitesYouTo" = "%1$@ nodigt je uit voor %2$@.";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to decline an invite or a draw */
+"games.sheet.decline" = "Weigeren";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to accept an invite */
+"games.sheet.play" = "Spelen";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button to send the unconfirmed move again */
+"games.sheet.resend" = "Zet opnieuw versturen";
+
+/* Location: MeshGameSheet.swift - Button that sends the picked move - %@ is the move, e.g. a square */
+"games.sheet.send" = "%@ versturen";
+
+// MARK: - Battleship
+
+/* Location: MeshGameSheet.swift - Status while placing the fleet */
+"games.battleship.placeAndInvite" = "Plaats je vloot en verstuur daarna de uitnodiging.";
+
+/* Location: MeshGameSheet.swift - Button that sends the invite with the placed fleet */
+"games.battleship.sendInvite" = "Uitnodiging versturen";
+
+/* Location: MeshGameSheet.swift - Button that admits the loss of the last ship and ends the game */
+"games.battleship.confirmLoss" = "Je laatste schip is gezonken — bevestigen";
+
+/* Location: MeshGameSheet.swift - The opponent's revealed fleet matches every answer */
+"games.battleship.verified" = "Vloot van de tegenstander gecontroleerd — eerlijk spel.";
+
+/* Location: MeshGameSheet.swift - The opponent's revealed fleet is wrong - %@ is the reason */
+"games.battleship.cheating" = "Valsspelen ontdekt: %@";
+
+/* Location: MeshGameSheet.swift - Cheat reason: no commitment arrived */
+"games.battleship.cheat.noCommitment" = "Geen vastlegging ontvangen.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: the fleet differs from the committed one */
+"games.battleship.cheat.fleetMismatch" = "De onthulde vloot komt niet overeen met de vloot die aan het begin is vastgelegd.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: the fleet is not a valid layout */
+"games.battleship.cheat.invalidLayout" = "De onthulde vloot is geen geldige opstelling.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: a false hit - %@ is a square, e.g. B3 */
+"games.battleship.cheat.falseHit" = "%@ werd als raak gemeld, maar de vloot zegt iets anders.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: a false miss - %@ is a square, e.g. B3 */
+"games.battleship.cheat.falseMiss" = "%@ werd als mis gemeld, maar de vloot zegt iets anders.";
+
+/* Location: MeshGameSheet.swift - Caption above the opponent's board - %d is the number of sunk ships */
+"games.battleship.enemyWaters" = "Vijandelijke wateren · %d/5 gezonken";
+
+/* Location: MeshGameSheet.swift - Caption above the player's board - %d is the number of ships left */
+"games.battleship.yourFleet" = "Jouw vloot · %d/5 drijvend";
+
+/* Location: MeshGameSheet.swift - Fleet placement hint with no ship picked */
+"games.battleship.pickShip" = "Tik op een schip om het te verplaatsen.";
+
+/* Location: MeshGameSheet.swift - Fleet placement hint with a ship picked */
+"games.battleship.moveShip" = "Tik op een groen vak om de boeg daarheen te zetten.";
+
+/* Location: MeshGameSheet.swift - Button that rotates the picked ship */
+"games.battleship.rotate" = "Draaien";
+
+/* Location: MeshGameSheet.swift - Button that places the fleet at random */
+"games.battleship.shuffle" = "Schudden";
+
+/* Location: MeshGameSheet.swift - Accessibility label of the fleet grid - %@ is the encoded fleet */
+"games.battleship.fleetAccessibility" = "Jouw vloot: %@";
+
+// MARK: - Chess
+
+/* Location: ChessBoardSheet.swift - Shown when there is no chess game */
+"games.chess.noGame" = "Geen spel";
+
+/* Location: ChessBoardSheet.swift - How to start a chess game */
+"games.chess.noGameHint" = "Open een directe chat en kies Spellen in het +-menu om iemand uit te nodigen.";
+
+/* Location: ChessBoardSheet.swift - Navigation title - %@ is the opponent's name */
+"games.chess.versus" = "tegen %@";
+
+/* Location: ChessBoardSheet.swift - Menu item that offers a draw */
+"games.chess.offerDraw" = "Remise aanbieden";
+
+/* Location: ChessBoardSheet.swift - Menu item that leaves a running game */
+"games.chess.abandon" = "Spel opgeven";
+
+/* Location: ChessBoardSheet.swift - Menu item that closes a finished game */
+"games.chess.close" = "Spel sluiten";
+
+/* Location: ChessBoardSheet.swift - Button that sends the picked move - %@ is the move, e.g. e2-e4 */
+"games.chess.sendMove" = "Zet %@ versturen";
+
+/* Location: ChessBoardSheet.swift, notifications - The opponent offers a draw - %@ is the opponent's name */
+"games.chess.drawOffered" = "%@ biedt remise aan.";
+
+/* Location: ChessBoardSheet.swift - Button that accepts the draw */
+"games.chess.acceptDraw" = "Remise accepteren";
+
+/* Location: ChessBoardSheet.swift - Caption when the player has white */
+"games.chess.playingWhite" = "Je speelt wit ♔ · zetten gaan als DM's (compatibel met CoreChess)";
+
+/* Location: ChessBoardSheet.swift - Caption when the player has black */
+"games.chess.playingBlack" = "Je speelt zwart ♚ · zetten gaan als DM's (compatibel met CoreChess)";
+
+/* Location: ChessBoardSheet.swift, MainTabView.swift, notifications - Someone invites the player to chess - %@ is the opponent's name */
+"games.chess.invitesYou" = "%@ nodigt je uit voor een potje schaak.";
+
+/* Location: ChessBoardSheet.swift - Added to the status when a king is in check */
+"games.chess.check" = "Schaak!";
+
+/* Location: ChessBoardSheet.swift - Caption above the move list */
+"games.chess.moves" = "Zetten";
+
+// MARK: - Invites
+
+/* Location: MainTabView.swift - Title of the battleship invite alert */
+"games.invite.title" = "Speluitnodiging";
+
+/* Location: MainTabView.swift - Button that answers the invite later */
+"games.invite.later" = "Later";
+
+// MARK: - Notifications
+
+/* Location: MeshGamesCoordinator.swift - Notification for a new invite - %@ is the opponent's name */
+"games.notification.invite" = "%@ nodigt je uit om te spelen.";
+
+/* Location: MeshGamesCoordinator.swift - Notification when our invite was accepted - %@ is the opponent's name */
+"games.notification.accepted" = "%@ heeft geaccepteerd — jouw zet.";
+
+/* Location: MeshGamesCoordinator.swift - Notification when the opponent moved - %@ is the opponent's name */
+"games.notification.moved" = "%@ heeft gezet — jouw beurt.";
+
+/* Location: ChessCoordinator.swift - Notification with the opponent's chess move - first %@ is the opponent's name, second %@ is the move */
+"games.notification.played" = "%1$@ speelde %2$@ — jouw zet.";
+
+/* Location: ChessCoordinator.swift - Notification when a chess game starts on our move */
+"games.notification.started" = "Het spel is begonnen — jouw zet.";
+
+/* Location: MeshGamesCoordinator.swift, ChessCoordinator.swift - Notification when our move was never confirmed */
+"games.notification.notConfirmed" = "Je zet is niet bevestigd. Open het spel om hem opnieuw te versturen.";
+
+// MARK: - Connection details
+
+/* Location: GameDebugView.swift - Navigation title - %@ is the game name */
+"games.debug.title" = "%@ · details";
+
+/* Location: GameDebugView.swift - Section with the game's state */
+"games.debug.session" = "Sessie";
+
+/* Location: GameDebugView.swift - Section with delivery numbers */
+"games.debug.delivery" = "Bezorging";
+
+/* Location: GameDebugView.swift - Number of messages sent */
+"games.debug.sent" = "Verzonden";
+
+/* Location: GameDebugView.swift - Messages sent and how many were retries - %1$d messages, %2$d retries */
+"games.debug.sentValue" = "%1$d (%2$d herhalingen)";
+
+/* Location: GameDebugView.swift - Number of messages received */
+"games.debug.received" = "Ontvangen";
+
+/* Location: GameDebugView.swift - The opponent's node acknowledged the message */
+"games.debug.reachedRadio" = "Radio bereikt";
+
+/* Location: GameDebugView.swift - Acknowledged messages out of those tracked - %1$d acknowledged, %2$d tracked */
+"games.debug.reachedRadioValue" = "%1$d van %2$d";
+
+/* Location: GameDebugView.swift - Average time to the radio acknowledgement */
+"games.debug.averageTrip" = "Gem. rondreistijd";
+
+/* Location: GameDebugView.swift - A time in milliseconds - %d is the number of milliseconds */
+"games.debug.milliseconds" = "%d ms";
+
+/* Location: GameDebugView.swift - Footer of the delivery section */
+"games.debug.deliveryFooter" = "‘Radio bereikt’ is de mesh-bevestiging van de node van de tegenstander. Het spel bevestigt daarnaast elke zet apart (ACK-berichten).";
+
+/* Location: GameDebugView.swift - Section with the routes the messages took */
+"games.debug.routes" = "Gebruikte routes";
+
+/* Location: GameDebugView.swift - Section with every message */
+"games.debug.messages" = "Berichten (nieuwste eerst)";
+
+/* Location: GameDebugView.swift - Shown when no message has been sent or received */
+"games.debug.noMessages" = "Nog geen berichten.";
+
+/* Location: GameDebugView.swift - Footer of the message section */
+"games.debug.messagesFooter" = "Tik op een bericht voor de volledige tekst. Bij ontvangen directe DM's wordt de route geschat op basis van het geleerde pad van het contact.";
+
+/* Location: GameDebugView.swift - A message failed to send - %@ is the error */
+"games.debug.error" = "Fout: %@";
+
+/* Location: GameDebugView.swift - Waiting for the opponent's node to acknowledge */
+"games.debug.waitingForRadio" = "Wachten op hun radio…";
+
+/* Location: GameDebugView.swift - The opponent's node never acknowledged */
+"games.debug.noRadioAck" = "Geen bevestiging van hun radio";
+
+/* Location: GameDebugView.swift - The message did not go through the radio */
+"games.debug.notSentToRadio" = "Niet naar de radio verzonden";
+
+/* Location: GameDebugView.swift - Row: the game and its id */
+"games.debug.row.game" = "Spel";
+
+/* Location: GameDebugView.swift - Row: the opponent */
+"games.debug.row.opponent" = "Tegenstander";
+
+/* Location: GameDebugView.swift - Row: the game's phase */
+"games.debug.row.phase" = "Fase";
+
+/* Location: GameDebugView.swift - Row: whether we move first or second, or our chess colour */
+"games.debug.row.iPlay" = "Ik speel";
+
+/* Location: GameDebugView.swift - Value: we move first */
+"games.debug.value.first" = "als eerste";
+
+/* Location: GameDebugView.swift - Value: we move second */
+"games.debug.value.second" = "als tweede";
+
+/* Location: GameDebugView.swift - Value: we play white */
+"games.debug.value.white" = "wit";
+
+/* Location: GameDebugView.swift - Value: we play black */
+"games.debug.value.black" = "zwart";
+
+/* Location: GameDebugView.swift - Row: number of moves */
+"games.debug.row.moves" = "Zetten";
+
+/* Location: GameDebugView.swift - Row: chess half-moves */
+"games.debug.row.ply" = "Halve zetten";
+
+/* Location: GameDebugView.swift - Row: outgoing and incoming sequence numbers */
+"games.debug.row.sequence" = "Volgnummer uit / in";
+
+/* Location: GameDebugView.swift - Row: our move waits for its ACK */
+"games.debug.row.waitingForAck" = "Wacht op ACK";
+
+/* Location: GameDebugView.swift - Row: our move was never acknowledged */
+"games.debug.row.ackFailed" = "ACK mislukt";
+
+/* Location: GameDebugView.swift - Row: when the game last changed */
+"games.debug.row.updated" = "Bijgewerkt";
+
+/* Location: GameDebugView.swift - Value: yes */
+"games.debug.value.yes" = "ja";
+
+/* Location: GameDebugView.swift - Value: no */
+"games.debug.value.no" = "nee";

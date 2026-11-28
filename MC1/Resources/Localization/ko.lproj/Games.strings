@@ -1,0 +1,441 @@
+/*
+  Games.strings
+  MC1
+
+  Korean translation of strings for games played over direct messages.
+  AI-translated - please verify with native speakers.
+*/
+
+
+// MARK: - Games
+
+/* Location: GameStrings.swift - Name of the chess game */
+"games.kind.chess" = "체스";
+
+/* Location: GameStrings.swift - Name of the battleship game */
+"games.kind.battleship" = "해전 게임";
+
+/* Location: MeshGameSheet.swift, GamesPickerSheet.swift, notifications - A game and its opponent - first %@ is the game name, second %@ is the opponent's name */
+"games.gameWithOpponent" = "%1$@ · %2$@";
+
+// MARK: - Picker
+
+/* Location: ChatShareMenu.swift - Item in a DM's + menu that opens the games list */
+"games.picker.menuItem" = "게임";
+
+/* Location: GamesPickerSheet.swift - Navigation title */
+"games.picker.title" = "게임";
+
+/* Location: GamesPickerSheet.swift - Button to invite the contact to chess */
+"games.picker.chess" = "체스 (CoreChess)";
+
+/* Location: GamesPickerSheet.swift - Section header above the games to invite to - %@ is the contact's name */
+"games.picker.invite" = "%@ 초대";
+
+/* Location: GamesPickerSheet.swift - Section footer under the games to invite to */
+"games.picker.footer" = "모든 수는 짧은 다이렉트 메시지 하나로 전송됩니다. 해전 게임은 MeshCore One에서만 할 수 있고, 체스는 CoreChess와도 호환됩니다.";
+
+/* Location: GamesPickerSheet.swift - Section header for the head-to-head record - %@ is the contact's name */
+"games.picker.record" = "나 vs %@";
+
+/* Location: GamesPickerSheet.swift - Accessibility value of a head-to-head record - %1$d wins, %2$d draws, %3$d losses */
+"games.picker.recordAccessibility" = "%1$d승 %2$d무 %3$d패";
+
+/* Location: GamesPickerSheet.swift - Section header for running and finished games */
+"games.picker.yourGames" = "내 게임";
+
+/* Location: GamesPickerSheet.swift - Swipe action that removes a game */
+"games.picker.remove" = "삭제";
+
+/* Location: GamesPickerSheet.swift - Button that closes the games list */
+"games.picker.close" = "닫기";
+
+// MARK: - Status
+
+/* Location: GameStatus.swift - Our move is on its way */
+"games.status.sending" = "수를 보내는 중…";
+
+/* Location: GameStatus.swift - Our move is on its way as a flood message */
+"games.status.sendingFlood" = "수를 보내는 중 (플러드)…";
+
+/* Location: GameStatus.swift - Our move is on its way over a direct route */
+"games.status.sendingDirect" = "수를 보내는 중 (직접)…";
+
+/* Location: GameStatus.swift, GameDebugView.swift - Which send attempt this is - %d is the attempt number */
+"games.status.attempt" = "%d번째 시도";
+
+/* Location: GameStatus.swift - The opponent's radio acknowledged our move - %@ is the opponent's name */
+"games.status.reachedRadio" = "%@의 라디오에 도달 · 앱 응답 대기 중";
+
+/* Location: GameStatus.swift - The opponent's app confirmed our move - %@ is the opponent's name */
+"games.status.confirmed" = "%@님이 수를 받았습니다 · 상대 차례";
+
+/* Location: GameStatus.swift - Our move was never confirmed */
+"games.status.failed" = "수가 확인되지 않음 — 다시 보내세요";
+
+/* Location: GameStatus.swift - Battleship: the player is placing their fleet */
+"games.status.placeFleet" = "함대를 배치하고 초대를 보내세요";
+
+/* Location: GameStatus.swift, game sheets - Our invite waits for an answer - %@ is the opponent's name */
+"games.status.waitingForAccept" = "%@님의 수락을 기다리는 중…";
+
+/* Location: GameStatus.swift - Chess: we accepted and wait for the board - %@ is the opponent's name */
+"games.status.waitingForSetup" = "%@님이 보드를 준비하기를 기다리는 중…";
+
+/* Location: GameStatus.swift - Someone invited us - %@ is the opponent's name */
+"games.status.invitesYou" = "%@님이 초대했습니다";
+
+/* Location: GameStatus.swift - The game is over, no details known */
+"games.status.over" = "게임 종료";
+
+/* Location: GameStatus.swift - It is the player's move */
+"games.status.yourMove" = "내 차례";
+
+/* Location: GameStatus.swift - It is the opponent's move - %@ is the opponent's name */
+"games.status.theirTurn" = "%@님 차례";
+
+// MARK: - Endings
+
+/* Location: GameStrings.swift - The player resigned */
+"games.ending.youResigned" = "기권했습니다.";
+
+/* Location: GameStrings.swift - The opponent resigned - %@ is the opponent's name */
+"games.ending.opponentResigned" = "%@님이 기권했습니다. 승리!";
+
+/* Location: GameStrings.swift - The opponent declined the invite - %@ is the opponent's name */
+"games.ending.opponentDeclined" = "%@님이 거절했습니다.";
+
+/* Location: GameStrings.swift - Chess: the opponent reset the board - %@ is the opponent's name */
+"games.ending.opponentResetBoard" = "%@님이 보드를 초기화했습니다.";
+
+/* Location: GameStrings.swift - The invite was never answered */
+"games.ending.inviteUnanswered" = "초대에 응답이 없습니다.";
+
+/* Location: GameStrings.swift - Chess: the game could not be set up */
+"games.ending.setupFailed" = "게임 준비가 전달되지 않았습니다. 다시 초대하세요.";
+
+/* Location: GameStrings.swift - The player won */
+"games.ending.youWon" = "승리!";
+
+/* Location: GameStrings.swift - The opponent won - %@ is the opponent's name */
+"games.ending.opponentWon" = "%@님 승리.";
+
+/* Location: GameStrings.swift - The game ended in a draw */
+"games.ending.draw" = "무승부.";
+
+/* Location: GameStrings.swift - Chess: both players agreed to a draw */
+"games.ending.drawAgreed" = "무승부 합의. ½–½";
+
+/* Location: GameStrings.swift - Chess: the player gave checkmate */
+"games.ending.checkmateYouWon" = "체크메이트 — 승리!";
+
+/* Location: GameStrings.swift - Chess: the opponent gave checkmate - %@ is the opponent's name */
+"games.ending.checkmateOpponentWon" = "체크메이트 — %@님 승리.";
+
+/* Location: GameStrings.swift - Chess: stalemate */
+"games.ending.stalemate" = "스테일메이트 — 무승부.";
+
+/* Location: GameStrings.swift - Chess: draw by the fifty-move rule */
+"games.ending.fiftyMoveRule" = "무승부 — 50수 규칙.";
+
+/* Location: GameStrings.swift - Chess: draw because neither side can mate */
+"games.ending.insufficientMaterial" = "무승부 — 기물 부족.";
+
+/* Location: GameStrings.swift - Chess: draw by threefold repetition */
+"games.ending.threefoldRepetition" = "무승부 — 3회 반복.";
+
+// MARK: - Notices
+
+/* Location: GameStrings.swift - Our move was never acknowledged */
+"games.notice.moveNotAcknowledged" = "수가 확인되지 않음 — 상대가 오프라인일 수 있습니다.";
+
+/* Location: GameStrings.swift - We accepted but the inviter has not confirmed - %@ is the opponent's name */
+"games.notice.opponentNotConfirmed" = "%@님이 아직 확인하지 않았습니다.";
+
+/* Location: GameStrings.swift - A move arrived that does not fit the board - %@ is the raw move */
+"games.notice.invalidMove" = "보드에 맞지 않는 수를 받았습니다: %@";
+
+/* Location: GameStrings.swift - Chess: the boards differ and are being resynced */
+"games.notice.resyncing" = "상대의 수가 우리 보드와 맞지 않음 — 다시 동기화하는 중…";
+
+/* Location: GameStrings.swift - Chess: the board was replaced with the opponent's - %@ is the opponent's name */
+"games.notice.resynced" = "%@님과 보드를 다시 동기화했습니다.";
+
+// MARK: - Game sheets
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button that hides the board, the game keeps running */
+"games.sheet.hide" = "숨기기";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item that opens the connection details */
+"games.sheet.connectionDetails" = "연결 정보";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item and confirmation button to resign */
+"games.sheet.resign" = "기권";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Title of the resign confirmation */
+"games.sheet.resignConfirm" = "이 게임을 기권할까요?";
+
+/* Location: MeshGameSheet.swift - Menu item that deletes the game */
+"games.sheet.remove" = "게임 삭제";
+
+/* Location: MeshGameSheet.swift - Shown when the game no longer exists */
+"games.sheet.ended" = "게임이 끝났습니다";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while our move waits for confirmation */
+"games.sheet.moveSent" = "수를 보냈습니다.";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when it is the player's move */
+"games.sheet.yourMove" = "내 차례.";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while the opponent moves - %@ is the opponent's name */
+"games.sheet.thinking" = "%@님이 생각 중…";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when the game is over, no details known */
+"games.sheet.over" = "게임 종료.";
+
+/* Location: MeshGameSheet.swift, MainTabView.swift - Someone invites the player - first %@ is the opponent's name, second %@ is the game name */
+"games.sheet.invitesYouTo" = "%1$@님이 %2$@ 게임에 초대했습니다.";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to decline an invite or a draw */
+"games.sheet.decline" = "거절";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to accept an invite */
+"games.sheet.play" = "플레이";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button to send the unconfirmed move again */
+"games.sheet.resend" = "수 다시 보내기";
+
+/* Location: MeshGameSheet.swift - Button that sends the picked move - %@ is the move, e.g. a square */
+"games.sheet.send" = "%@ 보내기";
+
+// MARK: - Battleship
+
+/* Location: MeshGameSheet.swift - Status while placing the fleet */
+"games.battleship.placeAndInvite" = "함대를 배치한 다음 초대를 보내세요.";
+
+/* Location: MeshGameSheet.swift - Button that sends the invite with the placed fleet */
+"games.battleship.sendInvite" = "초대 보내기";
+
+/* Location: MeshGameSheet.swift - Button that admits the loss of the last ship and ends the game */
+"games.battleship.confirmLoss" = "마지막 배가 격침되었습니다 — 확인";
+
+/* Location: MeshGameSheet.swift - The opponent's revealed fleet matches every answer */
+"games.battleship.verified" = "상대 함대 확인됨 — 공정한 게임.";
+
+/* Location: MeshGameSheet.swift - The opponent's revealed fleet is wrong - %@ is the reason */
+"games.battleship.cheating" = "부정행위 감지: %@";
+
+/* Location: MeshGameSheet.swift - Cheat reason: no commitment arrived */
+"games.battleship.cheat.noCommitment" = "약속값을 받지 못했습니다.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: the fleet differs from the committed one */
+"games.battleship.cheat.fleetMismatch" = "공개된 함대가 처음에 약속한 함대와 다릅니다.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: the fleet is not a valid layout */
+"games.battleship.cheat.invalidLayout" = "공개된 함대가 올바른 배치가 아닙니다.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: a false hit - %@ is a square, e.g. B3 */
+"games.battleship.cheat.falseHit" = "%@이(가) 명중으로 보고되었지만 함대와 다릅니다.";
+
+/* Location: MeshGameSheet.swift - Cheat reason: a false miss - %@ is a square, e.g. B3 */
+"games.battleship.cheat.falseMiss" = "%@이(가) 빗나감으로 보고되었지만 함대와 다릅니다.";
+
+/* Location: MeshGameSheet.swift - Caption above the opponent's board - %d is the number of sunk ships */
+"games.battleship.enemyWaters" = "적 해역 · %d/5 격침";
+
+/* Location: MeshGameSheet.swift - Caption above the player's board - %d is the number of ships left */
+"games.battleship.yourFleet" = "내 함대 · %d/5 생존";
+
+/* Location: MeshGameSheet.swift - Fleet placement hint with no ship picked */
+"games.battleship.pickShip" = "배를 탭하여 이동하세요.";
+
+/* Location: MeshGameSheet.swift - Fleet placement hint with a ship picked */
+"games.battleship.moveShip" = "초록색 칸을 탭하여 뱃머리를 옮기세요.";
+
+/* Location: MeshGameSheet.swift - Button that rotates the picked ship */
+"games.battleship.rotate" = "회전";
+
+/* Location: MeshGameSheet.swift - Button that places the fleet at random */
+"games.battleship.shuffle" = "섞기";
+
+/* Location: MeshGameSheet.swift - Accessibility label of the fleet grid - %@ is the encoded fleet */
+"games.battleship.fleetAccessibility" = "내 함대: %@";
+
+// MARK: - Chess
+
+/* Location: ChessBoardSheet.swift - Shown when there is no chess game */
+"games.chess.noGame" = "게임 없음";
+
+/* Location: ChessBoardSheet.swift - How to start a chess game */
+"games.chess.noGameHint" = "다이렉트 채팅을 열고 + 메뉴에서 게임을 선택해 상대를 초대하세요.";
+
+/* Location: ChessBoardSheet.swift - Navigation title - %@ is the opponent's name */
+"games.chess.versus" = "vs %@";
+
+/* Location: ChessBoardSheet.swift - Menu item that offers a draw */
+"games.chess.offerDraw" = "무승부 제안";
+
+/* Location: ChessBoardSheet.swift - Menu item that leaves a running game */
+"games.chess.abandon" = "게임 포기";
+
+/* Location: ChessBoardSheet.swift - Menu item that closes a finished game */
+"games.chess.close" = "게임 닫기";
+
+/* Location: ChessBoardSheet.swift - Button that sends the picked move - %@ is the move, e.g. e2-e4 */
+"games.chess.sendMove" = "%@ 수 보내기";
+
+/* Location: ChessBoardSheet.swift, notifications - The opponent offers a draw - %@ is the opponent's name */
+"games.chess.drawOffered" = "%@님이 무승부를 제안합니다.";
+
+/* Location: ChessBoardSheet.swift - Button that accepts the draw */
+"games.chess.acceptDraw" = "무승부 수락";
+
+/* Location: ChessBoardSheet.swift - Caption when the player has white */
+"games.chess.playingWhite" = "백으로 플레이 ♔ · 수는 DM으로 전송 (CoreChess 호환)";
+
+/* Location: ChessBoardSheet.swift - Caption when the player has black */
+"games.chess.playingBlack" = "흑으로 플레이 ♚ · 수는 DM으로 전송 (CoreChess 호환)";
+
+/* Location: ChessBoardSheet.swift, MainTabView.swift, notifications - Someone invites the player to chess - %@ is the opponent's name */
+"games.chess.invitesYou" = "%@님이 체스 게임에 초대했습니다.";
+
+/* Location: ChessBoardSheet.swift - Added to the status when a king is in check */
+"games.chess.check" = "체크!";
+
+/* Location: ChessBoardSheet.swift - Caption above the move list */
+"games.chess.moves" = "기보";
+
+// MARK: - Invites
+
+/* Location: MainTabView.swift - Title of the battleship invite alert */
+"games.invite.title" = "게임 초대";
+
+/* Location: MainTabView.swift - Button that answers the invite later */
+"games.invite.later" = "나중에";
+
+// MARK: - Notifications
+
+/* Location: MeshGamesCoordinator.swift - Notification for a new invite - %@ is the opponent's name */
+"games.notification.invite" = "%@님이 게임에 초대했습니다.";
+
+/* Location: MeshGamesCoordinator.swift - Notification when our invite was accepted - %@ is the opponent's name */
+"games.notification.accepted" = "%@님이 수락했습니다 — 내 차례.";
+
+/* Location: MeshGamesCoordinator.swift - Notification when the opponent moved - %@ is the opponent's name */
+"games.notification.moved" = "%@님이 수를 두었습니다 — 내 차례.";
+
+/* Location: ChessCoordinator.swift - Notification with the opponent's chess move - first %@ is the opponent's name, second %@ is the move */
+"games.notification.played" = "%1$@님이 %2$@ 수를 두었습니다 — 내 차례.";
+
+/* Location: ChessCoordinator.swift - Notification when a chess game starts on our move */
+"games.notification.started" = "게임이 시작되었습니다 — 내 차례.";
+
+/* Location: MeshGamesCoordinator.swift, ChessCoordinator.swift - Notification when our move was never confirmed */
+"games.notification.notConfirmed" = "수가 확인되지 않았습니다. 게임을 열어 다시 보내세요.";
+
+// MARK: - Connection details
+
+/* Location: GameDebugView.swift - Navigation title - %@ is the game name */
+"games.debug.title" = "%@ · 정보";
+
+/* Location: GameDebugView.swift - Section with the game's state */
+"games.debug.session" = "세션";
+
+/* Location: GameDebugView.swift - Section with delivery numbers */
+"games.debug.delivery" = "전달";
+
+/* Location: GameDebugView.swift - Number of messages sent */
+"games.debug.sent" = "보냄";
+
+/* Location: GameDebugView.swift - Messages sent and how many were retries - %1$d messages, %2$d retries */
+"games.debug.sentValue" = "%1$d (재시도 %2$d회)";
+
+/* Location: GameDebugView.swift - Number of messages received */
+"games.debug.received" = "받음";
+
+/* Location: GameDebugView.swift - The opponent's node acknowledged the message */
+"games.debug.reachedRadio" = "라디오 도달";
+
+/* Location: GameDebugView.swift - Acknowledged messages out of those tracked - %1$d acknowledged, %2$d tracked */
+"games.debug.reachedRadioValue" = "%1$d / %2$d";
+
+/* Location: GameDebugView.swift - Average time to the radio acknowledgement */
+"games.debug.averageTrip" = "평균 왕복 시간";
+
+/* Location: GameDebugView.swift - A time in milliseconds - %d is the number of milliseconds */
+"games.debug.milliseconds" = "%d ms";
+
+/* Location: GameDebugView.swift - Footer of the delivery section */
+"games.debug.deliveryFooter" = "‘라디오 도달’은 상대 노드의 메시 확인 응답입니다. 게임은 별도로 각 수를 확인합니다 (ACK 메시지).";
+
+/* Location: GameDebugView.swift - Section with the routes the messages took */
+"games.debug.routes" = "사용한 경로";
+
+/* Location: GameDebugView.swift - Section with every message */
+"games.debug.messages" = "메시지 (최신순)";
+
+/* Location: GameDebugView.swift - Shown when no message has been sent or received */
+"games.debug.noMessages" = "아직 메시지가 없습니다.";
+
+/* Location: GameDebugView.swift - Footer of the message section */
+"games.debug.messagesFooter" = "메시지를 탭하면 전체 내용을 볼 수 있습니다. 받은 직접 DM의 경로는 연락처의 학습된 경로로 추정합니다.";
+
+/* Location: GameDebugView.swift - A message failed to send - %@ is the error */
+"games.debug.error" = "오류: %@";
+
+/* Location: GameDebugView.swift - Waiting for the opponent's node to acknowledge */
+"games.debug.waitingForRadio" = "상대 라디오 대기 중…";
+
+/* Location: GameDebugView.swift - The opponent's node never acknowledged */
+"games.debug.noRadioAck" = "상대 라디오의 확인 응답 없음";
+
+/* Location: GameDebugView.swift - The message did not go through the radio */
+"games.debug.notSentToRadio" = "라디오로 보내지 않음";
+
+/* Location: GameDebugView.swift - Row: the game and its id */
+"games.debug.row.game" = "게임";
+
+/* Location: GameDebugView.swift - Row: the opponent */
+"games.debug.row.opponent" = "상대";
+
+/* Location: GameDebugView.swift - Row: the game's phase */
+"games.debug.row.phase" = "단계";
+
+/* Location: GameDebugView.swift - Row: whether we move first or second, or our chess colour */
+"games.debug.row.iPlay" = "내 순서";
+
+/* Location: GameDebugView.swift - Value: we move first */
+"games.debug.value.first" = "선공";
+
+/* Location: GameDebugView.swift - Value: we move second */
+"games.debug.value.second" = "후공";
+
+/* Location: GameDebugView.swift - Value: we play white */
+"games.debug.value.white" = "백";
+
+/* Location: GameDebugView.swift - Value: we play black */
+"games.debug.value.black" = "흑";
+
+/* Location: GameDebugView.swift - Row: number of moves */
+"games.debug.row.moves" = "수";
+
+/* Location: GameDebugView.swift - Row: chess half-moves */
+"games.debug.row.ply" = "반수";
+
+/* Location: GameDebugView.swift - Row: outgoing and incoming sequence numbers */
+"games.debug.row.sequence" = "순번 송신 / 수신";
+
+/* Location: GameDebugView.swift - Row: our move waits for its ACK */
+"games.debug.row.waitingForAck" = "ACK 대기 중";
+
+/* Location: GameDebugView.swift - Row: our move was never acknowledged */
+"games.debug.row.ackFailed" = "ACK 실패";
+
+/* Location: GameDebugView.swift - Row: when the game last changed */
+"games.debug.row.updated" = "업데이트";
+
+/* Location: GameDebugView.swift - Value: yes */
+"games.debug.value.yes" = "예";
+
+/* Location: GameDebugView.swift - Value: no */
+"games.debug.value.no" = "아니요";

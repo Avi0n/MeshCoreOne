@@ -39,6 +39,9 @@ public final class NotificationService: NSObject {
   /// Current authorization status
   public private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
+  /// Called when a game notification is tapped, with the game's id (`chess` for the chess game).
+  public var onGameNotificationTapped: (@MainActor @Sendable (_ gameID: String) async -> Void)?
+
   /// Callback for when a quick reply action is triggered
   /// Installed by `AppState.configureNotificationHandlers`.
   /// Must be @MainActor so the callback body executes on the main thread.
@@ -610,6 +613,30 @@ public final class NotificationService: NSObject {
     }
   }
 
+  /// Posts a game notification (your move, an invite, a result). One per game: a newer one replaces it.
+  public func postGameNotification(title: String, body: String, gameID: String) async {
+    guard isAuthorized, preferences.contactMessagesEnabled, !isSuppressingNotifications else { return }
+
+    let content = UNMutableNotificationContent()
+    content.title = title
+    content.body = body
+    content.sound = preferences.soundEnabled ? .default : nil
+    content.userInfo = ["type": "game", "gameID": gameID]
+    content.threadIdentifier = "game-\(gameID)"
+
+    let request = UNNotificationRequest(identifier: "game-\(gameID)", content: content, trigger: nil)
+    do {
+      try await UNUserNotificationCenter.current().add(request)
+    } catch {
+      logger.warning("Failed to post game notification: \(error.localizedDescription)")
+    }
+  }
+
+  /// Removes a game's notification, e.g. once the player has opened the board.
+  public func removeGameNotification(gameID: String) {
+    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["game-\(gameID)"])
+  }
+
   /// Posts a low battery warning notification.
   public func postLowBatteryNotification(
     deviceName: String,
@@ -913,10 +940,13 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
       // User tapped the notification
       let notificationType = userInfo["type"] as? String
 
+      if notificationType == "game", let gameID = userInfo["gameID"] as? String {
+        await onGameNotificationTapped?(gameID)
+      }
       // Handle reaction notifications (includes messageID for scroll-to)
-      if notificationType == "reaction",
-         let messageIDString = userInfo["messageID"] as? String,
-         let messageID = UUID(uuidString: messageIDString) {
+      else if notificationType == "reaction",
+              let messageIDString = userInfo["messageID"] as? String,
+              let messageID = UUID(uuidString: messageIDString) {
         let contactID = (userInfo["contactID"] as? String).flatMap { UUID(uuidString: $0) }
         let channelIndex = (userInfo["channelIndex"] as? Int).map { UInt8($0) }
         let radioID = (userInfo["radioID"] as? String).flatMap { UUID(uuidString: $0) }

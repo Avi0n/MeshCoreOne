@@ -56,6 +56,17 @@ public final class ServiceContainer {
   /// Service for binary protocol operations (telemetry, status, etc.)
   public let binaryProtocolService: BinaryProtocolService
 
+  /// CoreChess-compatible chess over DMs.
+  public let chessGameService: ChessGameService
+
+  /// Head-to-head game record per opponent.
+  public let gameStats: GameStatsStore
+
+  /// Battleship over DMs.
+  public let meshGameService: MeshGameService
+  /// Sends game DMs and reports their route and delivery.
+  let gameLink: GameRadioLink
+
   /// Service for RX log packet capture
   public let rxLogService: RxLogService
 
@@ -256,6 +267,24 @@ public final class ServiceContainer {
       textRulesPreference: textRulesPreference,
       receiveLifetime: receiveLifetime
     )
+    let gameLink = GameRadioLink(session: session, dataStore: dataStore, radioID: radioID)
+    self.gameLink = gameLink
+    let gameStats = GameStatsStore()
+    self.gameStats = gameStats
+    meshGameService = MeshGameService(
+      stats: gameStats,
+      myName: { [session] in await session.currentSelfInfo?.name ?? "" },
+      send: { [gameLink] key, text in
+        try await gameLink.send(to: key, text: text)
+      }
+    )
+    chessGameService = ChessGameService(
+      stats: gameStats,
+      myName: { [session] in await session.currentSelfInfo?.name ?? "" },
+      send: { [gameLink] key, text in
+        try await gameLink.send(to: key, text: text)
+      }
+    )
     binaryProtocolService = BinaryProtocolService(
       session: session,
       radioID: radioID,
@@ -388,6 +417,16 @@ public final class ServiceContainer {
     if enableAutoFetch {
       await messagePollingService.startAutoFetch(radioID: radioID)
       guard eventMonitoringState == .starting, !isTornDown else { return }
+    }
+
+    await messagePollingService.setGameMessageHandler { [chessGameService, meshGameService, gameLink] message, contact in
+      let key = contact?.publicKey ?? message.senderPublicKeyPrefix
+      let name = contact?.displayName ?? ""
+      let rx = await gameLink.rxInfo(message, contact: contact)
+      if message.text.hasPrefix(MeshGameMessage.prefix) {
+        return await meshGameService.handle(text: message.text, fromKey: key, name: name, rx: rx)
+      }
+      return await chessGameService.handle(text: message.text, fromKey: key, name: name, rx: rx)
     }
 
     // Prune debug logs on connection

@@ -2436,6 +2436,394 @@ public enum L10n {
       }
     }
   }
+  public enum Games {
+    public enum Games {
+      /// Location: MeshGameSheet.swift, GamesPickerSheet.swift, notifications - A game and its opponent - first %@ is the game name, second %@ is the opponent's name
+      public static func gameWithOpponent(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Games", "games.gameWithOpponent", String(describing: p1), String(describing: p2), fallback: "%1$@ · %2$@")
+      }
+      public enum Battleship {
+        /// Location: MeshGameSheet.swift - The opponent's revealed fleet is wrong - %@ is the reason
+        public static func cheating(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.battleship.cheating", String(describing: p1), fallback: "Cheating detected: %@")
+        }
+        /// Location: MeshGameSheet.swift - Button that admits the loss of the last ship and ends the game
+        public static let confirmLoss = L10n.tr("Games", "games.battleship.confirmLoss", fallback: "Your last ship is sunk — confirm")
+        /// Location: MeshGameSheet.swift - Caption above the opponent's board - %d is the number of sunk ships
+        public static func enemyWaters(_ p1: Int) -> String {
+          return L10n.tr("Games", "games.battleship.enemyWaters", p1, fallback: "Enemy waters · %d/5 sunk")
+        }
+        /// Location: MeshGameSheet.swift - Accessibility label of the fleet grid - %@ is the encoded fleet
+        public static func fleetAccessibility(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.battleship.fleetAccessibility", String(describing: p1), fallback: "Your fleet: %@")
+        }
+        /// Location: MeshGameSheet.swift - Fleet placement hint with a ship picked
+        public static let moveShip = L10n.tr("Games", "games.battleship.moveShip", fallback: "Tap a green square to move its bow there.")
+        /// Location: MeshGameSheet.swift - Fleet placement hint with no ship picked
+        public static let pickShip = L10n.tr("Games", "games.battleship.pickShip", fallback: "Tap a ship to move it.")
+        /// Location: MeshGameSheet.swift - Status while placing the fleet
+        public static let placeAndInvite = L10n.tr("Games", "games.battleship.placeAndInvite", fallback: "Place your fleet, then send the invite.")
+        /// Location: MeshGameSheet.swift - Button that rotates the picked ship
+        public static let rotate = L10n.tr("Games", "games.battleship.rotate", fallback: "Rotate")
+        /// Location: MeshGameSheet.swift - Button that sends the invite with the placed fleet
+        public static let sendInvite = L10n.tr("Games", "games.battleship.sendInvite", fallback: "Send invite")
+        /// Location: MeshGameSheet.swift - Button that places the fleet at random
+        public static let shuffle = L10n.tr("Games", "games.battleship.shuffle", fallback: "Shuffle")
+        /// Location: MeshGameSheet.swift - The opponent's revealed fleet matches every answer
+        public static let verified = L10n.tr("Games", "games.battleship.verified", fallback: "Opponent's fleet verified — fair game.")
+        /// Location: MeshGameSheet.swift - Caption above the player's board - %d is the number of ships left
+        public static func yourFleet(_ p1: Int) -> String {
+          return L10n.tr("Games", "games.battleship.yourFleet", p1, fallback: "Your fleet · %d/5 afloat")
+        }
+        public enum Cheat {
+          /// Location: MeshGameSheet.swift - Cheat reason: a false hit - %@ is a square, e.g. B3
+          public static func falseHit(_ p1: Any) -> String {
+            return L10n.tr("Games", "games.battleship.cheat.falseHit", String(describing: p1), fallback: "%@ was reported as a hit but the fleet says otherwise.")
+          }
+          /// Location: MeshGameSheet.swift - Cheat reason: a false miss - %@ is a square, e.g. B3
+          public static func falseMiss(_ p1: Any) -> String {
+            return L10n.tr("Games", "games.battleship.cheat.falseMiss", String(describing: p1), fallback: "%@ was reported as a miss but the fleet says otherwise.")
+          }
+          /// Location: MeshGameSheet.swift - Cheat reason: the fleet differs from the committed one
+          public static let fleetMismatch = L10n.tr("Games", "games.battleship.cheat.fleetMismatch", fallback: "The revealed fleet does not match the one committed at the start.")
+          /// Location: MeshGameSheet.swift - Cheat reason: the fleet is not a valid layout
+          public static let invalidLayout = L10n.tr("Games", "games.battleship.cheat.invalidLayout", fallback: "The revealed fleet is not a valid layout.")
+          /// Location: MeshGameSheet.swift - Cheat reason: no commitment arrived
+          public static let noCommitment = L10n.tr("Games", "games.battleship.cheat.noCommitment", fallback: "No commitment received.")
+        }
+      }
+      public enum Chess {
+        /// Location: ChessBoardSheet.swift - Menu item that leaves a running game
+        public static let abandon = L10n.tr("Games", "games.chess.abandon", fallback: "Abandon game")
+        /// Location: ChessBoardSheet.swift - Button that accepts the draw
+        public static let acceptDraw = L10n.tr("Games", "games.chess.acceptDraw", fallback: "Accept draw")
+        /// Location: ChessBoardSheet.swift - Added to the status when a king is in check
+        public static let check = L10n.tr("Games", "games.chess.check", fallback: "Check!")
+        /// Location: ChessBoardSheet.swift - Menu item that closes a finished game
+        public static let close = L10n.tr("Games", "games.chess.close", fallback: "Close game")
+        /// Location: ChessBoardSheet.swift, notifications - The opponent offers a draw - %@ is the opponent's name
+        public static func drawOffered(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.chess.drawOffered", String(describing: p1), fallback: "%@ offers a draw.")
+        }
+        /// Location: ChessBoardSheet.swift, MainTabView.swift, notifications - Someone invites the player to chess - %@ is the opponent's name
+        public static func invitesYou(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.chess.invitesYou", String(describing: p1), fallback: "%@ invites you to a game of chess.")
+        }
+        /// Location: ChessBoardSheet.swift - Caption above the move list
+        public static let moves = L10n.tr("Games", "games.chess.moves", fallback: "Moves")
+        /// Location: ChessBoardSheet.swift - Shown when there is no chess game
+        public static let noGame = L10n.tr("Games", "games.chess.noGame", fallback: "No game")
+        /// Location: ChessBoardSheet.swift - How to start a chess game
+        public static let noGameHint = L10n.tr("Games", "games.chess.noGameHint", fallback: "Open a direct chat and choose Games from the + menu to invite someone.")
+        /// Location: ChessBoardSheet.swift - Menu item that offers a draw
+        public static let offerDraw = L10n.tr("Games", "games.chess.offerDraw", fallback: "Offer draw")
+        /// Location: ChessBoardSheet.swift - Caption when the player has black
+        public static let playingBlack = L10n.tr("Games", "games.chess.playingBlack", fallback: "You play black ♚ · moves go as DMs (CoreChess-compatible)")
+        /// Location: ChessBoardSheet.swift - Caption when the player has white
+        public static let playingWhite = L10n.tr("Games", "games.chess.playingWhite", fallback: "You play white ♔ · moves go as DMs (CoreChess-compatible)")
+        /// Location: ChessBoardSheet.swift - Button that sends the picked move - %@ is the move, e.g. e2-e4
+        public static func sendMove(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.chess.sendMove", String(describing: p1), fallback: "Send move %@")
+        }
+        /// Location: ChessBoardSheet.swift - Navigation title - %@ is the opponent's name
+        public static func versus(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.chess.versus", String(describing: p1), fallback: "vs %@")
+        }
+      }
+      public enum Debug {
+        /// Location: GameDebugView.swift - Average time to the radio acknowledgement
+        public static let averageTrip = L10n.tr("Games", "games.debug.averageTrip", fallback: "Avg. round trip")
+        /// Location: GameDebugView.swift - Section with delivery numbers
+        public static let delivery = L10n.tr("Games", "games.debug.delivery", fallback: "Delivery")
+        /// Location: GameDebugView.swift - Footer of the delivery section
+        public static let deliveryFooter = L10n.tr("Games", "games.debug.deliveryFooter", fallback: "“Reached their radio” is the mesh acknowledgement from the opponent's node. The game itself confirms each move separately (ACK messages).")
+        /// Location: GameDebugView.swift - A message failed to send - %@ is the error
+        public static func error(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.debug.error", String(describing: p1), fallback: "Error: %@")
+        }
+        /// Location: GameDebugView.swift - Section with every message
+        public static let messages = L10n.tr("Games", "games.debug.messages", fallback: "Messages (newest first)")
+        /// Location: GameDebugView.swift - Footer of the message section
+        public static let messagesFooter = L10n.tr("Games", "games.debug.messagesFooter", fallback: "Tap a message for its full text. For direct DMs we receive, the route is estimated from the contact's learned path.")
+        /// Location: GameDebugView.swift - A time in milliseconds - %d is the number of milliseconds
+        public static func milliseconds(_ p1: Int) -> String {
+          return L10n.tr("Games", "games.debug.milliseconds", p1, fallback: "%d ms")
+        }
+        /// Location: GameDebugView.swift - Shown when no message has been sent or received
+        public static let noMessages = L10n.tr("Games", "games.debug.noMessages", fallback: "No messages yet.")
+        /// Location: GameDebugView.swift - The opponent's node never acknowledged
+        public static let noRadioAck = L10n.tr("Games", "games.debug.noRadioAck", fallback: "No acknowledgement from their radio")
+        /// Location: GameDebugView.swift - The message did not go through the radio
+        public static let notSentToRadio = L10n.tr("Games", "games.debug.notSentToRadio", fallback: "Not sent to the radio")
+        /// Location: GameDebugView.swift - The opponent's node acknowledged the message
+        public static let reachedRadio = L10n.tr("Games", "games.debug.reachedRadio", fallback: "Reached their radio")
+        /// Location: GameDebugView.swift - Acknowledged messages out of those tracked - %1$d acknowledged, %2$d tracked
+        public static func reachedRadioValue(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Games", "games.debug.reachedRadioValue", p1, p2, fallback: "%1$d of %2$d")
+        }
+        /// Location: GameDebugView.swift - Number of messages received
+        public static let received = L10n.tr("Games", "games.debug.received", fallback: "Received")
+        /// Location: GameDebugView.swift - Section with the routes the messages took
+        public static let routes = L10n.tr("Games", "games.debug.routes", fallback: "Routes used")
+        /// Location: GameDebugView.swift - Number of messages sent
+        public static let sent = L10n.tr("Games", "games.debug.sent", fallback: "Sent")
+        /// Location: GameDebugView.swift - Messages sent and how many were retries - %1$d messages, %2$d retries
+        public static func sentValue(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Games", "games.debug.sentValue", p1, p2, fallback: "%1$d (%2$d retries)")
+        }
+        /// Location: GameDebugView.swift - Section with the game's state
+        public static let session = L10n.tr("Games", "games.debug.session", fallback: "Session")
+        /// Location: GameDebugView.swift - Navigation title - %@ is the game name
+        public static func title(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.debug.title", String(describing: p1), fallback: "%@ · details")
+        }
+        /// Location: GameDebugView.swift - Waiting for the opponent's node to acknowledge
+        public static let waitingForRadio = L10n.tr("Games", "games.debug.waitingForRadio", fallback: "Waiting for their radio…")
+        public enum Row {
+          /// Location: GameDebugView.swift - Row: our move was never acknowledged
+          public static let ackFailed = L10n.tr("Games", "games.debug.row.ackFailed", fallback: "ACK failed")
+          /// Location: GameDebugView.swift - Row: the game and its id
+          public static let game = L10n.tr("Games", "games.debug.row.game", fallback: "Game")
+          /// Location: GameDebugView.swift - Row: whether we move first or second, or our chess colour
+          public static let iPlay = L10n.tr("Games", "games.debug.row.iPlay", fallback: "I play")
+          /// Location: GameDebugView.swift - Row: number of moves
+          public static let moves = L10n.tr("Games", "games.debug.row.moves", fallback: "Moves")
+          /// Location: GameDebugView.swift - Row: the opponent
+          public static let opponent = L10n.tr("Games", "games.debug.row.opponent", fallback: "Opponent")
+          /// Location: GameDebugView.swift - Row: the game's phase
+          public static let phase = L10n.tr("Games", "games.debug.row.phase", fallback: "Phase")
+          /// Location: GameDebugView.swift - Row: chess half-moves
+          public static let ply = L10n.tr("Games", "games.debug.row.ply", fallback: "Ply")
+          /// Location: GameDebugView.swift - Row: outgoing and incoming sequence numbers
+          public static let sequence = L10n.tr("Games", "games.debug.row.sequence", fallback: "Sequence out / in")
+          /// Location: GameDebugView.swift - Row: when the game last changed
+          public static let updated = L10n.tr("Games", "games.debug.row.updated", fallback: "Updated")
+          /// Location: GameDebugView.swift - Row: our move waits for its ACK
+          public static let waitingForAck = L10n.tr("Games", "games.debug.row.waitingForAck", fallback: "Waiting for ACK")
+        }
+        public enum Value {
+          /// Location: GameDebugView.swift - Value: we play black
+          public static let black = L10n.tr("Games", "games.debug.value.black", fallback: "black")
+          /// Location: GameDebugView.swift - Value: we move first
+          public static let first = L10n.tr("Games", "games.debug.value.first", fallback: "first")
+          /// Location: GameDebugView.swift - Value: no
+          public static let no = L10n.tr("Games", "games.debug.value.no", fallback: "no")
+          /// Location: GameDebugView.swift - Value: we move second
+          public static let second = L10n.tr("Games", "games.debug.value.second", fallback: "second")
+          /// Location: GameDebugView.swift - Value: we play white
+          public static let white = L10n.tr("Games", "games.debug.value.white", fallback: "white")
+          /// Location: GameDebugView.swift - Value: yes
+          public static let yes = L10n.tr("Games", "games.debug.value.yes", fallback: "yes")
+        }
+      }
+      public enum Ending {
+        /// Location: GameStrings.swift - Chess: the opponent gave checkmate - %@ is the opponent's name
+        public static func checkmateOpponentWon(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.ending.checkmateOpponentWon", String(describing: p1), fallback: "Checkmate — %@ wins.")
+        }
+        /// Location: GameStrings.swift - Chess: the player gave checkmate
+        public static let checkmateYouWon = L10n.tr("Games", "games.ending.checkmateYouWon", fallback: "Checkmate — you win!")
+        /// Location: GameStrings.swift - The game ended in a draw
+        public static let draw = L10n.tr("Games", "games.ending.draw", fallback: "Draw.")
+        /// Location: GameStrings.swift - Chess: both players agreed to a draw
+        public static let drawAgreed = L10n.tr("Games", "games.ending.drawAgreed", fallback: "Draw agreed. ½–½")
+        /// Location: GameStrings.swift - Chess: draw by the fifty-move rule
+        public static let fiftyMoveRule = L10n.tr("Games", "games.ending.fiftyMoveRule", fallback: "Draw — fifty-move rule.")
+        /// Location: GameStrings.swift - Chess: draw because neither side can mate
+        public static let insufficientMaterial = L10n.tr("Games", "games.ending.insufficientMaterial", fallback: "Draw — insufficient material.")
+        /// Location: GameStrings.swift - The invite was never answered
+        public static let inviteUnanswered = L10n.tr("Games", "games.ending.inviteUnanswered", fallback: "Invitation not answered.")
+        /// Location: GameStrings.swift - The opponent declined the invite - %@ is the opponent's name
+        public static func opponentDeclined(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.ending.opponentDeclined", String(describing: p1), fallback: "%@ declined.")
+        }
+        /// Location: GameStrings.swift - Chess: the opponent reset the board - %@ is the opponent's name
+        public static func opponentResetBoard(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.ending.opponentResetBoard", String(describing: p1), fallback: "%@ reset the board.")
+        }
+        /// Location: GameStrings.swift - The opponent resigned - %@ is the opponent's name
+        public static func opponentResigned(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.ending.opponentResigned", String(describing: p1), fallback: "%@ resigned. You win!")
+        }
+        /// Location: GameStrings.swift - The opponent won - %@ is the opponent's name
+        public static func opponentWon(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.ending.opponentWon", String(describing: p1), fallback: "%@ wins.")
+        }
+        /// Location: GameStrings.swift - Chess: the game could not be set up
+        public static let setupFailed = L10n.tr("Games", "games.ending.setupFailed", fallback: "Game setup did not get through. Invite again.")
+        /// Location: GameStrings.swift - Chess: stalemate
+        public static let stalemate = L10n.tr("Games", "games.ending.stalemate", fallback: "Stalemate — draw.")
+        /// Location: GameStrings.swift - Chess: draw by threefold repetition
+        public static let threefoldRepetition = L10n.tr("Games", "games.ending.threefoldRepetition", fallback: "Draw — threefold repetition.")
+        /// Location: GameStrings.swift - The player resigned
+        public static let youResigned = L10n.tr("Games", "games.ending.youResigned", fallback: "You resigned.")
+        /// Location: GameStrings.swift - The player won
+        public static let youWon = L10n.tr("Games", "games.ending.youWon", fallback: "You win!")
+      }
+      public enum Invite {
+        /// Location: MainTabView.swift - Button that answers the invite later
+        public static let later = L10n.tr("Games", "games.invite.later", fallback: "Later")
+        /// Location: MainTabView.swift - Title of the battleship invite alert
+        public static let title = L10n.tr("Games", "games.invite.title", fallback: "Game invitation")
+      }
+      public enum Kind {
+        /// Location: GameStrings.swift - Name of the battleship game
+        public static let battleship = L10n.tr("Games", "games.kind.battleship", fallback: "Battleship")
+        /// Location: GameStrings.swift - Name of the chess game
+        public static let chess = L10n.tr("Games", "games.kind.chess", fallback: "Chess")
+      }
+      public enum Notice {
+        /// Location: GameStrings.swift - A move arrived that does not fit the board - %@ is the raw move
+        public static func invalidMove(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.notice.invalidMove", String(describing: p1), fallback: "Received a move that does not fit the board: %@")
+        }
+        /// Location: GameStrings.swift - Our move was never acknowledged
+        public static let moveNotAcknowledged = L10n.tr("Games", "games.notice.moveNotAcknowledged", fallback: "Move not acknowledged — the opponent may be offline.")
+        /// Location: GameStrings.swift - We accepted but the inviter has not confirmed - %@ is the opponent's name
+        public static func opponentNotConfirmed(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.notice.opponentNotConfirmed", String(describing: p1), fallback: "%@ has not confirmed yet.")
+        }
+        /// Location: GameStrings.swift - Chess: the board was replaced with the opponent's - %@ is the opponent's name
+        public static func resynced(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.notice.resynced", String(describing: p1), fallback: "Board resynced with %@.")
+        }
+        /// Location: GameStrings.swift - Chess: the boards differ and are being resynced
+        public static let resyncing = L10n.tr("Games", "games.notice.resyncing", fallback: "Opponent's move does not fit our board — resyncing…")
+      }
+      public enum Notification {
+        /// Location: MeshGamesCoordinator.swift - Notification when our invite was accepted - %@ is the opponent's name
+        public static func accepted(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.notification.accepted", String(describing: p1), fallback: "%@ accepted — your move.")
+        }
+        /// Location: MeshGamesCoordinator.swift - Notification for a new invite - %@ is the opponent's name
+        public static func invite(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.notification.invite", String(describing: p1), fallback: "%@ invites you to play.")
+        }
+        /// Location: MeshGamesCoordinator.swift - Notification when the opponent moved - %@ is the opponent's name
+        public static func moved(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.notification.moved", String(describing: p1), fallback: "%@ moved — your turn.")
+        }
+        /// Location: MeshGamesCoordinator.swift, ChessCoordinator.swift - Notification when our move was never confirmed
+        public static let notConfirmed = L10n.tr("Games", "games.notification.notConfirmed", fallback: "Your move was not confirmed. Open the game to resend it.")
+        /// Location: ChessCoordinator.swift - Notification with the opponent's chess move - first %@ is the opponent's name, second %@ is the move
+        public static func played(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Games", "games.notification.played", String(describing: p1), String(describing: p2), fallback: "%1$@ played %2$@ — your move.")
+        }
+        /// Location: ChessCoordinator.swift - Notification when a chess game starts on our move
+        public static let started = L10n.tr("Games", "games.notification.started", fallback: "The game has started — your move.")
+      }
+      public enum Picker {
+        /// Location: GamesPickerSheet.swift - Button to invite the contact to chess
+        public static let chess = L10n.tr("Games", "games.picker.chess", fallback: "Chess (CoreChess)")
+        /// Location: GamesPickerSheet.swift - Button that closes the games list
+        public static let close = L10n.tr("Games", "games.picker.close", fallback: "Close")
+        /// Location: GamesPickerSheet.swift - Section footer under the games to invite to
+        public static let footer = L10n.tr("Games", "games.picker.footer", fallback: "Every move is one short direct message. Only MeshCore One can play battleship; chess also works with CoreChess.")
+        /// Location: GamesPickerSheet.swift - Section header above the games to invite to - %@ is the contact's name
+        public static func invite(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.picker.invite", String(describing: p1), fallback: "Invite %@")
+        }
+        /// Location: ChatShareMenu.swift - Item in a DM's + menu that opens the games list
+        public static let menuItem = L10n.tr("Games", "games.picker.menuItem", fallback: "Games")
+        /// Location: GamesPickerSheet.swift - Section header for the head-to-head record - %@ is the contact's name
+        public static func record(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.picker.record", String(describing: p1), fallback: "You vs %@")
+        }
+        /// Location: GamesPickerSheet.swift - Accessibility value of a head-to-head record - %1$d wins, %2$d draws, %3$d losses
+        public static func recordAccessibility(_ p1: Int, _ p2: Int, _ p3: Int) -> String {
+          return L10n.tr("Games", "games.picker.recordAccessibility", p1, p2, p3, fallback: "%1$d wins, %2$d draws, %3$d losses")
+        }
+        /// Location: GamesPickerSheet.swift - Swipe action that removes a game
+        public static let remove = L10n.tr("Games", "games.picker.remove", fallback: "Remove")
+        /// Location: GamesPickerSheet.swift - Navigation title
+        public static let title = L10n.tr("Games", "games.picker.title", fallback: "Games")
+        /// Location: GamesPickerSheet.swift - Section header for running and finished games
+        public static let yourGames = L10n.tr("Games", "games.picker.yourGames", fallback: "Your games")
+      }
+      public enum Sheet {
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item that opens the connection details
+        public static let connectionDetails = L10n.tr("Games", "games.sheet.connectionDetails", fallback: "Connection details")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to decline an invite or a draw
+        public static let decline = L10n.tr("Games", "games.sheet.decline", fallback: "Decline")
+        /// Location: MeshGameSheet.swift - Shown when the game no longer exists
+        public static let ended = L10n.tr("Games", "games.sheet.ended", fallback: "Game ended")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button that hides the board, the game keeps running
+        public static let hide = L10n.tr("Games", "games.sheet.hide", fallback: "Hide")
+        /// Location: MeshGameSheet.swift, MainTabView.swift - Someone invites the player - first %@ is the opponent's name, second %@ is the game name
+        public static func invitesYouTo(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Games", "games.sheet.invitesYouTo", String(describing: p1), String(describing: p2), fallback: "%1$@ invites you to %2$@.")
+        }
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while our move waits for confirmation
+        public static let moveSent = L10n.tr("Games", "games.sheet.moveSent", fallback: "Move sent.")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when the game is over, no details known
+        public static let over = L10n.tr("Games", "games.sheet.over", fallback: "Game over.")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to accept an invite
+        public static let play = L10n.tr("Games", "games.sheet.play", fallback: "Play")
+        /// Location: MeshGameSheet.swift - Menu item that deletes the game
+        public static let remove = L10n.tr("Games", "games.sheet.remove", fallback: "Remove game")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button to send the unconfirmed move again
+        public static let resend = L10n.tr("Games", "games.sheet.resend", fallback: "Resend move")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item and confirmation button to resign
+        public static let resign = L10n.tr("Games", "games.sheet.resign", fallback: "Resign")
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Title of the resign confirmation
+        public static let resignConfirm = L10n.tr("Games", "games.sheet.resignConfirm", fallback: "Resign this game?")
+        /// Location: MeshGameSheet.swift - Button that sends the picked move - %@ is the move, e.g. a square
+        public static func send(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.sheet.send", String(describing: p1), fallback: "Send %@")
+        }
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while the opponent moves - %@ is the opponent's name
+        public static func thinking(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.sheet.thinking", String(describing: p1), fallback: "%@ is thinking…")
+        }
+        /// Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when it is the player's move
+        public static let yourMove = L10n.tr("Games", "games.sheet.yourMove", fallback: "Your move.")
+      }
+      public enum Status {
+        /// Location: GameStatus.swift, GameDebugView.swift - Which send attempt this is - %d is the attempt number
+        public static func attempt(_ p1: Int) -> String {
+          return L10n.tr("Games", "games.status.attempt", p1, fallback: "try %d")
+        }
+        /// Location: GameStatus.swift - The opponent's app confirmed our move - %@ is the opponent's name
+        public static func confirmed(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.status.confirmed", String(describing: p1), fallback: "%@ received your move · their turn")
+        }
+        /// Location: GameStatus.swift - Our move was never confirmed
+        public static let failed = L10n.tr("Games", "games.status.failed", fallback: "Move not confirmed — resend it")
+        /// Location: GameStatus.swift - Someone invited us - %@ is the opponent's name
+        public static func invitesYou(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.status.invitesYou", String(describing: p1), fallback: "%@ invites you")
+        }
+        /// Location: GameStatus.swift - The game is over, no details known
+        public static let over = L10n.tr("Games", "games.status.over", fallback: "Game over")
+        /// Location: GameStatus.swift - Battleship: the player is placing their fleet
+        public static let placeFleet = L10n.tr("Games", "games.status.placeFleet", fallback: "Place your fleet and send the invite")
+        /// Location: GameStatus.swift - The opponent's radio acknowledged our move - %@ is the opponent's name
+        public static func reachedRadio(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.status.reachedRadio", String(describing: p1), fallback: "Reached %@'s radio · waiting for their app")
+        }
+        /// Location: GameStatus.swift - Our move is on its way
+        public static let sending = L10n.tr("Games", "games.status.sending", fallback: "Sending your move…")
+        /// Location: GameStatus.swift - Our move is on its way over a direct route
+        public static let sendingDirect = L10n.tr("Games", "games.status.sendingDirect", fallback: "Sending your move (direct)…")
+        /// Location: GameStatus.swift - Our move is on its way as a flood message
+        public static let sendingFlood = L10n.tr("Games", "games.status.sendingFlood", fallback: "Sending your move (flood)…")
+        /// Location: GameStatus.swift - It is the opponent's move - %@ is the opponent's name
+        public static func theirTurn(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.status.theirTurn", String(describing: p1), fallback: "%@'s turn")
+        }
+        /// Location: GameStatus.swift, game sheets - Our invite waits for an answer - %@ is the opponent's name
+        public static func waitingForAccept(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.status.waitingForAccept", String(describing: p1), fallback: "Waiting for %@ to accept…")
+        }
+        /// Location: GameStatus.swift - Chess: we accepted and wait for the board - %@ is the opponent's name
+        public static func waitingForSetup(_ p1: Any) -> String {
+          return L10n.tr("Games", "games.status.waitingForSetup", String(describing: p1), fallback: "Waiting for %@ to set up the board…")
+        }
+        /// Location: GameStatus.swift - It is the player's move
+        public static let yourMove = L10n.tr("Games", "games.status.yourMove", fallback: "Your move")
+      }
+    }
+  }
   public enum Localizable {
     /// Title of the radio-status Control Center control that opens the app; resolved in the app process
     public static let openMeshCoreOne = L10n.tr("Localizable", "Open MeshCore One", fallback: "Open MeshCore One")

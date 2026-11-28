@@ -1,0 +1,441 @@
+/*
+  Games.strings
+  MC1
+
+  Simplified Chinese translation of strings for games played over direct messages.
+  AI-translated - please verify with native speakers.
+*/
+
+
+// MARK: - Games
+
+/* Location: GameStrings.swift - Name of the chess game */
+"games.kind.chess" = "国际象棋";
+
+/* Location: GameStrings.swift - Name of the battleship game */
+"games.kind.battleship" = "海战棋";
+
+/* Location: MeshGameSheet.swift, GamesPickerSheet.swift, notifications - A game and its opponent - first %@ is the game name, second %@ is the opponent's name */
+"games.gameWithOpponent" = "%1$@ · %2$@";
+
+// MARK: - Picker
+
+/* Location: ChatShareMenu.swift - Item in a DM's + menu that opens the games list */
+"games.picker.menuItem" = "游戏";
+
+/* Location: GamesPickerSheet.swift - Navigation title */
+"games.picker.title" = "游戏";
+
+/* Location: GamesPickerSheet.swift - Button to invite the contact to chess */
+"games.picker.chess" = "国际象棋 (CoreChess)";
+
+/* Location: GamesPickerSheet.swift - Section header above the games to invite to - %@ is the contact's name */
+"games.picker.invite" = "邀请 %@";
+
+/* Location: GamesPickerSheet.swift - Section footer under the games to invite to */
+"games.picker.footer" = "每一步都是一条简短的私信。海战棋仅在 MeshCore One 中可玩；国际象棋也可与 CoreChess 对战。";
+
+/* Location: GamesPickerSheet.swift - Section header for the head-to-head record - %@ is the contact's name */
+"games.picker.record" = "你 vs %@";
+
+/* Location: GamesPickerSheet.swift - Accessibility value of a head-to-head record - %1$d wins, %2$d draws, %3$d losses */
+"games.picker.recordAccessibility" = "%1$d 胜 %2$d 和 %3$d 负";
+
+/* Location: GamesPickerSheet.swift - Section header for running and finished games */
+"games.picker.yourGames" = "你的游戏";
+
+/* Location: GamesPickerSheet.swift - Swipe action that removes a game */
+"games.picker.remove" = "移除";
+
+/* Location: GamesPickerSheet.swift - Button that closes the games list */
+"games.picker.close" = "关闭";
+
+// MARK: - Status
+
+/* Location: GameStatus.swift - Our move is on its way */
+"games.status.sending" = "正在发送你的一步…";
+
+/* Location: GameStatus.swift - Our move is on its way as a flood message */
+"games.status.sendingFlood" = "正在发送你的一步（泛洪）…";
+
+/* Location: GameStatus.swift - Our move is on its way over a direct route */
+"games.status.sendingDirect" = "正在发送你的一步（直连）…";
+
+/* Location: GameStatus.swift, GameDebugView.swift - Which send attempt this is - %d is the attempt number */
+"games.status.attempt" = "第 %d 次尝试";
+
+/* Location: GameStatus.swift - The opponent's radio acknowledged our move - %@ is the opponent's name */
+"games.status.reachedRadio" = "已到达 %@ 的电台 · 等待对方应用";
+
+/* Location: GameStatus.swift - The opponent's app confirmed our move - %@ is the opponent's name */
+"games.status.confirmed" = "%@ 已收到你的一步 · 轮到对方";
+
+/* Location: GameStatus.swift - Our move was never confirmed */
+"games.status.failed" = "这一步未被确认 — 请重新发送";
+
+/* Location: GameStatus.swift - Battleship: the player is placing their fleet */
+"games.status.placeFleet" = "布置舰队并发送邀请";
+
+/* Location: GameStatus.swift, game sheets - Our invite waits for an answer - %@ is the opponent's name */
+"games.status.waitingForAccept" = "等待 %@ 接受…";
+
+/* Location: GameStatus.swift - Chess: we accepted and wait for the board - %@ is the opponent's name */
+"games.status.waitingForSetup" = "等待 %@ 摆好棋盘…";
+
+/* Location: GameStatus.swift - Someone invited us - %@ is the opponent's name */
+"games.status.invitesYou" = "%@ 邀请你";
+
+/* Location: GameStatus.swift - The game is over, no details known */
+"games.status.over" = "游戏结束";
+
+/* Location: GameStatus.swift - It is the player's move */
+"games.status.yourMove" = "轮到你";
+
+/* Location: GameStatus.swift - It is the opponent's move - %@ is the opponent's name */
+"games.status.theirTurn" = "轮到 %@";
+
+// MARK: - Endings
+
+/* Location: GameStrings.swift - The player resigned */
+"games.ending.youResigned" = "你已认输。";
+
+/* Location: GameStrings.swift - The opponent resigned - %@ is the opponent's name */
+"games.ending.opponentResigned" = "%@ 认输了。你赢了！";
+
+/* Location: GameStrings.swift - The opponent declined the invite - %@ is the opponent's name */
+"games.ending.opponentDeclined" = "%@ 拒绝了。";
+
+/* Location: GameStrings.swift - Chess: the opponent reset the board - %@ is the opponent's name */
+"games.ending.opponentResetBoard" = "%@ 重置了棋盘。";
+
+/* Location: GameStrings.swift - The invite was never answered */
+"games.ending.inviteUnanswered" = "邀请未获回复。";
+
+/* Location: GameStrings.swift - Chess: the game could not be set up */
+"games.ending.setupFailed" = "游戏设置未送达。请重新邀请。";
+
+/* Location: GameStrings.swift - The player won */
+"games.ending.youWon" = "你赢了！";
+
+/* Location: GameStrings.swift - The opponent won - %@ is the opponent's name */
+"games.ending.opponentWon" = "%@ 获胜。";
+
+/* Location: GameStrings.swift - The game ended in a draw */
+"games.ending.draw" = "平局。";
+
+/* Location: GameStrings.swift - Chess: both players agreed to a draw */
+"games.ending.drawAgreed" = "双方同意和棋。½–½";
+
+/* Location: GameStrings.swift - Chess: the player gave checkmate */
+"games.ending.checkmateYouWon" = "将死 — 你赢了！";
+
+/* Location: GameStrings.swift - Chess: the opponent gave checkmate - %@ is the opponent's name */
+"games.ending.checkmateOpponentWon" = "将死 — %@ 获胜。";
+
+/* Location: GameStrings.swift - Chess: stalemate */
+"games.ending.stalemate" = "逼和 — 和棋。";
+
+/* Location: GameStrings.swift - Chess: draw by the fifty-move rule */
+"games.ending.fiftyMoveRule" = "和棋 — 五十步规则。";
+
+/* Location: GameStrings.swift - Chess: draw because neither side can mate */
+"games.ending.insufficientMaterial" = "和棋 — 子力不足。";
+
+/* Location: GameStrings.swift - Chess: draw by threefold repetition */
+"games.ending.threefoldRepetition" = "和棋 — 三次重复局面。";
+
+// MARK: - Notices
+
+/* Location: GameStrings.swift - Our move was never acknowledged */
+"games.notice.moveNotAcknowledged" = "这一步未被确认 — 对方可能已离线。";
+
+/* Location: GameStrings.swift - We accepted but the inviter has not confirmed - %@ is the opponent's name */
+"games.notice.opponentNotConfirmed" = "%@ 尚未确认。";
+
+/* Location: GameStrings.swift - A move arrived that does not fit the board - %@ is the raw move */
+"games.notice.invalidMove" = "收到一步与棋盘不符的走法：%@";
+
+/* Location: GameStrings.swift - Chess: the boards differ and are being resynced */
+"games.notice.resyncing" = "对方的走法与我们的棋盘不符 — 正在重新同步…";
+
+/* Location: GameStrings.swift - Chess: the board was replaced with the opponent's - %@ is the opponent's name */
+"games.notice.resynced" = "已与 %@ 重新同步棋盘。";
+
+// MARK: - Game sheets
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button that hides the board, the game keeps running */
+"games.sheet.hide" = "隐藏";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item that opens the connection details */
+"games.sheet.connectionDetails" = "连接详情";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Menu item and confirmation button to resign */
+"games.sheet.resign" = "认输";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Title of the resign confirmation */
+"games.sheet.resignConfirm" = "要认输这局游戏吗？";
+
+/* Location: MeshGameSheet.swift - Menu item that deletes the game */
+"games.sheet.remove" = "移除游戏";
+
+/* Location: MeshGameSheet.swift - Shown when the game no longer exists */
+"games.sheet.ended" = "游戏已结束";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while our move waits for confirmation */
+"games.sheet.moveSent" = "已发送。";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when it is the player's move */
+"games.sheet.yourMove" = "轮到你。";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status while the opponent moves - %@ is the opponent's name */
+"games.sheet.thinking" = "%@ 正在思考…";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Status when the game is over, no details known */
+"games.sheet.over" = "游戏结束。";
+
+/* Location: MeshGameSheet.swift, MainTabView.swift - Someone invites the player - first %@ is the opponent's name, second %@ is the game name */
+"games.sheet.invitesYouTo" = "%1$@ 邀请你玩%2$@。";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to decline an invite or a draw */
+"games.sheet.decline" = "拒绝";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift, MainTabView.swift - Button to accept an invite */
+"games.sheet.play" = "开始";
+
+/* Location: MeshGameSheet.swift, ChessBoardSheet.swift - Button to send the unconfirmed move again */
+"games.sheet.resend" = "重新发送";
+
+/* Location: MeshGameSheet.swift - Button that sends the picked move - %@ is the move, e.g. a square */
+"games.sheet.send" = "发送 %@";
+
+// MARK: - Battleship
+
+/* Location: MeshGameSheet.swift - Status while placing the fleet */
+"games.battleship.placeAndInvite" = "布置好舰队，然后发送邀请。";
+
+/* Location: MeshGameSheet.swift - Button that sends the invite with the placed fleet */
+"games.battleship.sendInvite" = "发送邀请";
+
+/* Location: MeshGameSheet.swift - Button that admits the loss of the last ship and ends the game */
+"games.battleship.confirmLoss" = "你的最后一艘船被击沉 — 确认";
+
+/* Location: MeshGameSheet.swift - The opponent's revealed fleet matches every answer */
+"games.battleship.verified" = "已验证对方舰队 — 公平对局。";
+
+/* Location: MeshGameSheet.swift - The opponent's revealed fleet is wrong - %@ is the reason */
+"games.battleship.cheating" = "发现作弊：%@";
+
+/* Location: MeshGameSheet.swift - Cheat reason: no commitment arrived */
+"games.battleship.cheat.noCommitment" = "未收到承诺值。";
+
+/* Location: MeshGameSheet.swift - Cheat reason: the fleet differs from the committed one */
+"games.battleship.cheat.fleetMismatch" = "公开的舰队与开局时承诺的不一致。";
+
+/* Location: MeshGameSheet.swift - Cheat reason: the fleet is not a valid layout */
+"games.battleship.cheat.invalidLayout" = "公开的舰队不是有效的布置。";
+
+/* Location: MeshGameSheet.swift - Cheat reason: a false hit - %@ is a square, e.g. B3 */
+"games.battleship.cheat.falseHit" = "%@ 被报告为命中，但舰队显示并非如此。";
+
+/* Location: MeshGameSheet.swift - Cheat reason: a false miss - %@ is a square, e.g. B3 */
+"games.battleship.cheat.falseMiss" = "%@ 被报告为未命中，但舰队显示并非如此。";
+
+/* Location: MeshGameSheet.swift - Caption above the opponent's board - %d is the number of sunk ships */
+"games.battleship.enemyWaters" = "敌方海域 · 已击沉 %d/5";
+
+/* Location: MeshGameSheet.swift - Caption above the player's board - %d is the number of ships left */
+"games.battleship.yourFleet" = "你的舰队 · 尚存 %d/5";
+
+/* Location: MeshGameSheet.swift - Fleet placement hint with no ship picked */
+"games.battleship.pickShip" = "轻点一艘船来移动它。";
+
+/* Location: MeshGameSheet.swift - Fleet placement hint with a ship picked */
+"games.battleship.moveShip" = "轻点绿色方格，把船头移到那里。";
+
+/* Location: MeshGameSheet.swift - Button that rotates the picked ship */
+"games.battleship.rotate" = "旋转";
+
+/* Location: MeshGameSheet.swift - Button that places the fleet at random */
+"games.battleship.shuffle" = "随机";
+
+/* Location: MeshGameSheet.swift - Accessibility label of the fleet grid - %@ is the encoded fleet */
+"games.battleship.fleetAccessibility" = "你的舰队：%@";
+
+// MARK: - Chess
+
+/* Location: ChessBoardSheet.swift - Shown when there is no chess game */
+"games.chess.noGame" = "没有对局";
+
+/* Location: ChessBoardSheet.swift - How to start a chess game */
+"games.chess.noGameHint" = "打开一个私聊，从 + 菜单中选择“游戏”来邀请对方。";
+
+/* Location: ChessBoardSheet.swift - Navigation title - %@ is the opponent's name */
+"games.chess.versus" = "对战 %@";
+
+/* Location: ChessBoardSheet.swift - Menu item that offers a draw */
+"games.chess.offerDraw" = "提和";
+
+/* Location: ChessBoardSheet.swift - Menu item that leaves a running game */
+"games.chess.abandon" = "放弃对局";
+
+/* Location: ChessBoardSheet.swift - Menu item that closes a finished game */
+"games.chess.close" = "关闭对局";
+
+/* Location: ChessBoardSheet.swift - Button that sends the picked move - %@ is the move, e.g. e2-e4 */
+"games.chess.sendMove" = "发送走法 %@";
+
+/* Location: ChessBoardSheet.swift, notifications - The opponent offers a draw - %@ is the opponent's name */
+"games.chess.drawOffered" = "%@ 提议和棋。";
+
+/* Location: ChessBoardSheet.swift - Button that accepts the draw */
+"games.chess.acceptDraw" = "接受和棋";
+
+/* Location: ChessBoardSheet.swift - Caption when the player has white */
+"games.chess.playingWhite" = "你执白 ♔ · 走法以私信发送（兼容 CoreChess）";
+
+/* Location: ChessBoardSheet.swift - Caption when the player has black */
+"games.chess.playingBlack" = "你执黑 ♚ · 走法以私信发送（兼容 CoreChess）";
+
+/* Location: ChessBoardSheet.swift, MainTabView.swift, notifications - Someone invites the player to chess - %@ is the opponent's name */
+"games.chess.invitesYou" = "%@ 邀请你下一局国际象棋。";
+
+/* Location: ChessBoardSheet.swift - Added to the status when a king is in check */
+"games.chess.check" = "将军！";
+
+/* Location: ChessBoardSheet.swift - Caption above the move list */
+"games.chess.moves" = "棋谱";
+
+// MARK: - Invites
+
+/* Location: MainTabView.swift - Title of the battleship invite alert */
+"games.invite.title" = "游戏邀请";
+
+/* Location: MainTabView.swift - Button that answers the invite later */
+"games.invite.later" = "稍后";
+
+// MARK: - Notifications
+
+/* Location: MeshGamesCoordinator.swift - Notification for a new invite - %@ is the opponent's name */
+"games.notification.invite" = "%@ 邀请你玩游戏。";
+
+/* Location: MeshGamesCoordinator.swift - Notification when our invite was accepted - %@ is the opponent's name */
+"games.notification.accepted" = "%@ 已接受 — 轮到你。";
+
+/* Location: MeshGamesCoordinator.swift - Notification when the opponent moved - %@ is the opponent's name */
+"games.notification.moved" = "%@ 走了一步 — 轮到你。";
+
+/* Location: ChessCoordinator.swift - Notification with the opponent's chess move - first %@ is the opponent's name, second %@ is the move */
+"games.notification.played" = "%1$@ 走了 %2$@ — 轮到你。";
+
+/* Location: ChessCoordinator.swift - Notification when a chess game starts on our move */
+"games.notification.started" = "对局已开始 — 轮到你。";
+
+/* Location: MeshGamesCoordinator.swift, ChessCoordinator.swift - Notification when our move was never confirmed */
+"games.notification.notConfirmed" = "你的一步未被确认。打开游戏重新发送。";
+
+// MARK: - Connection details
+
+/* Location: GameDebugView.swift - Navigation title - %@ is the game name */
+"games.debug.title" = "%@ · 详情";
+
+/* Location: GameDebugView.swift - Section with the game's state */
+"games.debug.session" = "会话";
+
+/* Location: GameDebugView.swift - Section with delivery numbers */
+"games.debug.delivery" = "送达";
+
+/* Location: GameDebugView.swift - Number of messages sent */
+"games.debug.sent" = "已发送";
+
+/* Location: GameDebugView.swift - Messages sent and how many were retries - %1$d messages, %2$d retries */
+"games.debug.sentValue" = "%1$d（重试 %2$d 次）";
+
+/* Location: GameDebugView.swift - Number of messages received */
+"games.debug.received" = "已接收";
+
+/* Location: GameDebugView.swift - The opponent's node acknowledged the message */
+"games.debug.reachedRadio" = "已到达对方电台";
+
+/* Location: GameDebugView.swift - Acknowledged messages out of those tracked - %1$d acknowledged, %2$d tracked */
+"games.debug.reachedRadioValue" = "%1$d / %2$d";
+
+/* Location: GameDebugView.swift - Average time to the radio acknowledgement */
+"games.debug.averageTrip" = "平均往返时间";
+
+/* Location: GameDebugView.swift - A time in milliseconds - %d is the number of milliseconds */
+"games.debug.milliseconds" = "%d 毫秒";
+
+/* Location: GameDebugView.swift - Footer of the delivery section */
+"games.debug.deliveryFooter" = "“已到达对方电台”是对方节点的网状网络确认。游戏本身还会单独确认每一步（ACK 消息）。";
+
+/* Location: GameDebugView.swift - Section with the routes the messages took */
+"games.debug.routes" = "使用的路由";
+
+/* Location: GameDebugView.swift - Section with every message */
+"games.debug.messages" = "消息（最新在前）";
+
+/* Location: GameDebugView.swift - Shown when no message has been sent or received */
+"games.debug.noMessages" = "暂无消息。";
+
+/* Location: GameDebugView.swift - Footer of the message section */
+"games.debug.messagesFooter" = "轻点消息查看全文。对于收到的直连私信，路由根据联系人已学习的路径估算。";
+
+/* Location: GameDebugView.swift - A message failed to send - %@ is the error */
+"games.debug.error" = "错误：%@";
+
+/* Location: GameDebugView.swift - Waiting for the opponent's node to acknowledge */
+"games.debug.waitingForRadio" = "等待对方电台…";
+
+/* Location: GameDebugView.swift - The opponent's node never acknowledged */
+"games.debug.noRadioAck" = "对方电台无确认";
+
+/* Location: GameDebugView.swift - The message did not go through the radio */
+"games.debug.notSentToRadio" = "未发送到电台";
+
+/* Location: GameDebugView.swift - Row: the game and its id */
+"games.debug.row.game" = "游戏";
+
+/* Location: GameDebugView.swift - Row: the opponent */
+"games.debug.row.opponent" = "对手";
+
+/* Location: GameDebugView.swift - Row: the game's phase */
+"games.debug.row.phase" = "阶段";
+
+/* Location: GameDebugView.swift - Row: whether we move first or second, or our chess colour */
+"games.debug.row.iPlay" = "我方";
+
+/* Location: GameDebugView.swift - Value: we move first */
+"games.debug.value.first" = "先手";
+
+/* Location: GameDebugView.swift - Value: we move second */
+"games.debug.value.second" = "后手";
+
+/* Location: GameDebugView.swift - Value: we play white */
+"games.debug.value.white" = "白方";
+
+/* Location: GameDebugView.swift - Value: we play black */
+"games.debug.value.black" = "黑方";
+
+/* Location: GameDebugView.swift - Row: number of moves */
+"games.debug.row.moves" = "步数";
+
+/* Location: GameDebugView.swift - Row: chess half-moves */
+"games.debug.row.ply" = "半回合";
+
+/* Location: GameDebugView.swift - Row: outgoing and incoming sequence numbers */
+"games.debug.row.sequence" = "序号 发出 / 收到";
+
+/* Location: GameDebugView.swift - Row: our move waits for its ACK */
+"games.debug.row.waitingForAck" = "等待 ACK";
+
+/* Location: GameDebugView.swift - Row: our move was never acknowledged */
+"games.debug.row.ackFailed" = "ACK 失败";
+
+/* Location: GameDebugView.swift - Row: when the game last changed */
+"games.debug.row.updated" = "更新时间";
+
+/* Location: GameDebugView.swift - Value: yes */
+"games.debug.value.yes" = "是";
+
+/* Location: GameDebugView.swift - Value: no */
+"games.debug.value.no" = "否";
