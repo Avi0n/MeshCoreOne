@@ -235,6 +235,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   /// - v10→v11: Added PendingSend.nextWireAttempt (UInt8, default 0). Existing rows
   ///          migrate to 0 with no backfill from attemptCount, so one in-flight row can replay attempt 0.
   /// - v11→v12: Added Contact Watchlist membership and firmware version.
+  /// - v12→v13: Added PendingSend.maxBackoffRounds, backoffRound (Int, default 0) and notBefore (Date?).
+  ///          Existing rows migrate to 0 and nil, which never back off.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

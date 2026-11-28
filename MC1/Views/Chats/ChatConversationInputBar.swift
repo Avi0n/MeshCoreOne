@@ -6,6 +6,8 @@ struct ChatConversationInputBar: View {
   let conversationType: ChatConversationType
   @Binding var composingText: String
   @Binding var focusRequest: Int
+  /// The DM keep-trying toggle. Channels have no ACK, so they never show it.
+  var backoffRetryArmed: Binding<Bool> = .constant(false)
   let nodeNameByteCount: Int
   let onSend: (String) async -> Bool
   let onWillSend: () -> Void
@@ -37,7 +39,12 @@ struct ChatConversationInputBar: View {
         placeholder: L10n.Chats.Chats.Input.Placeholder.directMessage,
         maxBytes: ProtocolLimits.maxDirectMessageLength,
         isEncrypted: true,
-        leading: { ChatShareMenu(onInsert: insertShared, onPaint: openPainter) },
+        leading: {
+          HStack(spacing: 12) {
+            ChatShareMenu(onInsert: insertShared, onPaint: openPainter)
+            BackoffRetryToggle(isArmed: backoffRetryArmed)
+          }
+        },
         onSend: send
       )
 

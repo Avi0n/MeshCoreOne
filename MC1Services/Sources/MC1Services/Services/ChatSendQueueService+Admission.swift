@@ -1,9 +1,11 @@
 public extension ChatSendQueueService {
   /// Creates and queues a DM. Creation errors throw; enqueue errors retain the saved Message.
   /// The synchronous callback publishes the Message before queue status events can arrive.
+  /// `maxBackoffRounds` above zero lets the DM keep trying after its retry budget; see `DMBackoffPolicy`.
   func enqueueDirectMessage(
     text: String,
     to contact: ContactDTO,
+    maxBackoffRounds: Int = 0,
     onMessageCreated: (@MainActor (MessageDTO) -> Void)? = nil
   ) async throws -> ChatSendAdmission {
     guard contact.radioID == radioID, beginAdmission() else {
@@ -14,7 +16,9 @@ public extension ChatSendQueueService {
     let message = try await messageService.createPendingMessage(text: text, to: contact)
     onMessageCreated?(message)
     do {
-      try await enqueueDM(DirectMessageEnvelope(messageID: message.id, contactID: contact.id))
+      try await enqueueDM(DirectMessageEnvelope(
+        messageID: message.id, contactID: contact.id, maxBackoffRounds: maxBackoffRounds
+      ))
       return .queued(message)
     } catch {
       return await recordAdmissionFailure(message: message, error: error)

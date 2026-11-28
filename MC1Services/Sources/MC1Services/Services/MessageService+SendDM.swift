@@ -287,7 +287,8 @@ public extension MessageService {
     isResend: Bool,
     isSingleAttempt: Bool,
     pendingSendID: UUID?,
-    sendLease providedLease: PlainTextSendGate.Lease?
+    sendLease providedLease: PlainTextSendGate.Lease?,
+    backoffRounds: Int = 0
   ) async throws -> MessageDTO {
     let sendLease = try await adoptPlainTextLease(providedLease)
     defer { await stopPlainTextLease(sendLease) }
@@ -350,7 +351,8 @@ public extension MessageService {
         sendLease: sendLease,
         waitForAcknowledgement: existingMessage.reactionTargetMessageID == nil,
         pendingSendID: pendingSendID,
-        preserveTimestamp: preserveTimestamp
+        preserveTimestamp: preserveTimestamp,
+        backoffRounds: isSingleAttempt ? 0 : backoffRounds
       )
 
       // Bump only on a confirmed successful resend so sendCount counts

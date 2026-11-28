@@ -42,6 +42,13 @@ public final class PendingSend {
   public var ackSentAt: Date?
   public var ackDeadline: Date?
 
+  /// Backoff rounds this send may still run after its normal retry budget is spent. `0` never backs off.
+  public var maxBackoffRounds: Int = 0
+  /// Backoff rounds started so far.
+  public var backoffRound: Int = 0
+  /// While set and in the future, the row is queued work that waits for this time before sending.
+  public var notBefore: Date?
+
   public init(
     id: UUID,
     radioID: UUID,
@@ -60,8 +67,14 @@ public final class PendingSend {
     ackCodes: [Data]? = nil,
     ackSentAt: Date? = nil,
     ackDeadline: Date? = nil,
-    isSingleAttempt: Bool = false
+    isSingleAttempt: Bool = false,
+    maxBackoffRounds: Int = 0,
+    backoffRound: Int = 0,
+    notBefore: Date? = nil
   ) {
+    self.maxBackoffRounds = maxBackoffRounds
+    self.backoffRound = backoffRound
+    self.notBefore = notBefore
     self.id = id
     self.radioID = radioID
     self.messageID = messageID
@@ -115,6 +128,9 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
   public let ackCodes: [Data]?
   public let ackSentAt: Date?
   public let ackDeadline: Date?
+  public let maxBackoffRounds: Int
+  public let backoffRound: Int
+  public let notBefore: Date?
 
   init(
     id: UUID,
@@ -134,8 +150,14 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     ackCodes: [Data]? = nil,
     ackSentAt: Date? = nil,
     ackDeadline: Date? = nil,
-    isSingleAttempt: Bool = false
+    isSingleAttempt: Bool = false,
+    maxBackoffRounds: Int = 0,
+    backoffRound: Int = 0,
+    notBefore: Date? = nil
   ) {
+    self.maxBackoffRounds = maxBackoffRounds
+    self.backoffRound = backoffRound
+    self.notBefore = notBefore
     self.id = id
     self.radioID = radioID
     self.messageID = messageID
@@ -177,7 +199,10 @@ public extension PendingSend {
       ackCodes: dto.ackCodes,
       ackSentAt: dto.ackSentAt,
       ackDeadline: dto.ackDeadline,
-      isSingleAttempt: dto.isSingleAttempt
+      isSingleAttempt: dto.isSingleAttempt,
+      maxBackoffRounds: dto.maxBackoffRounds,
+      backoffRound: dto.backoffRound,
+      notBefore: dto.notBefore
     )
   }
 
@@ -200,7 +225,10 @@ public extension PendingSend {
       ackCodes: ackCodes,
       ackSentAt: ackSentAt,
       ackDeadline: ackDeadline,
-      isSingleAttempt: isSingleAttempt
+      isSingleAttempt: isSingleAttempt,
+      maxBackoffRounds: maxBackoffRounds,
+      backoffRound: backoffRound,
+      notBefore: notBefore
     )
   }
 }

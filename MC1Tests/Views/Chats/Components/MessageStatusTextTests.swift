@@ -35,6 +35,13 @@ struct MessageStatusTextTests {
     #expect(text == L10n.Chats.Chats.Message.Status.sending)
   }
 
+  /// A retried DM awaiting the ACK for its latest attempt keeps that attempt's count.
+  @Test
+  func `DM .sent after retries keeps the attempt count`() {
+    let footer = makeFooter(status: .sent, isChannelMessage: false, retryAttempt: 6, maxRetryAttempts: 7)
+    #expect(MessageStatusText.text(for: footer) == L10n.Chats.Chats.Message.Status.retryingAttempt(8, 8))
+  }
+
   /// A channel broadcast has no ACK, so `.sent` is its terminal success state.
   @Test
   func `Channel .sent renders as Sent`() {

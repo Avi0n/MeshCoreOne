@@ -433,6 +433,12 @@ public enum L10n {
         public static let tooLong = L10n.tr("Chats", "chats.input.tooLong", fallback: "Message too long")
         /// Location: ChatInputBar.swift - Accessibility hint when message is empty
         public static let typeFirst = L10n.tr("Chats", "chats.input.typeFirst", fallback: "Type a message first")
+        public enum BackoffRetry {
+          /// Location: BackoffRetryToggle.swift - Accessibility hint for the keep-trying toggle
+          public static let hint = L10n.tr("Chats", "chats.input.backoffRetry.hint", fallback: "If the next message is not acknowledged, send it up to 3 more times over the next 14 minutes")
+          /// Location: BackoffRetryToggle.swift - Accessibility label for the keep-trying toggle beside the DM compose field
+          public static let label = L10n.tr("Chats", "chats.input.backoffRetry.label", fallback: "Keep trying")
+        }
         public enum Placeholder {
           /// Location: ChatConversationView.swift - Input bar placeholder for direct messages
           public static let directMessage = L10n.tr("Chats", "chats.input.placeholder.directMessage", fallback: "Direct Message")

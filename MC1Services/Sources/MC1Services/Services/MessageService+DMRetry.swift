@@ -17,9 +17,11 @@ extension MessageService {
     sendLease: PlainTextSendGate.Lease?,
     waitForAcknowledgement: Bool,
     pendingSendID: UUID? = nil,
-    preserveTimestamp: Bool = true
+    preserveTimestamp: Bool = true,
+    backoffRounds: Int = 0
   ) async throws -> Data? {
-    let maxRetryAttempts = budget.totalAttempts - 1
+    // Opted-in backoff rounds extend the displayed total so the count never restarts.
+    let maxRetryAttempts = budget.totalAttempts - 1 + backoffRounds
     let sendDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
     var lastExpectedAck: Data?
     var wireAttempt = 0

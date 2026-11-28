@@ -58,19 +58,25 @@ public final class ChatSendQueueService {
   private let reactionService: ReactionService
   private let triggers: BLETransportOpenedSignal
   private let channelFetchFailureCounter = FailureCounter()
-  private let logger = PersistentLogger(subsystem: "com.mc1", category: "ChatSendQueueService")
+  let logger = PersistentLogger(subsystem: "com.mc1", category: "ChatSendQueueService")
   private let osLogger = Logger(subsystem: "com.mc1", category: "ChatSendQueueService")
 
   private let dmQueue: SendQueue<DirectMessageEnvelope>
   private let channelQueue: SendQueue<ChannelMessageEnvelope>
 
   private var hasHydrated = false
-  private var isRetired = false
+  var isRetired = false
   /// The channel drain reads this without retaining the service. Shutdown sets it before the first suspension.
   private let sendsRetired = OSAllocatedUnfairLock(initialState: false)
   private var admittedWork = 0
   private var admissionWaiters: [CheckedContinuation<Void, Never>] = []
   private var shutdownTask: Task<Void, Never>?
+
+  /// One wake-up for the earliest queued backoff round. See `ChatSendQueueService+Backoff.swift`.
+  var backoffWakeTask: Task<Void, Never>?
+  var backoffWakeAt: Date?
+  /// Backoff round last handed to the drain, per message, so a second wake-up cannot enqueue it twice.
+  var backoffEnqueuedRound: [UUID: Int] = [:]
 
   /// Task consuming the connection-state stream installed by
   /// `observeConnectionState`. Cancelled in `shutdown()`.
@@ -187,7 +193,8 @@ public final class ChatSendQueueService {
               isResend: envelope.isResend,
               isSingleAttempt: envelope.isSingleAttempt,
               pendingSendID: pendingSendID,
-              sendLease: sendLease
+              sendLease: sendLease,
+              backoffRounds: envelope.maxBackoffRounds
             )
             if message.status == .delivered || message.status == .failed, let pendingSendID {
               try? await dataStoreRef.deletePendingSend(id: pendingSendID)
@@ -261,6 +268,10 @@ public final class ChatSendQueueService {
         }
       }
     )
+  }
+
+  func dmQueueEnqueue(_ envelope: DirectMessageEnvelope) async {
+    await dmQueue.enqueue(envelope)
   }
 
   /// Persists the DM envelope before signaling the drain so reconnect can recover it.
@@ -610,11 +621,21 @@ public final class ChatSendQueueService {
     defer { finishAdmission() }
     hasHydrated = true
     logger.info("hydrate begin radio=\(radioID)")
+    await messageService.setBackoffScheduledHandler { [weak self] notBefore in
+      await self?.armBackoffWake(at: notBefore)
+    }
     do {
       let rows = try await dataStore.fetchPendingSends(radioID: radioID)
+      var earliestBackoff: Date?
+      defer { if let earliestBackoff { armBackoffWake(at: earliestBackoff) } }
       for dto in rows {
         guard !isRetired else { return }
         guard dto.ackDeadline == nil else { continue }
+        // A round still waiting stays out of the queue so it cannot block later sends.
+        if dto.kind == .dm, let notBefore = dto.notBefore, notBefore > Date() {
+          earliestBackoff = min(earliestBackoff ?? notBefore, notBefore)
+          continue
+        }
         osLogger.debug("hydrate enqueue messageID=\(dto.messageID) kind=\(String(describing: dto.kind)) isResend=\(dto.isResend) attemptCount=\(String(describing: dto.attemptCount))")
         switch dto.kind {
         case .dm:
@@ -678,6 +699,7 @@ public final class ChatSendQueueService {
     connectionStateTask = nil
     observer?.cancel()
     await observer?.value
+    cancelBackoffWake()
     if admittedWork != 0 {
       await withCheckedContinuation { admissionWaiters.append($0) }
     }

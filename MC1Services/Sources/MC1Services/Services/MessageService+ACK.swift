@@ -119,6 +119,8 @@ public extension MessageService {
             current.sentAt == tracking.sentAt,
             now > current.expiresAt(giveUpWindow: window) else { continue }
 
+      if await scheduleBackoffRetryIfOptedIn(messageID: messageID, tracking: current) { continue }
+
       let result: PendingAcknowledgementCommit
       do {
         result = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)

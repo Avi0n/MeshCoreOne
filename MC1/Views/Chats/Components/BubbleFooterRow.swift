@@ -303,11 +303,18 @@ private struct BubbleStatusFooter: View {
         // A DM `.sent` only means the radio queued the packet; a missing ACK can
         // still flip it to `.failed`, so it reads as in-flight. A channel `.sent`
         // has no ACK and is terminal success.
+        // A DM that has used retries keeps the count of the attempt awaiting its ACK.
         if footer.isChannelMessage {
           Image(systemName: "checkmark.circle.fill")
             .font(.caption2)
         } else {
-          spinner
+          HStack(spacing: 3) {
+            spinner
+            if let progress = footer.sendAttemptProgress {
+              Text("\(progress.attempt)/\(progress.total)")
+                .font(.caption2)
+            }
+          }
         }
       case .delivered:
         Image(systemName: "checkmark.circle.fill")
@@ -435,6 +442,9 @@ enum MessageStatusText {
       return L10n.Chats.Chats.Message.Status.sending
     case .sent:
       guard footer.isChannelMessage else {
+        if let progress = footer.sendAttemptProgress {
+          return L10n.Chats.Chats.Message.Status.retryingAttempt(progress.attempt, progress.total)
+        }
         return L10n.Chats.Chats.Message.Status.sending
       }
       var parts: [String] = []

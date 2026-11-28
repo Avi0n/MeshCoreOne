@@ -859,6 +859,12 @@
 /* Location: ChatInputBar.swift - Accessibility label for send button */
 "chats.input.sendMessage" = "Send message";
 
+/* Location: BackoffRetryToggle.swift - Accessibility label for the keep-trying toggle beside the DM compose field */
+"chats.input.backoffRetry.label" = "Keep trying";
+
+/* Location: BackoffRetryToggle.swift - Accessibility hint for the keep-trying toggle */
+"chats.input.backoffRetry.hint" = "If the next message is not acknowledged, send it up to 3 more times over the next 14 minutes";
+
 /* Location: ChatInputBar.swift - Accessibility hint when over character limit - %d is characters to remove */
 "chats.input.removeCharacters" = "Remove %d characters to send";
 

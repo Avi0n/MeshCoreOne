@@ -122,6 +122,11 @@ public actor MessageService {
   private var eventListenerTask: Task<Void, Never>?
   private var bufferedAckEvents: AsyncStream<MeshEvent>?
 
+  /// Wait schedule for DMs that opted into backoff rounds. See `MessageService+Backoff.swift`.
+  var backoffPolicy = DMBackoffPolicy.default
+  /// Called after a backoff round is stored, so the send queue can wake at `notBefore`.
+  var backoffScheduledHandler: (@Sendable (Date) async -> Void)?
+
   /// Interval between ACK expiry checks (in seconds)
   var checkInterval: TimeInterval = 5.0
 

@@ -42,6 +42,9 @@ public extension PersistenceStore {
       existing.ackCodes = dto.ackCodes
       existing.ackSentAt = dto.ackSentAt
       existing.ackDeadline = dto.ackDeadline
+      existing.maxBackoffRounds = dto.maxBackoffRounds
+      existing.backoffRound = dto.backoffRound
+      existing.notBefore = dto.notBefore
     } else {
       modelContext.insert(PendingSend(dto: dto))
     }
@@ -106,9 +109,13 @@ public extension PersistenceStore {
     }
     var messageDescriptor = FetchDescriptor<Message>(predicate: messagePredicate)
     messageDescriptor.fetchLimit = 1
-    if let message = try modelContext.fetch(messageDescriptor).first,
-       message.status != .delivered {
-      message.status = .pending
+    if let message = try modelContext.fetch(messageDescriptor).first {
+      // A new burst starts its own attempt count; the footer shows it while awaiting an ACK.
+      message.retryAttempt = 0
+      message.maxRetryAttempts = 0
+      if message.status != .delivered {
+        message.status = .pending
+      }
     }
 
     let scopedRadioID = dto.radioID
@@ -395,6 +402,53 @@ public extension PersistenceStore {
       throw error
     }
     return MessageDTO(from: message)
+  }
+
+  /// Gives an expired ACK-owned DM its next backoff round in one save. The row becomes unsent work
+  /// again with a fresh attempt count, so the drain picks a new timestamp. `nextWireAttempt` stays,
+  /// so a late ACK for the earlier timestamp still matches while the row waits.
+  func scheduleBackoffRetry(
+    pendingSendID: UUID,
+    expectedDeadline: Date?,
+    policy: DMBackoffPolicy,
+    now: Date
+  ) async throws -> DMBackoffPlan? {
+    guard let expectedDeadline, let row = try pendingSendRow(id: pendingSendID),
+          row.kind == .dm, row.ackDeadline == expectedDeadline,
+          row.backoffRound < row.maxBackoffRounds else { return nil }
+    let messageID = row.messageID
+    let messagePredicate = #Predicate<Message> { $0.id == messageID }
+    guard let message = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).first,
+          message.channelIndex == nil, message.reactionTargetMessageID == nil,
+          message.status != .delivered, message.status != .failed else { return nil }
+
+    let round = row.backoffRound + 1
+    let notBefore = now.addingTimeInterval(policy.delay(forRound: round))
+    row.ackCodes = nil
+    row.ackSentAt = nil
+    row.ackDeadline = nil
+    row.attemptCount = Self.initialAttemptCount
+    row.isResend = false
+    row.isSingleAttempt = true
+    row.backoffRound = round
+    row.notBefore = notBefore
+    // The burst already counted toward a total that includes these rounds, so they continue it.
+    let burstRetries = max(message.maxRetryAttempts - row.maxBackoffRounds, 0)
+    let retryAttempt = burstRetries + round - 1
+    let maxRetryAttempts = burstRetries + row.maxBackoffRounds
+    message.status = .retrying
+    message.retryAttempt = retryAttempt
+    message.maxRetryAttempts = maxRetryAttempts
+    do {
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return DMBackoffPlan(
+      round: round, maxRounds: row.maxBackoffRounds, notBefore: notBefore,
+      retryAttempt: retryAttempt, maxRetryAttempts: maxRetryAttempts
+    )
   }
 
   private func pendingSendRow(id: UUID) throws -> PendingSend? {
