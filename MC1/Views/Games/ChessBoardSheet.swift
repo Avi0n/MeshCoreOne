@@ -71,7 +71,6 @@ struct ChessBoardSheet: View {
     ]
   }
 
-  @ViewBuilder
   private func content(_ game: ChessGame) -> some View {
     ScrollView {
       VStack(spacing: 14) {

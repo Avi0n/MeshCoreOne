@@ -7,7 +7,9 @@ public struct ChessPosition: Sendable, Equatable, Codable {
   public enum Color: String, Sendable, Codable {
     case white, black
 
-    public var opposite: Color { self == .white ? .black : .white }
+    public var opposite: Color {
+      self == .white ? .black : .white
+    }
   }
 
   public struct Square: Sendable, Hashable, Codable {
@@ -19,9 +21,14 @@ public struct ChessPosition: Sendable, Equatable, Codable {
       self.col = col
     }
 
-    public var isValid: Bool { (0..<8).contains(row) && (0..<8).contains(col) }
+    public var isValid: Bool {
+      (0..<8).contains(row) && (0..<8).contains(col)
+    }
+
     /// Algebraic name, e.g. `e4`.
-    public var name: String { String(UnicodeScalar(UInt8(97 + col))) + "\(8 - row)" }
+    public var name: String {
+      String(UnicodeScalar(UInt8(97 + col))) + "\(8 - row)"
+    }
   }
 
   /// CoreChess castle tags carried on the king's move.
@@ -43,7 +50,9 @@ public struct ChessPosition: Sendable, Equatable, Codable {
     }
 
     /// Coordinate notation, e.g. `e2-e4`.
-    public var name: String { "\(from.name)-\(to.name)" }
+    public var name: String {
+      "\(from.name)-\(to.name)"
+    }
   }
 
   public struct CastlingRights: Sendable, Equatable, Codable {
@@ -140,7 +149,9 @@ public struct ChessPosition: Sendable, Equatable, Codable {
     set { board[square.row][square.col] = newValue }
   }
 
-  public static func color(of piece: Character) -> Color { piece.isUppercase ? .white : .black }
+  public static func color(of piece: Character) -> Color {
+    piece.isUppercase ? .white : .black
+  }
 
   // MARK: Move generation
 
@@ -153,7 +164,9 @@ public struct ChessPosition: Sendable, Equatable, Codable {
     func add(_ to: Square, castle: Castle? = nil, ep: Bool = false) {
       moves.append(Move(from: square, to: to, castle: castle, enPassant: ep))
     }
-    func isEnemy(_ s: Square) -> Bool { self[s].map { Self.color(of: $0) != own } ?? false }
+    func isEnemy(_ s: Square) -> Bool {
+      self[s].map { Self.color(of: $0) != own } ?? false
+    }
     func slide(_ directions: [(Int, Int)], repeatSteps: Bool) {
       for (dr, dc) in directions {
         var target = Square(row: square.row + dr, col: square.col + dc)

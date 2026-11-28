@@ -21,7 +21,9 @@ public enum GameEnding: Sendable, Equatable, Codable {
   case threefoldRepetition
 
   /// Ended by the player's own action, so there is nothing to notify them about.
-  public var isOwnDoing: Bool { self == .youResigned || self == .youWon }
+  public var isOwnDoing: Bool {
+    self == .youResigned || self == .youWon
+  }
 }
 
 /// A warning shown above the board while a game runs. The app turns it into localized text.

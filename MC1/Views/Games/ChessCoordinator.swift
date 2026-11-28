@@ -18,7 +18,9 @@ final class ChessCoordinator {
   @ObservationIgnored private var hasSnapshot = false
 
   /// 1 when the chess game waits on the player.
-  var attentionCount: Int { game.map { $0.phase != .over && $0.status.needsMe } == true ? 1 : 0 }
+  var attentionCount: Int {
+    game.map { $0.phase != .over && $0.status.needsMe } == true ? 1 : 0
+  }
 
   func attach(_ service: ChessGameService?, notifications: NotificationService?) {
     self.notifications = notifications
@@ -112,10 +114,21 @@ final class ChessCoordinator {
     Task { await service?.play(from: from, to: to) }
   }
 
-  func resend() { Task { await service?.resendLastMove() } }
-  func resign() { Task { await service?.resign() } }
-  func offerDraw() { Task { await service?.offerDraw() } }
-  func answerDraw(_ accept: Bool) { Task { await service?.answerDraw(accept: accept) } }
+  func resend() {
+    Task { await service?.resendLastMove() }
+  }
+
+  func resign() {
+    Task { await service?.resign() }
+  }
+
+  func offerDraw() {
+    Task { await service?.offerDraw() }
+  }
+
+  func answerDraw(_ accept: Bool) {
+    Task { await service?.answerDraw(accept: accept) }
+  }
 
   func close() {
     isBoardPresented = false

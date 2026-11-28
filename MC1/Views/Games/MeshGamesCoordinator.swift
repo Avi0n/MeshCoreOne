@@ -20,7 +20,9 @@ final class MeshGamesCoordinator {
   @ObservationIgnored private var hasSnapshot = false
 
   /// Games waiting on the player: their move, an invite or a resend.
-  var attentionCount: Int { games.filter { $0.phase != .over && $0.status.needsMe }.count }
+  var attentionCount: Int {
+    games.filter { $0.phase != .over && $0.status.needsMe }.count
+  }
 
   func attach(_ service: MeshGameService?, notifications: NotificationService?) {
     self.notifications = notifications
@@ -41,7 +43,9 @@ final class MeshGamesCoordinator {
     let previous = before.mapValues(\.phase)
     games = newGames
     if hasSnapshot {
-      for game in newGames { notifyIfNeeded(game, before: before[game.id]) }
+      for game in newGames {
+        notifyIfNeeded(game, before: before[game.id])
+      }
     }
     hasSnapshot = true
     if let invite = newGames.first(where: { $0.phase == .invited && !announcedInvites.contains($0.id) }) {
@@ -127,8 +131,13 @@ final class MeshGamesCoordinator {
     Task { await service?.play(id, move: move) }
   }
 
-  func resend(_ id: String) { Task { await service?.resendLastMove(id) } }
-  func resign(_ id: String) { Task { await service?.resign(id) } }
+  func resend(_ id: String) {
+    Task { await service?.resendLastMove(id) }
+  }
+
+  func resign(_ id: String) {
+    Task { await service?.resign(id) }
+  }
 
   func remove(_ id: String) {
     if presentedGameID == id { presentedGameID = nil }

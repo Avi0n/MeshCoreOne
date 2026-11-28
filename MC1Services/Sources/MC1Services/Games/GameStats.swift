@@ -17,7 +17,9 @@ public struct GameTally: Sendable, Equatable, Codable {
     self.losses = losses
   }
 
-  public var played: Int { wins + draws + losses }
+  public var played: Int {
+    wins + draws + losses
+  }
 
   mutating func add(_ result: GameResult) {
     switch result {

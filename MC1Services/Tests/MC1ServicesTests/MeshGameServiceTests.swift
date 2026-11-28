@@ -48,10 +48,10 @@ struct MeshGameServiceTests {
 
   private static func waitFor(_ service: MeshGameService, _ id: String, _ condition: @Sendable (MeshGame?) -> Bool) async throws {
     for _ in 0..<300 {
-      if condition(await service.games[id]) { return }
+      if await condition(service.games[id]) { return }
       try await Task.sleep(for: .milliseconds(10))
     }
-    Issue.record("condition not reached: \(String(describing: await service.games[id]))")
+    await Issue.record("condition not reached: \(String(describing: service.games[id]))")
   }
 
   /// Alice invites Bob to battleship with random fleets; returns once both sides play.
@@ -74,16 +74,16 @@ struct MeshGameServiceTests {
     return try #require(sea.moveText(shootingAt: GridCell(row: 0, col: 0), answering: nil))
   }
 
-  @Test("message codec")
-  func codec() {
+  @Test
+  func `message codec`() {
     let message = MeshGameMessage(kind: .battleship, gameID: "1a2b", type: "MOV", payload: "7:R:H;F:B3")
     #expect(message.text == "MG:BS:1a2b:MOV:7:R:H;F:B3")
     #expect(MeshGameMessage(text: message.text) == message)
     #expect(MeshGameMessage(text: "MG:XX:1:MOV") == nil)
   }
 
-  @Test("saved games that no longer decode are skipped, the rest load")
-  func lossyStore() async throws {
+  @Test
+  func `saved games that no longer decode are skipped, the rest load`() async throws {
     let url = URL.temporaryDirectory.appending(path: "mesh-games-\(UUID().uuidString).json")
     defer { try? FileManager.default.removeItem(at: url) }
     let wire = GameWire()
@@ -103,8 +103,8 @@ struct MeshGameServiceTests {
     #expect(await reloaded.games.keys.sorted() == [id])
   }
 
-  @Test("the log records sends and receipts, and tracks move delivery")
-  func logAndDelivery() async throws {
+  @Test
+  func `the log records sends and receipts, and tracks move delivery`() async throws {
     let (a, b, _) = await Self.makePair()
     let id = try await Self.startBattleship(a, b)
     #expect(await a.games[id]?.moveDelivery == nil)
@@ -122,13 +122,13 @@ struct MeshGameServiceTests {
     #expect(bLog.first?.type == "INV" && bLog.first?.direction == .received)
   }
 
-  @Test("an unanswered move shows its retries")
-  func deliveryFailure() async throws {
+  @Test
+  func `an unanswered move shows its retries`() async throws {
     let (a, b, wire) = await Self.makePair()
     let id = try await Self.startBattleship(a, b)
     await wire.register(Self.bKey, name: "Bob", service: nil)
 
-    #expect(await a.play(id, move: try await Self.openingShot(a, id)))
+    #expect(try await a.play(id, move: Self.openingShot(a, id)))
     #expect(await a.games[id]?.moveDelivery == .sending(attempt: 1, flood: nil))
     try await Self.waitFor(a, id) {
       if case let .sending(attempt, _)? = $0?.moveDelivery { return attempt >= 2 }
@@ -136,8 +136,8 @@ struct MeshGameServiceTests {
     }
   }
 
-  @Test("a move can be resent by hand before the retries run out")
-  func manualResend() async throws {
+  @Test
+  func `a move can be resent by hand before the retries run out`() async throws {
     let (a, b, wire) = await Self.makePair()
     let id = try await Self.startBattleship(a, b)
 
@@ -154,8 +154,8 @@ struct MeshGameServiceTests {
     #expect(await wire.count(from: Self.aKey, containing: ":MOV:") >= 2)
   }
 
-  @Test("finished games add to the head-to-head record")
-  func stats() async throws {
+  @Test
+  func `finished games add to the head-to-head record`() async throws {
     let wire = GameWire()
     let aStats = GameStatsStore(storeURL: nil)
     let bStats = GameStatsStore(storeURL: nil)
@@ -192,14 +192,14 @@ struct MeshGameServiceTests {
     _ stats: GameStatsStore, _ key: Data, _ condition: @Sendable ([String: GameTally]) -> Bool
   ) async throws {
     for _ in 0..<300 {
-      if condition(await stats.tallies(opponentKey: key)) { return }
+      if await condition(stats.tallies(opponentKey: key)) { return }
       try await Task.sleep(for: .milliseconds(10))
     }
-    Issue.record("tally not reached: \(await stats.tallies(opponentKey: key))")
+    await Issue.record("tally not reached: \(stats.tallies(opponentKey: key))")
   }
 
-  @Test("battleship fleets placed by hand are the ones committed to")
-  func placedFleets() async throws {
+  @Test
+  func `battleship fleets placed by hand are the ones committed to`() async throws {
     let (a, b, wire) = await Self.makePair()
     let id = await a.invite(.battleship, contactKey: Self.bKey, name: "Bob")
     // Nothing is sent while the inviter places the fleet.
@@ -226,8 +226,8 @@ struct MeshGameServiceTests {
     #expect(bSea.opponentCommit == aSea.commit)
   }
 
-  @Test("battleship over the wire ends with honest reveals")
-  func battleship() async throws {
+  @Test
+  func `battleship over the wire ends with honest reveals`() async throws {
     let (a, b, _) = await Self.makePair()
     let id = await a.invite(.battleship, contactKey: Self.bKey, name: "Bob")
     #expect(await a.games[id]?.phase == .placing)
@@ -249,10 +249,12 @@ struct MeshGameServiceTests {
         text = final
       } else {
         var target = turn == 0 ? aTargets.next()! : bTargets.next()!
-        while sea.outgoing[target] != nil { target = turn == 0 ? aTargets.next()! : bTargets.next()! }
+        while sea.outgoing[target] != nil {
+          target = turn == 0 ? aTargets.next()! : bTargets.next()!
+        }
         text = try #require(sea.moveText(shootingAt: target, answering: sea.lastOpponentShot))
       }
-      let count = (await service.games[id]?.moves.count) ?? 0
+      let count = await (service.games[id]?.moves.count) ?? 0
       #expect(await service.play(id, move: text))
       let other = turn == 0 ? b : a
       try await Self.waitFor(other, id) { $0?.moves.count == count + 1 }

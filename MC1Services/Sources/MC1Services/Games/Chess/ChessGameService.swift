@@ -44,10 +44,14 @@ public struct ChessGame: Sendable, Equatable, Codable {
     set { storedLog = newValue }
   }
 
-  public var isMyTurn: Bool { phase == .playing && position.turn == myColor }
+  public var isMyTurn: Bool {
+    phase == .playing && position.turn == myColor
+  }
 
   /// Our latest move on its way to the opponent; nil once they have moved.
-  public var moveDelivery: GameDelivery? { log.moveDelivery(awaitingAck: awaitingAck, ackFailed: ackFailed) }
+  public var moveDelivery: GameDelivery? {
+    log.moveDelivery(awaitingAck: awaitingAck, ackFailed: ackFailed)
+  }
 }
 
 /// Plays CoreChess-compatible chess over DMs: invites, acknowledged moves with retries,
@@ -138,7 +142,7 @@ public actor ChessGameService {
     cancelAllPending()
     game = ChessGame(phase: .inviting, opponentKey: contactKey, opponentName: name)
     publish()
-    await sendReliably(.invite(name: await myName()), type: "INV", retries: 3)
+    await sendReliably(.invite(name: myName()), type: "INV", retries: 3)
   }
 
   public func acceptInvite() async {
@@ -146,7 +150,7 @@ public actor ChessGameService {
     current.phase = .waitingForSetup
     game = current
     publish()
-    await sendReliably(.accept(name: await myName()), type: "ACC", retries: 3)
+    await sendReliably(.accept(name: myName()), type: "ACC", retries: 3)
   }
 
   public func declineInvite() async {
@@ -266,6 +270,7 @@ public actor ChessGameService {
     switch message {
     case .invite:
       break
+
     case .accept:
       guard current.phase == .inviting else { return true }
       cancelPending("INV")
@@ -276,7 +281,7 @@ public actor ChessGameService {
       current.warning = nil
       game = current
       publish()
-      await sendReliably(.setup(name: await myName(), board: nil), type: "RMV", retries: 4)
+      await sendReliably(.setup(name: myName(), board: nil), type: "RMV", retries: 4)
 
     case .decline:
       guard current.phase == .inviting else { return true }

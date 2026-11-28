@@ -4,8 +4,8 @@ import Testing
 
 @Suite("Game rules")
 struct GameRulesTests {
-  @Test("battleship: layout, commitment, a game to the end, honest reveal")
-  func battleship() throws {
+  @Test
+  func `battleship: layout, commitment, a game to the end, honest reveal`() throws {
     let fleetA = Battleship.randomFleet()
     let fleetB = Battleship.randomFleet()
     #expect(Battleship.valid(fleetA))
@@ -24,7 +24,7 @@ struct GameRulesTests {
       do { let ok = a.apply(text, by: player, me: 0); #expect(ok) }
       do { let ok = b.apply(text, by: player, me: 1); #expect(ok) }
     }
-    send(try #require(a.moveText(shootingAt: targets[0], answering: nil)), from: 0)
+    try send(#require(a.moveText(shootingAt: targets[0], answering: nil)), from: 0)
     var index = 1
     while a.outcome == nil {
       // B answers A's shot.
@@ -33,12 +33,17 @@ struct GameRulesTests {
         send(final, from: 1)
         break
       }
-      var bShot = bTargets.next()!
-      while b.outgoing[bShot] != nil { bShot = bTargets.next()! }
-      send(try #require(b.moveText(shootingAt: bShot, answering: shotAtB)), from: 1)
+      // `#require` cannot call a mutating method, so step the iterator first.
+      var next = bTargets.next()
+      var bShot = try #require(next)
+      while b.outgoing[bShot] != nil {
+        next = bTargets.next()
+        bShot = try #require(next)
+      }
+      try send(#require(b.moveText(shootingAt: bShot, answering: shotAtB)), from: 1)
       let shotAtA = try #require(a.lastOpponentShot)
       #expect(a.losingAnswer(to: shotAtA) == nil)
-      send(try #require(a.moveText(shootingAt: targets[index], answering: shotAtA)), from: 0)
+      try send(#require(a.moveText(shootingAt: targets[index], answering: shotAtA)), from: 0)
       index += 1
       moves += 1
       #expect(moves < 40)
@@ -53,8 +58,8 @@ struct GameRulesTests {
     #expect(b.verdict == .honest)
   }
 
-  @Test("battleship: a lie about a hit is caught at the reveal")
-  func battleshipCheat() throws {
+  @Test
+  func `battleship: a lie about a hit is caught at the reveal`() {
     let fleetB = Battleship.randomFleet()
     var a = Battleship(ships: Battleship.randomFleet())
     let b = Battleship(ships: fleetB)

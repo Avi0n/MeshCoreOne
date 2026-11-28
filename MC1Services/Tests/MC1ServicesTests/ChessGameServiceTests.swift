@@ -58,10 +58,10 @@ struct ChessGameServiceTests {
 
   private static func waitFor(_ service: ChessGameService, _ condition: @Sendable (ChessGame?) -> Bool) async throws {
     for _ in 0..<200 {
-      if condition(await service.game) { return }
+      if await condition(service.game) { return }
       try await Task.sleep(for: .milliseconds(10))
     }
-    Issue.record("condition not reached; game=\(String(describing: await service.game))")
+    await Issue.record("condition not reached; game=\(String(describing: service.game))")
   }
 
   private static func sq(_ name: String) -> ChessPosition.Square {
@@ -69,8 +69,8 @@ struct ChessGameServiceTests {
     return .init(row: 8 - chars[1].wholeNumberValue!, col: Int(chars[0].asciiValue! - 97))
   }
 
-  @Test("messages match the CoreChess wire format")
-  func wireFormat() throws {
+  @Test
+  func `messages match the CoreChess wire format`() throws {
     let move = ChessPosition.Move(from: Self.sq("e1"), to: Self.sq("g1"), castle: .wK)
     #expect(CoreChessMessage.move(seq: 12, move: move, piece: "K", hash: "a1b2").text == "CC:MOV:12:7476KwK#a1b2")
     let parsed = try #require(CoreChessMessage(text: "CC:MOV:7:6444P#42f0"))
@@ -83,8 +83,8 @@ struct ChessGameServiceTests {
     #expect(!CoreChessMessage.isNewer(5, than: 5))
   }
 
-  @Test("board snapshot round trip")
-  func board() throws {
+  @Test
+  func `board snapshot round trip`() throws {
     let position = try #require(ChessPosition(fen: "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b Kq e3"))
     let text = CoreChessBoard.encode(position, senderColor: .black)
     #expect(text.count == 48)
@@ -96,8 +96,8 @@ struct ChessGameServiceTests {
     #expect(decoded.position.castling == position.castling)
   }
 
-  @Test("invite, accept, setup and a fool's mate")
-  func fullGame() async throws {
+  @Test
+  func `invite, accept, setup and a fool's mate`() async throws {
     let stats = (GameStatsStore(storeURL: nil), GameStatsStore(storeURL: nil))
     let (alice, bob, wire) = await Self.makePair(stats: stats)
     await alice.invite(contactKey: Self.bobKey, name: "Bob")
@@ -109,7 +109,7 @@ struct ChessGameServiceTests {
     for (player, from, to) in [(alice, "f2", "f3"), (bob, "e7", "e5"), (alice, "g2", "g4"), (bob, "d8", "h4")] {
       #expect(await player.play(from: Self.sq(from), to: Self.sq(to)))
       let other = player === alice ? bob : alice
-      let plies = (await player.game?.ply) ?? 0
+      let plies = await (player.game?.ply) ?? 0
       try await Self.waitFor(other) { $0?.ply == plies }
       try await Self.waitFor(player) { $0?.awaitingAck == false }
     }
@@ -128,8 +128,8 @@ struct ChessGameServiceTests {
     #expect(await wire.texts(from: Self.bobKey).contains("CC:ACK:RMV"))
   }
 
-  @Test("lost move is retried and applied once")
-  func retry() async throws {
+  @Test
+  func `lost move is retried and applied once`() async throws {
     let (alice, bob, wire) = await Self.makePair()
     await alice.invite(contactKey: Self.bobKey, name: "Bob")
     try await Self.waitFor(bob) { $0?.phase == .invited }
@@ -145,8 +145,8 @@ struct ChessGameServiceTests {
     #expect(await bob.game?.history == ["e2-e4"])
   }
 
-  @Test("a move can be resent by hand before the retries run out")
-  func manualResend() async throws {
+  @Test
+  func `a move can be resent by hand before the retries run out`() async throws {
     // A long timeout, so only the manual resend can deliver the move in time.
     let (alice, bob, wire) = await Self.makePair(ackTimeout: .seconds(30))
     await alice.invite(contactKey: Self.bobKey, name: "Bob")
@@ -172,8 +172,8 @@ struct ChessGameServiceTests {
     #expect(await wire.texts(from: Self.aliceKey).count == sent)
   }
 
-  @Test("an invite while playing is declined as busy")
-  func busy() async throws {
+  @Test
+  func `an invite while playing is declined as busy`() async throws {
     let (alice, bob, wire) = await Self.makePair()
     await alice.invite(contactKey: Self.bobKey, name: "Bob")
     try await Self.waitFor(bob) { $0?.phase == .invited }

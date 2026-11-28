@@ -60,9 +60,13 @@ extension Battleship.CheatReason {
 
 extension MeshGame {
   /// The ending as text, or a plain "game over" when it is not known.
-  var endingText: String { ending?.text(opponent: opponentName) ?? GameL10n.Sheet.over }
+  var endingText: String {
+    ending?.text(opponent: opponentName) ?? GameL10n.Sheet.over
+  }
 }
 
 extension ChessGame {
-  var endingText: String { ending?.text(opponent: opponentName) ?? GameL10n.Sheet.over }
+  var endingText: String {
+    ending?.text(opponent: opponentName) ?? GameL10n.Sheet.over
+  }
 }

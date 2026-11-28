@@ -54,7 +54,7 @@ public struct Battleship: Sendable, Equatable, Codable {
   /// Opponent's shots at us and what we answered.
   public private(set) var incoming: [GridCell: Mark] = [:]
 
-  // Opponent side
+  /// Opponent side
   public var opponentCommit: String?
   /// Our shots and their answers.
   public private(set) var outgoing: [GridCell: Mark] = [:]
@@ -72,7 +72,9 @@ public struct Battleship: Sendable, Equatable, Codable {
 
   // MARK: Layout
 
-  public static func randomSalt() -> String { GameSecret.randomSalt() }
+  public static func randomSalt() -> String {
+    GameSecret.randomSalt()
+  }
 
   public static func randomFleet() -> [Ship] {
     while true {
@@ -147,8 +149,13 @@ public struct Battleship: Sendable, Equatable, Codable {
     GameSecret.commitment(layout, salt: salt)
   }
 
-  public var layoutText: String { Self.encode(ships) }
-  public var commit: String { Self.commitment(layout: layoutText, salt: salt) }
+  public var layoutText: String {
+    Self.encode(ships)
+  }
+
+  public var commit: String {
+    Self.commitment(layout: layoutText, salt: salt)
+  }
 
   public static func cellName(_ cell: GridCell) -> String {
     String(UnicodeScalar(UInt8(65 + cell.col))) + "\(cell.row + 1)"
@@ -254,5 +261,7 @@ public struct Battleship: Sendable, Equatable, Codable {
     ships.filter { ship in !ship.cells.allSatisfy { incoming[$0] == .hit || incoming[$0] == .sunk } }.count
   }
 
-  public var opponentShipsSunk: Int { outgoing.values.filter { $0 == .sunk }.count }
+  public var opponentShipsSunk: Int {
+    outgoing.values.filter { $0 == .sunk }.count
+  }
 }

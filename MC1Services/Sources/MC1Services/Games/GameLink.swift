@@ -11,7 +11,9 @@ public struct GameHop: Sendable, Codable, Equatable {
     self.name = name
   }
 
-  public var label: String { name.map { "\($0) (\(hex))" } ?? hex }
+  public var label: String {
+    name.map { "\($0) (\(hex))" } ?? hex
+  }
 }
 
 /// What the radio told us about one game DM we sent.
@@ -203,7 +205,7 @@ struct GameRadioLink: Sendable {
 
   private func named(_ hashes: [Data]) async -> [GameHop] {
     guard !hashes.isEmpty else { return [] }
-    let contacts = (try? await dataStore.fetchContacts(radioID: radioID)) ?? []
+    let contacts = await (try? dataStore.fetchContacts(radioID: radioID)) ?? []
     return hashes.map { hash in
       let matches = contacts.filter { $0.publicKey.starts(with: hash) }
       let match = matches.first { $0.type == .repeater } ?? matches.first

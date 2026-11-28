@@ -3,7 +3,9 @@ import Foundation
 public enum MeshGameKind: String, Sendable, Codable, CaseIterable, Identifiable {
   case battleship = "BS"
 
-  public var id: String { rawValue }
+  public var id: String {
+    rawValue
+  }
 
   public var symbol: String {
     switch self {
@@ -77,7 +79,10 @@ public struct MeshGame: Sendable, Equatable, Codable, Identifiable {
   }
 
   /// `<kind>:<gameID>`
-  public var id: String { kind.rawValue + ":" + gameID }
+  public var id: String {
+    kind.rawValue + ":" + gameID
+  }
+
   public let kind: MeshGameKind
   public let gameID: String
   public var opponentKey: Data
@@ -106,10 +111,14 @@ public struct MeshGame: Sendable, Equatable, Codable, Identifiable {
     set { storedLog = newValue }
   }
 
-  public var isMyTurn: Bool { phase == .playing && board.turn == me && !awaitingAck }
+  public var isMyTurn: Bool {
+    phase == .playing && board.turn == me && !awaitingAck
+  }
 
   /// Our latest move on its way to the opponent; nil once they have moved.
-  public var moveDelivery: GameDelivery? { log.moveDelivery(awaitingAck: awaitingAck, ackFailed: ackFailed) }
+  public var moveDelivery: GameDelivery? {
+    log.moveDelivery(awaitingAck: awaitingAck, ackFailed: ackFailed)
+  }
 }
 
 /// Wire format: `MG:<kind>:<gameID>:<TYPE>[:<payload>]` as plain-text DMs.
@@ -212,7 +221,9 @@ public actor MeshGameService {
     subscribers[id] = nil
   }
 
-  private var sortedGames: [MeshGame] { games.values.sorted { $0.updatedAt > $1.updatedAt } }
+  private var sortedGames: [MeshGame] {
+    games.values.sorted { $0.updatedAt > $1.updatedAt }
+  }
 
   private func store(_ game: MeshGame) {
     var game = game
@@ -247,7 +258,7 @@ public actor MeshGameService {
     )
     store(game)
     if game.phase == .inviting {
-      await sendReliably(game, type: "INV", payload: await namePayload(for: game), retries: 3)
+      await sendReliably(game, type: "INV", payload: namePayload(for: game), retries: 3)
     }
     return game.id
   }
@@ -258,7 +269,7 @@ public actor MeshGameService {
     guard Self.useFleet(fleet, in: &game) else { return }
     game.phase = .inviting
     store(game)
-    await sendReliably(game, type: "INV", payload: await namePayload(for: game), retries: 3)
+    await sendReliably(game, type: "INV", payload: namePayload(for: game), retries: 3)
   }
 
   /// Accepts an invite; for battleship, `fleet` replaces the random one (nil keeps it).
@@ -267,7 +278,7 @@ public actor MeshGameService {
     guard Self.useFleet(fleet, in: &game) else { return }
     game.phase = .playing
     store(game)
-    await sendReliably(game, type: "ACC", payload: await namePayload(for: game), retries: 3)
+    await sendReliably(game, type: "ACC", payload: namePayload(for: game), retries: 3)
   }
 
   /// Puts a chosen battleship fleet on the board before it is committed to.
@@ -450,7 +461,7 @@ public actor MeshGameService {
       publish()
       // Our accept was lost: answer again.
       if existing.phase == .playing, existing.me == 1, existing.moves.isEmpty {
-        await transmit(reply(existing, "ACC", await namePayload(for: existing)), to: fromKey)
+        await transmit(reply(existing, "ACC", namePayload(for: existing)), to: fromKey)
       }
       return
     }

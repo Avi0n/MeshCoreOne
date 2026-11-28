@@ -81,9 +81,9 @@ struct GamesPickerSheet: View {
   }
 }
 
-extension GamesPickerSheet {
+private extension GamesPickerSheet {
   /// Played games against this contact, as wins–draws–losses.
-  fileprivate var scoreRows: [(title: String, tally: GameTally)] {
+  var scoreRows: [(title: String, tally: GameTally)] {
     let games = [(GameStatsStore.chess, GameL10n.Kind.chess)] + MeshGameKind.allCases.map { ($0.rawValue, $0.title) }
     return games.compactMap { key, title in
       guard let tally = tallies[key], tally.played > 0 else { return nil }
@@ -92,7 +92,7 @@ extension GamesPickerSheet {
   }
 
   /// Runs `action` once this sheet is gone, so the game sheet can be presented from the root.
-  fileprivate func afterDismiss(_ action: @escaping @MainActor () -> Void) {
+  func afterDismiss(_ action: @escaping @MainActor () -> Void) {
     dismiss()
     Task { @MainActor in
       try? await Task.sleep(for: .milliseconds(450))

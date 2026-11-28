@@ -20,7 +20,9 @@ struct GameStatus: Equatable {
   }
 
   /// The player has something to do: move, answer an invite or resend.
-  var needsMe: Bool { tone == .attention || tone == .problem }
+  var needsMe: Bool {
+    tone == .attention || tone == .problem
+  }
 
   static func delivery(_ delivery: GameDelivery, opponent: String) -> GameStatus {
     switch delivery {

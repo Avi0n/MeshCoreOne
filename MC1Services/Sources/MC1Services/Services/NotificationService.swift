@@ -945,8 +945,8 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
       }
       // Handle reaction notifications (includes messageID for scroll-to)
       else if notificationType == "reaction",
-         let messageIDString = userInfo["messageID"] as? String,
-         let messageID = UUID(uuidString: messageIDString) {
+              let messageIDString = userInfo["messageID"] as? String,
+              let messageID = UUID(uuidString: messageIDString) {
         let contactID = (userInfo["contactID"] as? String).flatMap { UUID(uuidString: $0) }
         let channelIndex = (userInfo["channelIndex"] as? Int).map { UInt8($0) }
         let radioID = (userInfo["radioID"] as? String).flatMap { UUID(uuidString: $0) }

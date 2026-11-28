@@ -115,8 +115,13 @@ struct GameDebugView: View {
 
   // MARK: Derived
 
-  private var sent: [GameLogEntry] { log.filter { $0.direction == .sent } }
-  private var retries: Int { sent.filter { $0.attempt > 1 }.count }
+  private var sent: [GameLogEntry] {
+    log.filter { $0.direction == .sent }
+  }
+
+  private var retries: Int {
+    sent.filter { $0.attempt > 1 }.count
+  }
 
   private var radioAckSummary: String {
     let tracked = sent.filter { $0.radioAck != nil && $0.radioAck != .waiting }
