@@ -7,6 +7,8 @@ import SwiftUI
 struct ChatShareMenu: View {
   let onInsert: (String) -> Void
   let onPaint: () -> Void
+  /// Opens the games picker for this contact; hidden when nil.
+  var onGames: (() -> Void)?
 
   @Environment(\.appState) private var appState
 
@@ -74,6 +76,14 @@ struct ChatShareMenu: View {
 
   var body: some View {
     Menu {
+      if let onGames {
+        Section {
+          Button(action: onGames) {
+            Label(GameL10n.Picker.menuItem, systemImage: "gamecontroller")
+          }
+        }
+      }
+
       Button {
         shareLocation()
       } label: {

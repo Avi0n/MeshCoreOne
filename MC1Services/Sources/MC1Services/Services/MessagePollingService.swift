@@ -52,6 +52,9 @@ actor MessagePollingService {
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
   private var cliMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
+  /// Game protocol DMs (`CC:` CoreChess). Returns true when consumed; such DMs never reach the chat.
+  private var gameMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Bool)?
+
   /// Event monitoring task
   private var eventMonitorTask: Task<Void, Never>?
   private var eventSubscription: Task<(id: UUID, stream: AsyncStream<MeshEvent>), Never>?
@@ -112,6 +115,11 @@ actor MessagePollingService {
     signedMessageHandler = handler
   }
 
+  /// Set handler for game protocol DMs.
+  func setGameMessageHandler(_ handler: (@Sendable (ContactMessage, ContactDTO?) async -> Bool)?) {
+    gameMessageHandler = handler
+  }
+
   /// Set handler for CLI responses (textType = 0x01)
   func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
     cliMessageHandler = handler
@@ -126,6 +134,7 @@ actor MessagePollingService {
     channelDatagramHandler = nil
     signedMessageHandler = nil
     cliMessageHandler = nil
+    gameMessageHandler = nil
   }
 
   /// Whether any message handler is currently wired.
@@ -377,6 +386,17 @@ actor MessagePollingService {
     guard let radioID = currentRadioID else {
       logger.warning("Received message but no radio ID set")
       return
+    }
+
+    // Game protocol DMs (CC: CoreChess, MG: other games) are consumed by the game and never reach the chat.
+    if message.textType == MeshTextType.plain.rawValue,
+       message.text.hasPrefix(CoreChessMessage.prefix) || message.text.hasPrefix(MeshGameMessage.prefix),
+       let gameMessageHandler {
+      let contact = try? await dataStore.fetchContact(
+        radioID: radioID,
+        publicKeyPrefix: message.senderPublicKeyPrefix
+      )
+      if await gameMessageHandler(message, contact) { return }
     }
 
     switch message.textType {

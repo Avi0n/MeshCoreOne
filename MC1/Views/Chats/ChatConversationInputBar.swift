@@ -15,8 +15,10 @@ struct ChatConversationInputBar: View {
   @State private var drawing = PixelPaintDraft()
   @State private var isShowingPainter = false
 
+  @State private var showingGames = false
+
   var body: some View {
-    inputBar
+    barWithGames
       .fullScreenCover(isPresented: $isShowingPainter) {
         PixelPaintEditor(draft: drawing, transport: drawingTransport, senderName: senderName, onSend: sendDrawing)
       }
@@ -25,6 +27,22 @@ struct ChatConversationInputBar: View {
         isShowingPainter = false
       }
       .onDisappear { drawing.remove() }
+      .sheet(isPresented: $showingGames) {
+        if case let .dm(contact) = conversationType {
+          GamesPickerSheet(contact: contact)
+            .presentationDetents([.medium, .large])
+        }
+      }
+  }
+
+  /// In a DM, running games with the contact sit above the input bar.
+  private var barWithGames: some View {
+    VStack(spacing: 0) {
+      if case let .dm(contact) = conversationType {
+        ActiveGamesStrip(contact: contact)
+      }
+      inputBar
+    }
   }
 
   @ViewBuilder
@@ -37,7 +55,7 @@ struct ChatConversationInputBar: View {
         placeholder: L10n.Chats.Chats.Input.Placeholder.directMessage,
         maxBytes: ProtocolLimits.maxDirectMessageLength,
         isEncrypted: true,
-        leading: { ChatShareMenu(onInsert: insertShared, onPaint: openPainter) },
+        leading: { ChatShareMenu(onInsert: insertShared, onPaint: openPainter, onGames: gamesAction) },
         onSend: send
       )
 
@@ -53,7 +71,7 @@ struct ChatConversationInputBar: View {
           : L10n.Chats.Chats.Channel.typePrivate,
         maxBytes: maxBytes,
         isEncrypted: channel.isEncryptedChannel,
-        leading: { ChatShareMenu(onInsert: insertShared, onPaint: openPainter) },
+        leading: { ChatShareMenu(onInsert: insertShared, onPaint: openPainter, onGames: gamesAction) },
         onSend: send
       )
     }
@@ -96,6 +114,11 @@ struct ChatConversationInputBar: View {
       )
     }
     drawing.track(task)
+  }
+
+  private var gamesAction: (() -> Void)? {
+    guard case .dm = conversationType else { return nil }
+    return { showingGames = true }
   }
 
   private func send(_ text: String) {

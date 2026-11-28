@@ -68,6 +68,7 @@ targets:
           - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Onboarding.strings
           - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/RemoteNodes.strings
           - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/WhatsNew.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Games.strings
         outputFiles:
           - $(PROJECT_DIR)/MC1/Resources/Generated/L10n.swift
         basedOnDependencyAnalysis: false

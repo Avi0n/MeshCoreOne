@@ -9,6 +9,7 @@ strings:
       - MC1/Resources/Localization/en.lproj/Onboarding.strings
       - MC1/Resources/Localization/en.lproj/RemoteNodes.strings
       - MC1/Resources/Localization/en.lproj/WhatsNew.strings
+      - MC1/Resources/Localization/en.lproj/Games.strings
     outputs:
       - templateName: structured-swift5
         output: MC1/Resources/Generated/L10n.swift
